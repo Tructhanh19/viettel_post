@@ -1,0 +1,277 @@
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5><i class="fas fa-user-tag"></i> NGƯỜI NHẬN</h5>
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" id="useNewAddress">
+      <label class="form-check-label" for="useNewAddress">Sử dụng địa danh mới</label>
+    </div>
+  </div>
+  <div class="card-body">
+    <!-- Delivery Type Options -->
+    <div class="mb-3">
+      <label class="form-label">Tùy chọn nơi nhận<span class="text-danger">*</span></label>
+      <div class="delivery-options">
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="deliveryType" value="address" id="deliveryAddress" checked>
+          <label class="form-check-label" for="deliveryAddress">Theo địa chỉ KH nhận</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="deliveryType" value="postoffice" id="deliveryPost">
+          <label class="form-check-label" for="deliveryPost">Nhận tại bưu cục</label>
+          <i class="fas fa-info-circle text-primary ms-1" title="Thông tin nhận tại bưu cục"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phone Number -->
+    <div class="mb-3">
+      <label class="form-label">Điện thoại<span class="text-danger">*</span></label>
+      <input type="tel" class="form-control" id="receiverPhone" placeholder="Nhập số điện thoại để tự điền thông tin người nhận">
+      <div class="text-danger small mt-1" id="phoneError" style="display: none;">
+        Số điện thoại không hợp lệ
+      </div>
+    </div>
+
+    <!-- Full Name -->
+    <div class="mb-3">
+      <label class="form-label">Họ tên<span class="text-danger">*</span></label>
+      <input type="text" class="form-control" id="receiverName" placeholder="Nhập tên người nhận">
+      <div class="text-danger small mt-1" id="nameError" style="display: none;">
+        Họ tên không được để trống
+      </div>
+    </div>
+
+    <!-- Address Section - Normal Mode -->
+    <div id="normalAddressMode">
+      <div class="mb-3">
+        <label class="form-label">Địa chỉ<span class="text-danger">*</span></label>
+        <textarea class="form-control" rows="2" id="receiverAddress" placeholder="Nhập địa chỉ (số nhà/tên đường, phường/xã, quận/huyện, tỉnh/thành phố)"></textarea>
+        <div class="text-danger small mt-1" id="addressError" style="display: none;">
+          Địa chỉ không được để trống
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <div class="custom-select-search" id="provinceSelect">
+            <div class="select-display" data-placeholder="Tỉnh/Thành phố">
+              <span>Tỉnh/Thành phố</span>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="select-dropdown">
+              <div class="search-container">
+                <input type="text" class="search-input" placeholder="Tìm kiếm Tỉnh/Thành phố">
+              </div>
+              <div class="options-container">
+                <div class="dropdown-option" data-value="hanoi">TP.Hà Nội</div>
+                <div class="dropdown-option" data-value="hcm">TP.Hồ Chí Minh</div>
+                <div class="dropdown-option" data-value="haiphong">TP.Hải Phòng</div>
+                <div class="dropdown-option" data-value="danang">TP.Đà Nẵng</div>
+                <div class="dropdown-option" data-value="cantho">TP.Cần Thơ</div>
+                <div class="dropdown-option" data-value="tiengiang">T.Tiền Giang</div>
+                <div class="no-results" style="display: none;">Không tìm thấy kết quả</div>
+              </div>
+            </div>
+          </div>
+          <div class="text-danger small mt-1" id="provinceError" style="display: none;">
+            Tỉnh/Thành phố không được để trống
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="custom-select-search" id="districtSelect">
+            <div class="select-display" data-placeholder="Huyện/Quận">
+              <span>Huyện/Quận</span>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="select-dropdown">
+              <div class="search-container">
+                <input type="text" class="search-input" placeholder="Tìm kiếm Huyện/Quận">
+              </div>
+              <div class="options-container">
+                <div class="no-results">Vui lòng chọn Tỉnh/Thành phố trước</div>
+              </div>
+            </div>
+          </div>
+          <div class="text-danger small mt-1" id="districtError" style="display: none;">
+            Huyện/Quận không được để trống
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <div class="custom-select-search" id="wardSelect">
+            <div class="select-display" data-placeholder="Xã/Phường">
+              <span>Xã/Phường</span>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="select-dropdown">
+              <div class="search-container">
+                <input type="text" class="search-input" placeholder="Tìm kiếm Xã/Phường">
+              </div>
+              <div class="options-container">
+                <div class="no-results">Vui lòng chọn Huyện/Quận trước</div>
+              </div>
+            </div>
+          </div>
+          <div class="text-danger small mt-1" id="wardError" style="display: none;">
+            Xã/Phường không được để trống
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="custom-select-search" id="streetSelect">
+            <div class="select-display" data-placeholder="Đường/Thôn/Xóm">
+              <span>Đường/Thôn/Xóm</span>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="select-dropdown">
+              <div class="search-container">
+                <input type="text" class="search-input" placeholder="Tìm kiếm Đường/Thôn/Xóm">
+              </div>
+              <div class="options-container">
+                <div class="no-results">Vui lòng chọn Xã/Phường trước</div>
+              </div>
+            </div>
+          </div>
+          <div class="text-danger small mt-1" id="streetError" style="display: none;">
+            Đường/Thôn/Xóm không được để trống
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Address Section - New Address Mode -->
+    <div id="newAddressMode" style="display: none;">
+      <div class="mb-3">
+        <label class="form-label">Địa chỉ<span class="text-danger">*</span></label>
+        <textarea class="form-control" rows="2" id="newReceiverAddress" placeholder="Nhập địa chỉ (số nhà/tên đường, phường/xã, đặc khu, tỉnh/thành phố)"></textarea>
+        <div class="text-danger small mt-1" id="newAddressError" style="display: none;">
+          Địa chỉ không được để trống
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <div class="custom-select-search" id="newProvinceSelect">
+          <div class="select-display" data-placeholder="Tỉnh/Thành phố">
+            <span>Tỉnh/Thành phố</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="select-dropdown">
+            <div class="search-container">
+              <input type="text" class="search-input" placeholder="Tìm kiếm Tỉnh/Thành phố">
+            </div>
+            <div class="options-container">
+              <div class="dropdown-option" data-value="hanoi">TP.Hà Nội</div>
+              <div class="dropdown-option" data-value="hcm">TP.Hồ Chí Minh</div>
+              <div class="dropdown-option" data-value="haiphong">TP.Hải Phòng</div>
+              <div class="dropdown-option" data-value="danang">TP.Đà Nẵng</div>
+              <div class="dropdown-option" data-value="cantho">TP.Cần Thơ</div>
+              <div class="dropdown-option" data-value="tiengiang">T.Tiền Giang</div>
+              <div class="no-results" style="display: none;">Không tìm thấy kết quả</div>
+            </div>
+          </div>
+        </div>
+        <div class="text-danger small mt-1" id="newProvinceError" style="display: none;">
+          Tỉnh/Thành phố không được để trống
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <div class="custom-select-search" id="newWardSelect">
+            <div class="select-display" data-placeholder="Xã/Phường/Đặc khu">
+              <span>Xã/Phường/Đặc khu</span>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="select-dropdown">
+              <div class="search-container">
+                <input type="text" class="search-input" placeholder="Tìm kiếm Xã/Phường/Đặc khu">
+              </div>
+              <div class="options-container">
+                <div class="no-results">Vui lòng chọn Tỉnh/Thành phố trước</div>
+              </div>
+            </div>
+          </div>
+          <div class="text-danger small mt-1" id="newWardError" style="display: none;">
+            Xã/Phường/Đặc khu không được để trống
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="custom-select-search" id="newStreetSelect">
+            <div class="select-display" data-placeholder="Đường/Thôn/Xóm">
+              <span>Đường/Thôn/Xóm</span>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="select-dropdown">
+              <div class="search-container">
+                <input type="text" class="search-input" placeholder="Tìm kiếm Đường/Thôn/Xóm">
+              </div>
+              <div class="options-container">
+                <div class="no-results">Vui lòng chọn Xã/Phường trước</div>
+              </div>
+            </div>
+          </div>
+          <div class="text-danger small mt-1" id="newStreetError" style="display: none;">
+            Đường/Thôn/Xóm không được để trống
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delivery Time with Custom Dropdown -->
+    <div class="mb-3">
+      <label class="form-label">Thời gian hẹn giao</label>
+      <div class="position-relative">
+        <div class="custom-select" id="deliveryTimeSelect">
+          <div class="select-display" id="deliveryTimeDisplay">
+            <span>Cả ngày</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="select-dropdown" id="deliveryTimeDropdown">
+            <div class="dropdown-option" data-value="allday">Cả ngày</div>
+            <div class="dropdown-option" data-value="morning">Sáng (7h30 - 12h00)</div>
+            <div class="dropdown-option" data-value="afternoon">Chiều (13h30 - 18h00)</div>
+            <div class="dropdown-option" data-value="sunday">Chủ nhật</div>
+            <div class="dropdown-option" data-value="holiday">Ngày nghỉ lễ</div>
+            <div class="dropdown-option" data-value="evening">Tối (18h30 - 21h00)</div>
+            <div class="dropdown-option" data-value="business">Giờ hành chính (7h30 - 11h30; 13h30 - 17h30)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Tag Section -->
+    <div class="mb-3" id="receiverTagSection" style="display: none;">
+      <div class="row align-items-center">
+        <div class="col-md-4">
+          <label class="form-label">Thẻ Tag:</label>
+        </div>
+        <div class="col-md-8">
+          <button class="btn btn-outline-danger btn-sm" id="addTagBtn">
+            <i class="fas fa-plus"></i>
+          </button>
+          <div class="tags-container mt-2" id="tagsContainer">
+            <!-- Tags will be dynamically added here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tag Selection Modal -->
+    <div class="tag-modal" id="tagModal" style="display: none;">
+      <div class="tag-modal-content">
+        <div class="tag-modal-header">
+          <h6>Chọn thẻ tag</h6>
+          <button class="tag-modal-close" id="closeTagModal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="tag-modal-body">
+          <div class="available-tags" id="availableTags">
+            <!-- Available tags will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

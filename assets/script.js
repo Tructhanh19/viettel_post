@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initUserDropdown();
   initSubmenus();
   initOutsideClickHandler();
+  initContentLoader();
 });
 
 /**
@@ -111,6 +112,69 @@ function closeAllSubmenus() {
       menu.classList.remove("open");
     }
   });
+}
+
+/**
+ * Initialize content loader for dynamic page loading
+ */
+function initContentLoader() {
+  // Add click handlers for links with data-content attribute
+  document.querySelectorAll('a[data-content]').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const contentUrl = this.getAttribute('data-content');
+      loadContent(contentUrl);
+      
+      // Update active menu item
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      this.closest('.menu-item').classList.add('active');
+    });
+  });
+}
+
+/**
+ * Load content dynamically into main content area
+ * @param {string} url - URL of the content to load
+ */
+async function loadContent(url) {
+  const mainContent = document.getElementById('mainContent');
+  
+  try {
+    // Show loading state
+    mainContent.innerHTML = '<div class="text-center p-5"><i class="fas fa-spinner fa-spin fa-2x"></i><p class="mt-3">Đang tải...</p></div>';
+    
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const content = await response.text();
+    mainContent.innerHTML = content;
+    
+    // Execute any scripts in the loaded content
+    const scripts = mainContent.querySelectorAll('script');
+    scripts.forEach(script => {
+      const newScript = document.createElement('script');
+      if (script.src) {
+        newScript.src = script.src;
+      } else {
+        newScript.textContent = script.textContent;
+      }
+      document.head.appendChild(newScript);
+      document.head.removeChild(newScript);
+    });
+    
+  } catch (error) {
+    console.error('Error loading content:', error);
+    mainContent.innerHTML = `
+      <div class="alert alert-danger text-center">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p class="mt-2">Không thể tải nội dung. Vui lòng thử lại.</p>
+      </div>
+    `;
+  }
 }
 
 /**

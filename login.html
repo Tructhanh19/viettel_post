@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập - Viettel Post Dashboard</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/auth.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">VP</div>
+            <h1 class="auth-title">Đăng Nhập</h1>
+            <p class="auth-subtitle">Chào mừng bạn quay lại!</p>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email hoặc Số điện thoại</label>
+                    <input type="text" id="email" name="email" required>
+                    <div class="error-msg" id="emailError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Mật khẩu</label>
+                    <input type="password" id="password" name="password" required>
+                    <div class="error-msg" id="passwordError"></div>
+                </div>
+                
+                <button type="submit" class="auth-button">Đăng Nhập</button>
+            </form>
+            
+            <p>Chưa có tài khoản? <a href="register.html" class="auth-link">Đăng ký ngay</a></p>
+        </div>
+    </div>
+
+    <script src="assets/utils.js"></script>
+    <script src="assets/script.js"></script>
+    <script>
+        // Thêm event cho form (sử dụng utils.js để validate)
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!validateEmail(email) && !validatePhone(email)) {
+                document.getElementById('emailError').textContent = 'Email hoặc số điện thoại không hợp lệ';
+                document.getElementById('emailError').style.display = 'block';
+                return;
+            }
+            if (password.length < 6) {
+                document.getElementById('passwordError').textContent = 'Mật khẩu phải ít nhất 6 ký tự';
+                document.getElementById('passwordError').style.display = 'block';
+                return;
+            }
+            
+            // Giả lập success (thay bằng API call thật)
+            showNotification('Đăng nhập thành công!', 'success');
+            window.location.href = 'index.html'; // Chuyển về dashboard
+        });
+    </script>
+</body>
+</html>

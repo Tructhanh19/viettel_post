@@ -1,0 +1,300 @@
+<link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+/>
+<link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    rel="stylesheet"
+/>
+<style>
+    body {
+        background-color: #fff;
+    }
+    .nav-tabs .nav-link.active {
+        background-color: #f5f5f5;
+        border-color: #dee2e6 #dee2e6 #fff;
+    }
+    .search-box {
+        width: 250px;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 40px 0;
+        color: #6c757d;
+    }
+    .empty-state img {
+        width: 80px;
+        opacity: 0.6;
+    }
+    .table th {
+        background-color: #f8f9fa;
+    }
+    .table td,
+    .table th {
+        white-space: nowrap;
+    }
+    .pagination {
+        margin-bottom: 0;
+    }
+</style>
+
+<div class="container mt-4">
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a
+                class="nav-link active"
+                data-bs-toggle="tab"
+                href="#tab-nhanvien"
+            >
+                Thông tin nhân viên
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#tab-captren">
+                Thông tin cấp trên
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- Tab 1 -->
+        <div class="tab-pane fade show active" id="tab-nhanvien">
+            <div class="d-flex align-items-center mb-3 gap-2">
+                <div class="input-group search-box">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input
+                        type="text"
+                        class="form-control border-start-0"
+                        placeholder="Họ và tên, SĐT, Email"
+                    />
+                </div>
+
+                <select class="form-select w-auto">
+                    <option selected>Tất cả trạng thái</option>
+                    <option>Đang hoạt động</option>
+                    <option>Ngừng hoạt động</option>
+                </select>
+
+                <button class="btn btn-danger ms-auto">
+                    <i class="bi bi-plus-circle"></i> Thêm nhân viên
+                </button>
+            </div>
+
+            <div class="table-responsive border rounded">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Họ và tên</th>
+                            <th>Email</th>
+                            <th>Số điện thoại</th>
+                            <th>Vai trò</th>
+                            <th>Địa chỉ</th>
+                            <th>Ngày hoạt động</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Hà Minh Tiến</td>
+                            <td>minhtien@gmail.com</td>
+                            <td>0888639023</td>
+                            <td>Quản trị viên</td>
+                            <td>
+                                178 Gò Dầu, P.Tân Sơn Nhì, Q.Tân Phú, TP.Hồ Chí
+                                Minh
+                            </td>
+                            <td>01/10/2025</td>
+                            <td>
+                                <span class="badge bg-success"
+                                    >Đang hoạt động</span
+                                >
+                            </td>
+                            <td>
+                                <i
+                                    class="bi bi-pencil-square text-primary me-2"
+                                    style="cursor: pointer"
+                                ></i>
+                                <i
+                                    class="bi bi-trash text-danger"
+                                    style="cursor: pointer"
+                                ></i>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Nguyễn Văn A</td>
+                            <td>vana@example.com</td>
+                            <td>0905123456</td>
+                            <td>Nhân viên</td>
+                            <td>25 Nguyễn Thị Minh Khai, Quận 1, TP.HCM</td>
+                            <td>05/09/2025</td>
+                            <td>
+                                <span class="badge bg-success"
+                                    >Đang hoạt động</span
+                                >
+                            </td>
+                            <td>
+                                <i
+                                    class="bi bi-pencil-square text-primary me-2"
+                                    style="cursor: pointer"
+                                ></i>
+                                <i
+                                    class="bi bi-trash text-danger"
+                                    style="cursor: pointer"
+                                ></i>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Trần Thị B</td>
+                            <td>tranthib@example.com</td>
+                            <td>0987654321</td>
+                            <td>Kế toán</td>
+                            <td>199 Lý Thường Kiệt, P.15, Q.11, TP.HCM</td>
+                            <td>18/08/2025</td>
+                            <td>
+                                <span class="badge bg-warning text-dark"
+                                    >Tạm ngừng</span
+                                >
+                            </td>
+                            <td>
+                                <i
+                                    class="bi bi-pencil-square text-primary me-2"
+                                    style="cursor: pointer"
+                                ></i>
+                                <i
+                                    class="bi bi-trash text-danger"
+                                    style="cursor: pointer"
+                                ></i>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Phạm Văn C</td>
+                            <td>phamc@example.com</td>
+                            <td>0912345678</td>
+                            <td>Nhân viên giao hàng</td>
+                            <td>
+                                489 Trường Chinh, P.Tân Thới Nhất, Q.12, TP.HCM
+                            </td>
+                            <td>20/07/2025</td>
+                            <td>
+                                <span class="badge bg-danger"
+                                    >Ngừng hoạt động</span
+                                >
+                            </td>
+                            <td>
+                                <i
+                                    class="bi bi-pencil-square text-primary me-2"
+                                    style="cursor: pointer"
+                                ></i>
+                                <i
+                                    class="bi bi-trash text-danger"
+                                    style="cursor: pointer"
+                                ></i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    Bản ghi mỗi trang
+                    <select class="form-select d-inline-block w-auto ms-1">
+                        <option>10</option>
+                        <option>20</option>
+                        <option>50</option>
+                    </select>
+                </div>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">‹</a>
+                        </li>
+                        <li class="page-item active">
+                            <a class="page-link" href="#">1</a>
+                        </li>
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">›</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Tab 2 -->
+        <div class="tab-pane fade" id="tab-captren">
+            <div class="d-flex align-items-center mb-3 gap-2">
+                <div class="input-group search-box">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input
+                        type="text"
+                        class="form-control border-start-0"
+                        placeholder="Họ và tên, SĐT, Email"
+                    />
+                </div>
+
+                <button class="btn btn-danger ms-auto">
+                    <i class="bi bi-plus-circle"></i> Thêm cấp trên
+                </button>
+            </div>
+
+            <div class="table-responsive border rounded">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Họ và tên</th>
+                            <th>Số điện thoại</th>
+                            <th>Email</th>
+                            <th>Địa chỉ</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" class="empty-state">
+                                <img
+                                    src="https://cdn-icons-png.flaticon.com/512/4076/4076500.png"
+                                    alt="Empty"
+                                />
+                                <div class="mt-2">
+                                    Không có dữ liệu được hiển thị
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    Bản ghi mỗi trang
+                    <select class="form-select d-inline-block w-auto ms-1">
+                        <option>10</option>
+                        <option>20</option>
+                        <option>50</option>
+                    </select>
+                </div>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">‹</a>
+                        </li>
+                        <li class="page-item active">
+                            <a class="page-link" href="#">1</a>
+                        </li>
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">›</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

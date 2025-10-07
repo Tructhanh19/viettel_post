@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Viettel Post UI</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="assets/style.css" />
+    <link rel="stylesheet" href="assets/notifications.css" />
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-left">
+        <button class="menu-toggle" id="menuToggle">
+          <span class="hamburger"></span>
+          <span class="hamburger"></span>
+          <span class="hamburger"></span>
+        </button>
+        <div class="logo">viettel <span>post</span></div>
+      </div>
+      <div class="search">
+        <input type="text" placeholder="Tra cứu đơn hàng" />
+        <button class="search-btn"><i class="fas fa-search"></i></button>
+      </div>
+      <div class="user">
+        <div class="user-dropdown" id="userDropdown">
+          <div class="user-info">
+            <span class="username">Thanh Trúc Nguyễn Thị</span>
+            <div class="user-avatar">
+              <img src="https://via.placeholder.com/40" alt="avatar" />
+              <i class="fas fa-chevron-down dropdown-arrow"></i>
+            </div>
+          </div>
+          <div class="user-menu">
+            <ul>
+              <li>
+                <a href="#"><i class="fas fa-cog"></i> Cài đặt tài khoản</a>
+              </li>
+              <li>
+                <a href="#"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <nav class="sidebar-nav">
+        <ul class="menu">
+          <li class="menu-item active">
+            <a href="#" class="menu-link">
+              <i class="icon fas fa-home"></i>
+              <span class="menu-text">Trang chủ</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="#" class="menu-link">
+              <i class="icon fas fa-plus-circle"></i>
+              <span class="menu-text">Tạo đơn</span>
+            </a>
+          </li>
+          <li class="menu-item has-submenu" id="quanLyMenu">
+            <a href="#" class="menu-link">
+              <i class="icon fas fa-tasks"></i>
+              <span class="menu-text">Quản lý</span>
+              <i class="dropdown-icon fas fa-chevron-down"></i>
+            </a>
+            <ul class="submenu">
+              <li><a href="#">Quản lý vận đơn</a></li>
+              <li><a href="#">Báo cáo vận hành</a></li>
+              <li><a href="#">Thống kê tiền hàng</a></li>
+              <li><a href="#">Thống kê doanh thu</a></li>
+              <li><a href="#">Đơn hàng cần xử lý</a></li>
+              <li><a href="#">Danh sách người nhận</a></li>
+            </ul>
+          </li>
+          <li class="menu-item has-submenu" id="traCuuMenu">
+            <a href="#" class="menu-link">
+              <i class="icon fas fa-map-marker-alt"></i>
+              <span class="menu-text">Tra cứu</span>
+              <i class="dropdown-icon fas fa-chevron-down"></i>
+            </a>
+            <ul class="submenu">
+              <li><a href="#">Tra cứu bưu cục</a></li>
+              <li><a href="#">Ước tính cước phí</a></li>
+              <li><a href="#">Tra cứu địa danh</a></li>
+            </ul>
+          </li>
+          <li class="menu-item has-submenu" id="tienIchMenu">
+            <a href="#" class="menu-link">
+              <i class="icon fas fa-th"></i>
+              <span class="menu-text">Tiện ích</span>
+              <i class="dropdown-icon fas fa-chevron-down"></i>
+            </a>
+            <ul class="submenu">
+              <li><a href="#">In nhãn cảnh báo</a></li>
+              <li>
+                <a href="#"><i class="fas fa-cog"></i> Dịch vụ hoàn cước</a>
+              </li>
+            </ul>
+          </li>
+          <li class="menu-item" id="accountSettingsMenu">
+            <a href="./AccountSetting/sidebar.html" class="menu-link">
+              <i class="icon fas fa-cog"></i>
+              <span class="menu-text">Cài đặt tài khoản</span>
+            </a>
+          </li>
+          <li class="menu-item has-submenu" id="hoiDapMenu">
+            <a href="#" class="menu-link">
+              <i class="icon fas fa-life-ring"></i>
+              <span class="menu-text">Hỏi đáp trợ giúp</span>
+              <i class="dropdown-icon fas fa-chevron-down"></i>
+            </a>
+            <ul class="submenu">
+              <li><a href="#">Câu hỏi thường gặp FAQs</a></li>
+              <li><a href="#">Điều khoản & quy định</a></li>
+              <li><a href="#">Chính sách bảo mật thông tin</a></li>
+            </ul>
+          </li>
+          <li class="menu-item">
+            <a href="#" class="menu-link">
+              <i class="icon fas fa-chart-bar"></i>
+              <span class="menu-text">Khảo sát</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="content" id="mainContent">
+      <div class="content-header">
+        <h1>Xin chào <strong>Thanh Trúc Nguyễn Thị</strong></h1>
+        <div class="date-picker">
+          <input type="date" value="2025-09-23" /> -
+          <input type="date" value="2025-10-06" />
+        </div>
+      </div>
+
+      <div class="dashboard">
+        <div class="stats-section">
+          <h2><i class="fas fa-chart-line"></i> THỐNG KÊ ĐƠN HÀNG</h2>
+          <div class="stats-cards">
+            <div class="stat-card success">
+              <div class="stat-info">
+                <span class="stat-label"
+                  ><i class="fas fa-check-circle"></i> Giao thành công</span
+                >
+                <span class="stat-value">0 (0%)</span>
+              </div>
+            </div>
+            <div class="stat-card failed">
+              <div class="stat-info">
+                <span class="stat-label"
+                  ><i class="fas fa-undo"></i> Đã hoàn</span
+                >
+                <span class="stat-value">0</span>
+              </div>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="orderChart" width="400" height="200"></canvas>
+          </div>
+        </div>
+
+        <div class="top-products">
+          <h2><i class="fas fa-chart-pie"></i> TOP 10 SẢN LƯỢNG</h2>
+          <p>Cập nhật lần cuối lúc 17:21</p>
+          <div class="pie-chart">
+            <canvas id="pieChart" width="200" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- JavaScript Files -->
+    <script src="assets/config.js"></script>
+    <script src="assets/utils.js"></script>
+    <script src="assets/script.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const mainContent = document.getElementById("mainContent");
+        const accountMenu = document.querySelector("#accountSettingsMenu a");
+
+        accountMenu.addEventListener("click", function (e) {
+          e.preventDefault();
+
+          // Tải sidebar.html
+          fetch("./AccountSetting/sidebar.html")
+            .then((res) => res.text())
+            .then((html) => {
+              mainContent.innerHTML = html;
+
+              // Khi sidebar load xong, khởi tạo sidebar
+              initSidebarAjax();
+
+              // Tải sẵn trang accountDetail.html khi vừa mở "Cài đặt tài khoản"
+              const accountContent = document.getElementById("accountContent");
+              if (accountContent) {
+                accountContent.innerHTML = "<p>Đang tải...</p>";
+                fetch("./AccountSetting/accountDetail.html")
+                  .then((res) => res.text())
+                  .then((html) => {
+                    accountContent.innerHTML = html;
+                  })
+                  .catch((err) => {
+                    accountContent.innerHTML = `<p style='color:red;'>Không thể tải trang mặc định.</p>`;
+                  });
+              }
+            })
+            .catch((err) => {
+              mainContent.innerHTML = `<p style="color:red;">Lỗi tải sidebar.html</p>`;
+            });
+        });
+      });
+
+      // Hàm xử lý click bên trong sidebar
+      function initSidebarAjax() {
+        const accountLinks = document.querySelectorAll(
+          ".account-menu .menu-link"
+        );
+        const accountContent = document.getElementById("accountContent");
+
+        accountLinks.forEach((link) => {
+          link.addEventListener("click", function (e) {
+            e.preventDefault();
+            const page = this.getAttribute("href");
+
+            accountContent.innerHTML = "<p>Đang tải...</p>";
+            fetch(`./AccountSetting/${page}`)
+              .then((res) => res.text())
+              .then((html) => {
+                accountContent.innerHTML = html;
+              })
+              .catch((err) => {
+                accountContent.innerHTML = `<p style="color:red;">Lỗi tải ${page}</p>`;
+              });
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,904 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn hàng cần xử lý - Viettel Post</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="../../assets/manage/processing-order.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <h1 class="page-title">Đơn hàng cần xử lý</h1>
+        
+        <div class="filter-card">
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs" id="orderTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+                        Cần xử lý (10)
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="processed-tab" data-bs-toggle="tab" data-bs-target="#processed" type="button" role="tab">
+                        Đã xử lý (0)
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="orderTabsContent">
+                <!-- Pending Orders Tab -->
+                <div class="tab-pane fade show active" id="pending" role="tabpanel">
+                    <!-- Filter Row -->
+                    <div style="padding: 20px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div class="date-picker-container" style="position: relative; margin-left: auto;">
+                                <div style="position: relative;">
+                                    <input type="text" id="dateRangeInput" value="08/10/2025 - 08/10/2025" onclick="toggleDatePicker()" readonly style="padding: 8px 12px 8px 35px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; min-width: 250px; cursor: pointer; background: white;">
+                                    <i class="fas fa-calendar-alt" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6b7280; font-size: 14px; pointer-events: none;"></i>
+                                </div>
+                                
+                                <!-- Date Picker Calendar -->
+                                <div id="datePickerCalendar" class="date-picker-dropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #d1d5db; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; margin-top: 4px; width: 800px;">
+                                    <div style="display: flex;">
+                                        <!-- Quick Options Sidebar -->
+                                        <div style="width: 200px; padding: 16px; border-right: 1px solid #e5e7eb;">
+                                            <div class="quick-date-option" onclick="selectQuickDate('today')" style="padding: 8px 12px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; font-size: 14px; background: #dc2626; color: white;">Hôm nay</div>
+                                            <div class="quick-date-option" onclick="selectQuickDate('yesterday')" style="padding: 8px 12px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; font-size: 14px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">Hôm qua</div>
+                                            <div class="quick-date-option" onclick="selectQuickDate('7days')" style="padding: 8px 12px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; font-size: 14px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">7 ngày trước</div>
+                                            <div class="quick-date-option" onclick="selectQuickDate('14days')" style="padding: 8px 12px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; font-size: 14px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">14 ngày trước</div>
+                                            <div class="quick-date-option" onclick="selectQuickDate('30days')" style="padding: 8px 12px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; font-size: 14px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">30 ngày trước</div>
+                                            <div class="quick-date-option" onclick="selectQuickDate('thisMonth')" style="padding: 8px 12px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; font-size: 14px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">Tháng này</div>
+                                            <div class="quick-date-option" onclick="selectQuickDate('lastMonth')" style="padding: 8px 12px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; font-size: 14px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">Tháng trước</div>
+                                        </div>
+                                        
+                                        <!-- Calendar Grid -->
+                                        <div style="flex: 1; padding: 16px;">
+                                            <div style="display: flex; gap: 20px;">
+                                                <!-- Left Month -->
+                                                <div style="flex: 1;">
+                                                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 16px;">
+                                                        <button onclick="prevMonth('left')" style="border: none; background: none; cursor: pointer; font-size: 18px;">‹</button>
+                                                        <h3 id="leftMonthTitle" style="margin: 0; font-size: 16px; font-weight: 500; color: #9ca3af;">Tháng 9 2025</h3>
+                                                        <button onclick="nextMonth('left')" style="border: none; background: none; cursor: pointer; font-size: 18px;">›</button>
+                                                    </div>
+                                                    <div id="leftCalendar" class="calendar-grid"></div>
+                                                </div>
+                                                
+                                                <!-- Right Month -->
+                                                <div style="flex: 1;">
+                                                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 16px;">
+                                                        <button onclick="prevMonth('right')" style="border: none; background: none; cursor: pointer; font-size: 18px;">‹</button>
+                                                        <h3 id="rightMonthTitle" style="margin: 0; font-size: 16px; font-weight: 500; color: #9ca3af;">Tháng 10 2025</h3>
+                                                        <button onclick="nextMonth('right')" style="border: none; background: none; cursor: pointer; font-size: 18px;">›</button>
+                                                    </div>
+                                                    <div id="rightCalendar" class="calendar-grid"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button style="padding: 8px 16px; border: 1px solid #10b981; background: #10b981; color: white; border-radius: 4px; font-size: 14px;">
+                                Đồng ý
+                            </button>
+                            <button style="padding: 8px 16px; border: 1px solid #dc2626; background: #dc2626; color: white; border-radius: 4px; font-size: 14px;">
+                                Từ chối
+                            </button>
+
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- Processed Orders Tab -->
+                <div class="tab-pane fade" id="processed" role="tabpanel">
+                    <!-- Filter Row for Processed -->
+                    <div style="padding: 20px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <button style="padding: 8px 16px; border: 1px solid #6b7280; background: #6b7280; color: white; border-radius: 4px; font-size: 14px;">
+                                Giao hàng 1 phần (0)
+                            </button>
+                            <button style="padding: 8px 16px; border: 1px solid #d1d5db; background: white; color: #374151; border-radius: 4px; font-size: 14px;">
+                                Chờ xử lý (0)
+                            </button>
+                            
+                            <div class="date-picker-container" style="position: relative; margin-left: auto;">
+                                <div style="position: relative;">
+                                    <input type="text" id="dateRangeInputProcessed" value="08/10/2025 - 08/10/2025" onclick="toggleDatePickerProcessed()" readonly style="padding: 8px 12px 8px 35px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; min-width: 250px; cursor: pointer; background: white;">
+                                    <i class="fas fa-calendar-alt" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6b7280; font-size: 14px; pointer-events: none;"></i>
+                                </div>
+                                
+                                <!-- Date Picker Calendar for Processed -->
+                                <div id="datePickerCalendarProcessed" class="date-picker-dropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #d1d5db; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999; margin-top: 4px; width: 800px;">
+                                    <div style="display: flex;">
+                                        <!-- Quick Options Sidebar -->
+                                        <div style="width: 200px; padding: 16px; border-right: 1px solid #e5e7eb;">
+                                            <div class="quick-date-option-processed" onclick="selectQuickDateProcessed('today')" style="padding: 8px 12px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; font-size: 14px; background: #dc2626; color: white;">Hôm nay</div>
+                                            <div class="quick-date-option-processed" onclick="selectQuickDateProcessed('yesterday')" style="padding: 8px 12px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; font-size: 14px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">Hôm qua</div>
+                                            <div class="quick-date-option-processed" onclick="selectQuickDateProcessed('7days')" style="padding: 8px 12px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; font-size: 14px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">7 ngày trước</div>
+                                            <div class="quick-date-option-processed" onclick="selectQuickDateProcessed('14days')" style="padding: 8px 12px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; font-size: 14px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">14 ngày trước</div>
+                                            <div class="quick-date-option-processed" onclick="selectQuickDateProcessed('30days')" style="padding: 8px 12px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; font-size: 14px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">30 ngày trước</div>
+                                            <div class="quick-date-option-processed" onclick="selectQuickDateProcessed('thisMonth')" style="padding: 8px 12px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; font-size: 14px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">Tháng này</div>
+                                            <div class="quick-date-option-processed" onclick="selectQuickDateProcessed('lastMonth')" style="padding: 8px 12px; cursor: pointer; border-radius: 4px; margin-bottom: 4px; font-size: 14px;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'">Tháng trước</div>
+                                        </div>
+                                        
+                                        <!-- Calendar Grid -->
+                                        <div style="flex: 1; padding: 16px;">
+                                            <div style="display: flex; gap: 20px;">
+                                                <!-- Left Month -->
+                                                <div style="flex: 1;">
+                                                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 16px;">
+                                                        <button onclick="prevMonthProcessed('left')" style="border: none; background: none; cursor: pointer; font-size: 18px;">‹</button>
+                                                        <h3 id="leftMonthTitleProcessed" style="margin: 0; font-size: 16px; font-weight: 500; color: #9ca3af;">Tháng 9 2025</h3>
+                                                        <button onclick="nextMonthProcessed('left')" style="border: none; background: none; cursor: pointer; font-size: 18px;">›</button>
+                                                    </div>
+                                                    <div id="leftCalendarProcessed" class="calendar-grid"></div>
+                                                </div>
+                                                
+                                                <!-- Right Month -->
+                                                <div style="flex: 1;">
+                                                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 16px;">
+                                                        <button onclick="prevMonthProcessed('right')" style="border: none; background: none; cursor: pointer; font-size: 18px;">‹</button>
+                                                        <h3 id="rightMonthTitleProcessed" style="margin: 0; font-size: 16px; font-weight: 500; color: #9ca3af;">Tháng 10 2025</h3>
+                                                        <button onclick="nextMonthProcessed('right')" style="border: none; background: none; cursor: pointer; font-size: 18px;">›</button>
+                                                    </div>
+                                                    <div id="rightCalendarProcessed" class="calendar-grid"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Box -->
+                    <div style="padding: 20px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="position: relative; flex: 1; max-width: 300px;">
+                                <input type="text" placeholder="Nhập mã đơn hàng" style="width: 100%; padding: 8px 40px 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px;">
+                                <button style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: none; background: none; color: #dc2626; cursor: pointer; padding: 4px;">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Table for Processed -->
+                    <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle mb-0">
+                                <thead style="background-color: #f8f9fa;">
+                                    <tr>
+                                        <th style="width: 80px;">Mã đơn</th>
+                                        <th style="width: 100px;">Ngày tạo đơn</th>
+                                        <th style="width: 120px;">User tác động</th>
+                                        <th style="width: 120px;">Thời gian tác động</th>
+                                        <th style="width: 100px;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4" style="color: #6b7280;">
+                                            Không có bản ghi nào
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination for Processed -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 15px;">
+                            <div>
+                                Bản Ghi Mỗi Trang
+                                <select class="form-select d-inline-block w-auto ms-1 me-1" style="padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px;">
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                </select>
+                                <span class="ms-3">0 of 0</span>
+                            </div>
+                            <nav>
+                                <ul class="pagination mb-0">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" style="padding: 6px 12px;">‹</a>
+                                    </li>
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" style="padding: 6px 12px;">›</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="data-table" style="margin: 20px;">
+            <div class="table-responsive">
+                <!-- Table for Giao hàng 1 phần -->
+                <table id="deliveryTable" class="table table-bordered align-middle mb-0">
+                    <thead style="background-color: #f8f9fa;">
+                        <tr>
+                            <th style="width: 60px;">STT</th>
+                            <th style="width: 120px;">Mã đơn</th>
+                            <th style="width: 120px;">Ngày tạo đơn</th>
+                            <th style="width: 150px;">Người nhận</th>
+                            <th style="width: 200px;">Địa chỉ</th>
+                            <th style="width: 200px;">Hàng hóa</th>
+                            <th style="width: 150px;">Hàng hóa sẽ giao</th>
+                            <th style="width: 150px;">Hàng hóa hoàn về</th>
+                            <th style="width: 120px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>VP2025100801</td>
+                            <td>01/10/2025</td>
+                            <td>Nguyễn Văn An</td>
+                            <td style="font-size: 14px;">123 Đường Lê Lợi, Quận 1, TP.HCM</td>
+                            <td style="font-size: 14px;">Điện thoại iPhone 15 Pro 256GB Màu Xanh</td>
+                            <td style="font-size: 14px;">Điện thoại iPhone 15 Pro 256GB Màu Xanh</td>
+                            <td>-</td>
+                            <td>
+                                <i class="bi bi-pencil-square text-primary me-2" style="cursor: pointer" title="Sửa"></i>
+                                <i class="bi bi-trash text-danger me-2" style="cursor: pointer" title="Xóa"></i>
+                                <i class="bi bi-eye text-info" style="cursor: pointer" title="Xem chi tiết"></i>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>VP2025100802</td>
+                            <td>01/10/2025</td>
+                            <td>Trần Thị Bình</td>
+                            <td style="font-size: 14px;">456 Nguyễn Huệ, Quận 3, TP.HCM</td>
+                            <td style="font-size: 14px;">Laptop Dell XPS 13 Core i7, Chuột không dây Logitech MX Master 3</td>
+                            <td style="font-size: 14px;">Laptop Dell XPS 13 Core i7, Chuột không dây Logitech MX Master 3</td>
+                            <td>-</td>
+                            <td>
+                                <i class="bi bi-pencil-square text-primary me-2" style="cursor: pointer" title="Sửa"></i>
+                                <i class="bi bi-trash text-danger me-2" style="cursor: pointer" title="Xóa"></i>
+                                <i class="bi bi-eye text-info" style="cursor: pointer" title="Xem chi tiết"></i>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>VP2025100803</td>
+                            <td>02/10/2025</td>
+                            <td>Lê Minh Cường</td>
+                            <td style="font-size: 14px;">789 Pasteur, Quận 1, TP.HCM</td>
+                            <td style="font-size: 14px;">Áo thun nam Nike size L, Quần short Adidas size L</td>
+                            <td style="font-size: 14px;">Áo thun nam Nike size L, Quần short Adidas size L</td>
+                            <td>-</td>
+                            <td>
+                                <i class="bi bi-pencil-square text-primary me-2" style="cursor: pointer" title="Sửa"></i>
+                                <i class="bi bi-trash text-danger me-2" style="cursor: pointer" title="Xóa"></i>
+                                <i class="bi bi-eye text-info" style="cursor: pointer" title="Xem chi tiết"></i>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>VP2025100804</td>
+                            <td>02/10/2025</td>
+                            <td>Phạm Thu Hằng</td>
+                            <td style="font-size: 14px;">321 Võ Văn Tần, Quận 3, TP.HCM</td>
+                            <td style="font-size: 14px;">Giày thể thao Nike Air Max 270 size 38</td>
+                            <td style="font-size: 14px;">Giày thể thao Nike Air Max 270 size 38</td>
+                            <td>-</td>
+                            <td>
+                                <i class="bi bi-pencil-square text-primary me-2" style="cursor: pointer" title="Sửa"></i>
+                                <i class="bi bi-trash text-danger me-2" style="cursor: pointer" title="Xóa"></i>
+                                <i class="bi bi-eye text-info" style="cursor: pointer" title="Xem chi tiết"></i>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>VP2025100805</td>
+                            <td>03/10/2025</td>
+                            <td>Hoàng Văn Đức</td>
+                            <td style="font-size: 14px;">654 Điện Biên Phủ, Quận Bình Thạnh, TP.HCM</td>
+                            <td style="font-size: 14px;">Tai nghe AirPods Pro 2nd Gen, Case bảo vệ silicon</td>
+                            <td style="font-size: 14px;">Tai nghe AirPods Pro 2nd Gen, Case bảo vệ silicon</td>
+                            <td>-</td>
+                            <td>
+                                <i class="bi bi-pencil-square text-primary me-2" style="cursor: pointer" title="Sửa"></i>
+                                <i class="bi bi-trash text-danger me-2" style="cursor: pointer" title="Xóa"></i>
+                                <i class="bi bi-eye text-info" style="cursor: pointer" title="Xem chi tiết"></i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Table for Chờ xử lý -->
+                <table id="pendingTable" class="table table-bordered align-middle mb-0" style="display: none;">
+                    <thead style="background-color: #f8f9fa;">
+                        <tr>
+                            <th><input type="checkbox"></th>
+                            <th style="width: 120px;">Mã đơn</th>
+                            <th style="width: 120px;">Ngày tạo đơn</th>
+                            <th style="width: 150px;">Người nhận</th>
+                            <th style="width: 200px;">Địa chỉ</th>
+                            <th style="width: 200px;">Hàng hóa</th>
+                            <th style="width: 150px;">Lý do hoãn</th>
+                            <th style="width: 120px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingTableBody">
+                        <tr>
+                            <td colspan="8" class="text-center py-4" style="color: #6b7280;">
+                                Không có bản ghi nào
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-info" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 15px;">
+                <div class="page-size-selector">
+                    Hiển thị
+                    <select class="form-select d-inline-block w-auto ms-1 me-1" style="padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px;">
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select>
+                    bản ghi
+                </div>
+                <nav>
+                    <ul class="pagination mb-0" id="paginationNav">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" style="padding: 6px 12px;">‹</a>
+                        </li>
+                        <li class="page-item active">
+                            <a class="page-link" href="#" style="padding: 6px 12px;">1</a>
+                        </li>
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" style="padding: 6px 12px;">›</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+
+
+    <style>
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+        
+        .calendar-header {
+            text-align: center;
+            font-weight: 500;
+            color: #6b7280;
+            padding: 8px;
+            font-size: 12px;
+        }
+        
+        .calendar-day {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            margin: 1px;
+        }
+        
+        .calendar-day:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .calendar-day.other-month {
+            color: #d1d5db;
+        }
+        
+        .calendar-day.selected {
+            background-color: #dc2626;
+            color: white;
+        }
+        
+        .calendar-day.in-range {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+    </style>
+
+    <script>
+        let currentLeftMonth = 8; // September (0-based)
+        let currentLeftYear = 2025;
+        let currentRightMonth = 9; // October (0-based)
+        let currentRightYear = 2025;
+        let selectedStartDate = null;
+        let selectedEndDate = null;
+        
+        function toggleDatePicker() {
+            const calendar = document.getElementById('datePickerCalendar');
+            if (calendar.style.display === 'none') {
+                calendar.style.display = 'block';
+                generateCalendar();
+            } else {
+                calendar.style.display = 'none';
+            }
+        }
+        
+        function generateCalendar() {
+            generateMonthCalendar('left', currentLeftMonth, currentLeftYear);
+            generateMonthCalendar('right', currentRightMonth, currentRightYear);
+        }
+        
+        function generateMonthCalendar(side, month, year) {
+            const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 
+                              'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+            const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+            
+            // Update title
+            document.getElementById(side + 'MonthTitle').textContent = monthNames[month] + ' ' + year;
+            
+            const calendar = document.getElementById(side + 'Calendar');
+            calendar.innerHTML = '';
+            
+            // Add day headers
+            dayNames.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-header';
+                dayHeader.textContent = day;
+                calendar.appendChild(dayHeader);
+            });
+            
+            // Get first day of month and number of days
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+            
+            // Add previous month's trailing days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day other-month';
+                dayDiv.textContent = daysInPrevMonth - i;
+                calendar.appendChild(dayDiv);
+            }
+            
+            // Add current month's days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day';
+                dayDiv.textContent = day;
+                dayDiv.onclick = () => selectDate(year, month, day);
+                
+                // Highlight selected dates
+                const currentDate = new Date(year, month, day);
+                if (isDateSelected(currentDate)) {
+                    dayDiv.classList.add('selected');
+                } else if (isDateInRange(currentDate)) {
+                    dayDiv.classList.add('in-range');
+                }
+                
+                calendar.appendChild(dayDiv);
+            }
+            
+            // Add next month's leading days
+            const totalCells = calendar.children.length - 7; // Subtract header row
+            const remainingCells = 42 - totalCells; // 6 rows * 7 days
+            for (let day = 1; day <= remainingCells && totalCells < 35; day++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day other-month';
+                dayDiv.textContent = day;
+                calendar.appendChild(dayDiv);
+            }
+        }
+        
+        function selectDate(year, month, day) {
+            const selectedDate = new Date(year, month, day);
+            
+            if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
+                // Start new selection
+                selectedStartDate = selectedDate;
+                selectedEndDate = null;
+            } else if (selectedDate < selectedStartDate) {
+                // Selected date is before start date, make it the new start
+                selectedEndDate = selectedStartDate;
+                selectedStartDate = selectedDate;
+            } else {
+                // Selected date is after start date, make it the end
+                selectedEndDate = selectedDate;
+            }
+            
+            updateDateRangeInput();
+            generateCalendar(); // Refresh to show selection
+        }
+        
+        function isDateSelected(date) {
+            if (!selectedStartDate) return false;
+            if (selectedStartDate.getTime() === date.getTime()) return true;
+            if (selectedEndDate && selectedEndDate.getTime() === date.getTime()) return true;
+            return false;
+        }
+        
+        function isDateInRange(date) {
+            if (!selectedStartDate || !selectedEndDate) return false;
+            return date > selectedStartDate && date < selectedEndDate;
+        }
+        
+        function updateDateRangeInput() {
+            const input = document.getElementById('dateRangeInput');
+            if (selectedStartDate) {
+                const startStr = formatDate(selectedStartDate);
+                const endStr = selectedEndDate ? formatDate(selectedEndDate) : startStr;
+                input.value = `${startStr} - ${endStr}`;
+            }
+        }
+        
+        function formatDate(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+        
+        function updateQuickDateSelection(selectedOption) {
+            // Reset all options to default style
+            const options = document.querySelectorAll('.quick-date-option');
+            options.forEach(option => {
+                option.style.background = 'white';
+                option.style.color = 'black';
+                option.onmouseover = function() { this.style.background = '#f3f4f6'; };
+                option.onmouseout = function() { this.style.background = 'white'; };
+            });
+            
+            // Highlight selected option
+            const selectedElement = document.querySelector(`[onclick="selectQuickDate('${selectedOption}')"]`);
+            if (selectedElement) {
+                selectedElement.style.background = '#dc2626';
+                selectedElement.style.color = 'white';
+                selectedElement.onmouseover = null;
+                selectedElement.onmouseout = null;
+            }
+        }
+
+        function selectQuickDate(option) {
+            const today = new Date();
+            let startDate, endDate;
+            
+            switch(option) {
+                case 'today':
+                    startDate = endDate = new Date(today);
+                    break;
+                case 'yesterday':
+                    startDate = endDate = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+                    break;
+                case '7days':
+                    endDate = new Date(today);
+                    startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    break;
+                case '14days':
+                    endDate = new Date(today);
+                    startDate = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000);
+                    break;
+                case '30days':
+                    endDate = new Date(today);
+                    startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'thisMonth':
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    break;
+                case 'lastMonth':
+                    startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                    endDate = new Date(today.getFullYear(), today.getMonth(), 0);
+                    break;
+            }
+            
+            selectedStartDate = startDate;
+            selectedEndDate = endDate;
+            updateDateRangeInput();
+            generateCalendar();
+            updateQuickDateSelection(option);
+        }
+        
+        function prevMonth(side) {
+            if (side === 'left') {
+                currentLeftMonth--;
+                if (currentLeftMonth < 0) {
+                    currentLeftMonth = 11;
+                    currentLeftYear--;
+                }
+            } else {
+                currentRightMonth--;
+                if (currentRightMonth < 0) {
+                    currentRightMonth = 11;
+                    currentRightYear--;
+                }
+            }
+            generateCalendar();
+        }
+        
+        function nextMonth(side) {
+            if (side === 'left') {
+                currentLeftMonth++;
+                if (currentLeftMonth > 11) {
+                    currentLeftMonth = 0;
+                    currentLeftYear++;
+                }
+            } else {
+                currentRightMonth++;
+                if (currentRightMonth > 11) {
+                    currentRightMonth = 0;
+                    currentRightYear++;
+                }
+            }
+            generateCalendar();
+        }
+        
+        // Close calendar when clicking outside
+        document.addEventListener('click', function(event) {
+            const datePicker = document.querySelector('.date-picker-container');
+            const calendar = document.getElementById('datePickerCalendar');
+            
+            if (datePicker && !datePicker.contains(event.target)) {
+                calendar.style.display = 'none';
+            }
+        });
+        
+        // Variables for Processed tab
+        let currentLeftMonthProcessed = 8; // September (0-based)
+        let currentLeftYearProcessed = 2025;
+        let currentRightMonthProcessed = 9; // October (0-based)
+        let currentRightYearProcessed = 2025;
+        let selectedStartDateProcessed = null;
+        let selectedEndDateProcessed = null;
+
+        // Functions for Processed tab
+        function toggleDatePickerProcessed() {
+            const calendar = document.getElementById('datePickerCalendarProcessed');
+            if (calendar.style.display === 'none') {
+                calendar.style.display = 'block';
+                generateCalendarProcessed();
+            } else {
+                calendar.style.display = 'none';
+            }
+        }
+
+        function generateCalendarProcessed() {
+            generateMonthCalendarProcessed('left', currentLeftMonthProcessed, currentLeftYearProcessed);
+            generateMonthCalendarProcessed('right', currentRightMonthProcessed, currentRightYearProcessed);
+        }
+
+        function generateMonthCalendarProcessed(side, month, year) {
+            const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 
+                              'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+            const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+            
+            // Update title
+            document.getElementById(side + 'MonthTitleProcessed').textContent = monthNames[month] + ' ' + year;
+            
+            const calendar = document.getElementById(side + 'CalendarProcessed');
+            calendar.innerHTML = '';
+            
+            // Add day headers
+            dayNames.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-header';
+                dayHeader.textContent = day;
+                calendar.appendChild(dayHeader);
+            });
+            
+            // Get first day of month and number of days
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+            
+            // Add previous month's trailing days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day other-month';
+                dayDiv.textContent = daysInPrevMonth - i;
+                calendar.appendChild(dayDiv);
+            }
+            
+            // Add current month's days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day';
+                dayDiv.textContent = day;
+                dayDiv.onclick = () => selectDateProcessed(year, month, day);
+                
+                // Highlight selected dates
+                const currentDate = new Date(year, month, day);
+                if (isDateSelectedProcessed(currentDate)) {
+                    dayDiv.classList.add('selected');
+                } else if (isDateInRangeProcessed(currentDate)) {
+                    dayDiv.classList.add('in-range');
+                }
+                
+                calendar.appendChild(dayDiv);
+            }
+            
+            // Add next month's leading days
+            const totalCells = calendar.children.length - 7; // Subtract header row
+            const remainingCells = 42 - totalCells; // 6 rows * 7 days
+            for (let day = 1; day <= remainingCells && totalCells < 35; day++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day other-month';
+                dayDiv.textContent = day;
+                calendar.appendChild(dayDiv);
+            }
+        }
+
+        function selectDateProcessed(year, month, day) {
+            const selectedDate = new Date(year, month, day);
+            
+            if (!selectedStartDateProcessed || (selectedStartDateProcessed && selectedEndDateProcessed)) {
+                selectedStartDateProcessed = selectedDate;
+                selectedEndDateProcessed = null;
+            } else if (selectedDate < selectedStartDateProcessed) {
+                selectedEndDateProcessed = selectedStartDateProcessed;
+                selectedStartDateProcessed = selectedDate;
+            } else {
+                selectedEndDateProcessed = selectedDate;
+            }
+            
+            updateDateRangeInputProcessed();
+            generateCalendarProcessed();
+        }
+
+        function isDateSelectedProcessed(date) {
+            if (!selectedStartDateProcessed) return false;
+            if (selectedStartDateProcessed.getTime() === date.getTime()) return true;
+            if (selectedEndDateProcessed && selectedEndDateProcessed.getTime() === date.getTime()) return true;
+            return false;
+        }
+
+        function isDateInRangeProcessed(date) {
+            if (!selectedStartDateProcessed || !selectedEndDateProcessed) return false;
+            return date > selectedStartDateProcessed && date < selectedEndDateProcessed;
+        }
+
+        function updateDateRangeInputProcessed() {
+            const input = document.getElementById('dateRangeInputProcessed');
+            if (selectedStartDateProcessed) {
+                const startStr = formatDate(selectedStartDateProcessed);
+                const endStr = selectedEndDateProcessed ? formatDate(selectedEndDateProcessed) : startStr;
+                input.value = `${startStr} - ${endStr}`;
+            }
+        }
+
+        function updateQuickDateSelectionProcessed(selectedOption) {
+            const options = document.querySelectorAll('.quick-date-option-processed');
+            options.forEach(option => {
+                option.style.background = 'white';
+                option.style.color = 'black';
+                option.onmouseover = function() { this.style.background = '#f3f4f6'; };
+                option.onmouseout = function() { this.style.background = 'white'; };
+            });
+            
+            const selectedElement = document.querySelector(`[onclick="selectQuickDateProcessed('${selectedOption}')"]`);
+            if (selectedElement) {
+                selectedElement.style.background = '#dc2626';
+                selectedElement.style.color = 'white';
+                selectedElement.onmouseover = null;
+                selectedElement.onmouseout = null;
+            }
+        }
+
+        function selectQuickDateProcessed(option) {
+            const today = new Date();
+            let startDate, endDate;
+            
+            switch(option) {
+                case 'today':
+                    startDate = endDate = new Date(today);
+                    break;
+                case 'yesterday':
+                    startDate = endDate = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+                    break;
+                case '7days':
+                    endDate = new Date(today);
+                    startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    break;
+                case '14days':
+                    endDate = new Date(today);
+                    startDate = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000);
+                    break;
+                case '30days':
+                    endDate = new Date(today);
+                    startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'thisMonth':
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    break;
+                case 'lastMonth':
+                    startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                    endDate = new Date(today.getFullYear(), today.getMonth(), 0);
+                    break;
+            }
+            
+            selectedStartDateProcessed = startDate;
+            selectedEndDateProcessed = endDate;
+            updateDateRangeInputProcessed();
+            generateCalendarProcessed();
+            updateQuickDateSelectionProcessed(option);
+        }
+
+        function prevMonthProcessed(side) {
+            if (side === 'left') {
+                currentLeftMonthProcessed--;
+                if (currentLeftMonthProcessed < 0) {
+                    currentLeftMonthProcessed = 11;
+                    currentLeftYearProcessed--;
+                }
+            } else {
+                currentRightMonthProcessed--;
+                if (currentRightMonthProcessed < 0) {
+                    currentRightMonthProcessed = 11;
+                    currentRightYearProcessed--;
+                }
+            }
+            generateCalendarProcessed();
+        }
+        
+        function nextMonthProcessed(side) {
+            if (side === 'left') {
+                currentLeftMonthProcessed++;
+                if (currentLeftMonthProcessed > 11) {
+                    currentLeftMonthProcessed = 0;
+                    currentLeftYearProcessed++;
+                }
+            } else {
+                currentRightMonthProcessed++;
+                if (currentRightMonthProcessed > 11) {
+                    currentRightMonthProcessed = 0;
+                    currentRightYearProcessed++;
+                }
+            }
+            generateCalendarProcessed();
+        }
+
+        // Initialize with default range (today)
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            selectedStartDate = new Date(today);
+            selectedEndDate = new Date(today);
+            updateDateRangeInput();
+            updateQuickDateSelection('today');
+
+            // Initialize processed tab with today
+            selectedStartDateProcessed = new Date(today);
+            selectedEndDateProcessed = new Date(today);
+            updateDateRangeInputProcessed();
+            updateQuickDateSelectionProcessed('today');
+        });
+
+        // Close calendar when clicking outside
+        document.addEventListener('click', function(event) {
+            const datePicker = document.querySelector('.date-picker-container');
+            const calendar = document.getElementById('datePickerCalendar');
+            const datePickerProcessed = document.getElementById('datePickerCalendarProcessed');
+            
+            if (datePicker && !datePicker.contains(event.target)) {
+                calendar.style.display = 'none';
+            }
+            
+            if (datePickerProcessed && !event.target.closest('#datePickerCalendarProcessed') && !event.target.closest('#dateRangeInputProcessed')) {
+                datePickerProcessed.style.display = 'none';
+            }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- <script src="../../assets/manage/processing-order.js"></script> -->
+</body>
+</html>

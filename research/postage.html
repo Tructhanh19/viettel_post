@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ước tính cước phí - Viettel Post</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/research/postage.css" />
+  </head>
+  <body>
+    <div class="postage-container">
+      <h3>Ước tính cước phí</h3>
+      <!-- Main Form -->
+      <div class="postage-form">
+        <!-- Service Selection -->
+        <div class="service-section">
+          <div class="section-title">
+            <i class="fas fa-cube"></i>
+            DỊCH VỤ
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <select class="form-select">
+                <option selected>
+                  Chuyển phát trong nước (Miễn phí thu hộ)
+                </option>
+                <option value="express">Chuyển phát nhanh</option>
+                <option value="standard">Chuyển phát tiêu chuẩn</option>
+                <option value="economy">Chuyển phát tiết kiệm</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address Section -->
+        <div class="address-section">
+          <div class="row align-items-start">
+            <!-- Sender -->
+            <div class="col-md-6">
+              <div class="section-title">
+                <i class="fas fa-user"></i>
+                NGƯỜI GỬI
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Tỉnh/Thành phố</label>
+                <select class="form-select">
+                  <option selected>Tỉnh/Thành phố</option>
+                  <option value="hanoi">Hà Nội</option>
+                  <option value="hcm">TP. Hồ Chí Minh</option>
+                  <option value="danang">Đà Nẵng</option>
+                  <option value="haiphong">Hải Phòng</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Quận/Huyện</label>
+                <select class="form-select">
+                  <option selected>Quận/Huyện</option>
+                  <option value="district1">Quận 1</option>
+                  <option value="district2">Quận 2</option>
+                  <option value="district3">Quận 3</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Receiver -->
+            <div class="col-md-6">
+              <div class="section-title">
+                <i class="fas fa-user"></i>
+                NGƯỜI NHẬN
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Tỉnh/Thành phố</label>
+                <select class="form-select">
+                  <option selected>Tỉnh/Thành phố</option>
+                  <option value="hanoi">Hà Nội</option>
+                  <option value="hcm">TP. Hồ Chí Minh</option>
+                  <option value="danang">Đà Nẵng</option>
+                  <option value="haiphong">Hải Phòng</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Quận/Huyện</label>
+                <select class="form-select">
+                  <option selected>Quận/Huyện</option>
+                  <option value="district1">Quận 1</option>
+                  <option value="district2">Quận 2</option>
+                  <option value="district3">Quận 3</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Package Information -->
+        <div class="package-section">
+          <div class="section-title">
+            <i class="fas fa-cube"></i>
+            THÔNG TIN BƯU PHẨM
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <label class="form-label">Khối lượng bưu phẩm</label>
+              <div class="weight-input-group">
+                <input
+                  type="number"
+                  class="form-control weight-input"
+                  placeholder="0"
+                  min="0"
+                />
+                <div class="weight-unit">Gram</div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Số tiền thu hộ</label>
+              <input
+                type="number"
+                class="form-control"
+                placeholder="0"
+                min="0"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Lookup Button -->
+        <div class="text-start">
+          <button type="button" class="lookup-btn">Tra cứu</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/research/postage.js"></script>
+  </body>
+</html>

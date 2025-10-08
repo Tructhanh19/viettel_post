@@ -153,21 +153,31 @@ async function loadContent(url) {
     const content = await response.text();
     mainContent.innerHTML = content;
     
+    // Clean up old dynamic scripts before adding new ones
+    document.querySelectorAll('script[data-dynamic="true"]').forEach(oldScript => {
+      oldScript.remove();
+    });
+    
     // Execute any scripts in the loaded content
     const scripts = mainContent.querySelectorAll('script');
     scripts.forEach(script => {
       const newScript = document.createElement('script');
+      newScript.setAttribute('data-dynamic', 'true'); // Mark as dynamic for cleanup
+      
       if (script.src) {
         newScript.src = script.src;
       } else {
         newScript.textContent = script.textContent;
       }
-      document.head.appendChild(newScript);
-      document.head.removeChild(newScript);
+      
+      // Add script to body
+      document.body.appendChild(newScript);
+      
+      // Remove the original script tag from mainContent to avoid duplication
+      script.remove();
     });
     
   } catch (error) {
-    console.error('Error loading content:', error);
     mainContent.innerHTML = `
       <div class="alert alert-danger text-center">
         <i class="fas fa-exclamation-triangle"></i>

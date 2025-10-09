@@ -6,9 +6,20 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/notifications.css">
+  <style>
+    /* CSS THÊM VÀO ĐỂ IFRAME HOẠT ĐỘNG */
+    .content-iframe {
+      width: 100%;
+      /* Chiều cao tự động trừ đi header và padding của content */
+      height: calc(100vh - 60px - 60px); 
+      border: none;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
-  <!-- HEADER -->
   <header class="header">
     <div class="header-left">
       <button class="menu-toggle" id="menuToggle">
@@ -41,12 +52,11 @@
     </div>
   </header>
 
-  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <nav class="sidebar-nav">
       <ul class="menu">
         <li class="menu-item active">
-          <a href="#" class="menu-link">
+          <a href="#" class="menu-link" data-target="home">
             <i class="icon fas fa-home"></i>
             <span class="menu-text">Trang chủ</span>
           </a>
@@ -64,12 +74,13 @@
             <i class="dropdown-icon fas fa-chevron-down"></i>
           </a>
           <ul class="submenu">
-            <li><a href="#">Quản lý vận đơn</a></li>
+            <li><a href="#" data-target="iframe" data-src="shipments.html">Quản lý vận đơn</a></li>
             <li><a href="#">Báo cáo vận hành</a></li>
-            <li><a href="#">Thống kê tiền hàng</a></li>
-            <li><a href="#">Thống kê doanh thu</a></li>
+            <li><a href="#" data-target="iframe" data-src="cargo-value.html">Thống kê tiền hàng</a></li>
+            <li><a href="#" data-target="iframe" data-src="revenue.html">Thống kê doanh thu</a></li>
             <li><a href="#">Đơn hàng cần xử lý</a></li>
-            <li><a href="#">Danh sách người nhận</a></li>
+            <li><a href="#" data-target="iframe" data-src="recipients.html">Danh sách người nhận</a></li>
+            <li><a href="#" data-target="iframe" data-src="feedback.html">Góp ý - Khiếu nại</a></li>
           </ul>
         </li>
         <li class="menu-item has-submenu" id="traCuuMenu">
@@ -123,50 +134,93 @@
     </nav>
   </aside>
 
-  <!-- MAIN CONTENT -->
   <main class="content" id="mainContent">
-    <div class="content-header">
-      <h1>Xin chào <strong>Thanh Trúc Nguyễn Thị</strong></h1>
-      <div class="date-picker">
-        <input type="date" value="2025-09-23"> - <input type="date" value="2025-10-06">
-      </div>
+    
+    <div id="home-content-wrapper">
+        <div class="content-header">
+          <h1>Xin chào <strong>Thanh Trúc Nguyễn Thị</strong></h1>
+          <div class="date-picker">
+            <input type="date" value="2025-09-23"> - <input type="date" value="2025-10-06">
+          </div>
+        </div>
+        
+        <div class="dashboard">
+          <div class="stats-section">
+            <h2><i class="fas fa-chart-line"></i> THỐNG KÊ ĐƠN HÀNG</h2>
+            <div class="stats-cards">
+              <div class="stat-card success">
+                <div class="stat-info">
+                  <span class="stat-label"><i class="fas fa-check-circle"></i> Giao thành công</span>
+                  <span class="stat-value">0 (0%)</span>
+                </div>
+              </div>
+              <div class="stat-card failed">
+                <div class="stat-info">
+                  <span class="stat-label"><i class="fas fa-undo"></i> Đã hoàn</span>
+                  <span class="stat-value">0</span>
+                </div>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="orderChart" width="400" height="200"></canvas>
+            </div>
+          </div>
+          
+          <div class="top-products">
+            <h2><i class="fas fa-chart-pie"></i> TOP 10 SẢN LƯỢNG</h2>
+            <p>Cập nhật lần cuối lúc 17:21</p>
+            <div class="pie-chart">
+              <canvas id="pieChart" width="200" height="200"></canvas>
+            </div>
+          </div>
+        </div>
     </div>
     
-    <div class="dashboard">
-      <div class="stats-section">
-        <h2><i class="fas fa-chart-line"></i> THỐNG KÊ ĐƠN HÀNG</h2>
-        <div class="stats-cards">
-          <div class="stat-card success">
-            <div class="stat-info">
-              <span class="stat-label"><i class="fas fa-check-circle"></i> Giao thành công</span>
-              <span class="stat-value">0 (0%)</span>
-            </div>
-          </div>
-          <div class="stat-card failed">
-            <div class="stat-info">
-              <span class="stat-label"><i class="fas fa-undo"></i> Đã hoàn</span>
-              <span class="stat-value">0</span>
-            </div>
-          </div>
-        </div>
-        <div class="chart-container">
-          <canvas id="orderChart" width="400" height="200"></canvas>
-        </div>
-      </div>
-      
-      <div class="top-products">
-        <h2><i class="fas fa-chart-pie"></i> TOP 10 SẢN LƯỢNG</h2>
-        <p>Cập nhật lần cuối lúc 17:21</p>
-        <div class="pie-chart">
-          <canvas id="pieChart" width="200" height="200"></canvas>
-        </div>
-      </div>
-    </div>
+    <iframe id="contentFrame" class="content-iframe hidden" name="contentFrame"></iframe>
+
   </main>
 
-  <!-- JavaScript Files -->
   <script src="assets/config.js"></script>
   <script src="assets/utils.js"></script>
   <script src="assets/script.js"></script>
+  
+  <script>
+    // Đợi tất cả các script gốc chạy xong
+    document.addEventListener('DOMContentLoaded', function() {
+        const contentFrame = document.getElementById('contentFrame');
+        const homeContentWrapper = document.getElementById('home-content-wrapper');
+        
+        const allMenuLinks = document.querySelectorAll('.menu a[data-target]');
+        const allMenuItems = document.querySelectorAll('.menu-item');
+
+        allMenuLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const target = this.getAttribute('data-target');
+                const pageSrc = this.getAttribute('data-src');
+
+                // Cập nhật trạng thái 'active' cho menu
+                allMenuItems.forEach(item => item.classList.remove('active'));
+                this.closest('.menu-item').classList.add('active');
+
+                if (target === 'home') {
+                    // Nếu nhấn vào Trang chủ, hiện nội dung gốc và ẩn iframe
+                    homeContentWrapper.classList.remove('hidden');
+                    contentFrame.classList.add('hidden');
+                    contentFrame.src = 'about:blank'; // Dọn dẹp iframe để không tốn tài nguyên
+                } else if (target === 'iframe' && pageSrc) {
+                    // Nếu nhấn vào các trang con, ẩn nội dung gốc và hiện iframe
+                    homeContentWrapper.classList.add('hidden');
+                    contentFrame.classList.remove('hidden');
+                    // Chỉ tải lại nếu link khác với link hiện tại
+                    if (contentFrame.getAttribute('src') !== pageSrc) {
+                        contentFrame.src = pageSrc;
+                    }
+                }
+            });
+        });
+    });
+  </script>
 </body>
 </html>

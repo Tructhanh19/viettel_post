@@ -1,0 +1,72 @@
+[
+  {
+    "code": "KHAI_GIA",
+    "name": "Khai giá",
+    "cost": 5000
+  },
+  {
+    "code": "DONG_KIEM",
+    "name": "Đồng kiểm",
+    "cost": 16500
+  },
+  {
+    "code": "BAO_PHAT",
+    "name": "Báo phát",
+    "cost": 5500
+  },
+  {
+    "code": "PHAT_TAN_TAY",
+    "name": "Phát tận tay",
+    "cost": 5500
+  },
+  {
+    "code": "GIAO_HANG_DAC_THU",
+    "name": "Giao hàng đặc thù",
+    "cost": 0
+  },
+  {
+    "code": "GIAO_HANG_MOT_PHAN",
+    "name": "Giao hàng một phần",
+    "cost": 0.5
+  },
+  {
+    "code": "DOI_HANG",
+    "name": "Đổi hàng",
+    "cost": 0.5
+  },
+  {
+    "code": "THU_TIEN_XEM_HANG",
+    "name": "Thu tiền xem hàng",
+    "cost": 5000
+  },
+  {
+    "code": "PHAT_TAI_DIEM_GIAO_DICH",
+    "name": "Phát tại điểm giao dịch",
+    "cost": -5000
+  },
+  {
+    "code": "ZALO_THONG_BAO",
+    "name": "Zalo thông báo đơn hàng",
+    "cost": 600
+  },
+  {
+    "code": "SMS_THONG_BAO",
+    "name": "SMS thông báo đơn hàng",
+    "cost": 1500
+  },
+  {
+    "code": "HOAN_CUOC_DI",
+    "name": "Hoàn cước chiều đi",
+    "cost": 0.11
+  },
+  {
+    "code": "HOAN_CUOC_VE",
+    "name": "Hoàn cước chiều về",
+    "cost": 1000
+  },
+  {
+    "code": "HOAN_CUOC_HAI_CHIEU",
+    "name": "Hoàn cước hai chiều",
+    "cost": 0.24
+  }
+]

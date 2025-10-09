@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Khách hàng thân thiết",
+    "code": "CLOSE",
+    "color_code": "#44ab4d"
+  },
+  {
+    "name": "Khách hàng VIP",
+    "code": "VIP",
+    "color_code": "#eb9642"
+  },
+  {
+    "name": "Khách hàng mới",
+    "code": "NEW",
+    "color_code": "#3b9ef4"
+  },
+  {
+    "name": "Bom hàng",
+    "code": "BOM",
+    "color_code": "#ee004c"
+  },
+  {
+    "name": "Tín nhiệm thấp",
+    "code": "LOW_EXPECTATION",
+    "color_code": "#d37cd9"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "_id": { "$oid": "652f2a87b88d9a7b2d4c1e9f" },
+    "code": "KM10",
+    "name": "Khuyến mãi tháng 10",
+    "percent": 10,
+    "expiry_date": { "$date": "2025-12-31T00:00:00Z" },
+    "quantity": 100,
+    "created_date": { "$date": "2025-09-29T22:00:00Z" },
+    "created_by": { "$oid": "60d21b4667d0d8992e610a01" },
+    "modified_date": { "$date": "2025-09-29T22:00:00Z" },
+    "modified_by": { "$oid": "60d21b4667d0d8992e610a01" }
+  }
+]

@@ -1,0 +1,307 @@
+[
+  {
+    "name": "Nội Tỉnh Nội Cụm",
+    "code": "NTNC",
+    "estimate_time": 1.0,
+    "fees": [
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d30" },
+        "weight_min": 0,
+        "weight_max": 250,
+        "cost": 17000,
+        "scope_id": 1,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d31" },
+        "weight_min": 250,
+        "weight_max": 500,
+        "cost": 17000,
+        "scope_id": 1,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d32" },
+        "weight_min": 500,
+        "weight_max": 1000,
+        "cost": 21000,
+        "scope_id": 1,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d33" },
+        "weight_min": 1000,
+        "weight_max": 1500,
+        "cost": 25000,
+        "scope_id": 1,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d34" },
+        "weight_min": 1500,
+        "weight_max": 2000,
+        "cost": 27000,
+        "scope_id": 1,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d35" },
+        "weight_min": 2000,
+        "weight_max": null,
+        "cost": 2500,
+        "scope_id": 1,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      }
+    ]
+  },
+  {
+    "name": "Nội Tỉnh Ngoại Cụm",
+    "code": "NTNGC",
+    "estimate_time": 1.0,
+    "fees": [
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d36" },
+        "weight_min": 0,
+        "weight_max": 250,
+        "cost": 30000,
+        "scope_id": 2,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d37" },
+        "weight_min": 250,
+        "weight_max": 500,
+        "cost": 31000,
+        "scope_id": 2,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d38" },
+        "weight_min": 500,
+        "weight_max": 1000,
+        "cost": 43000,
+        "scope_id": 2,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d39" },
+        "weight_min": 1000,
+        "weight_max": 1500,
+        "cost": 52000,
+        "scope_id": 2,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d3a" },
+        "weight_min": 1500,
+        "weight_max": 2000,
+        "cost": 64000,
+        "scope_id": 2,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d3b" },
+        "weight_min": 2000,
+        "weight_max": null,
+        "cost": 5000,
+        "scope_id": 2,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      }
+    ]
+  },
+  {
+    "name": "Nội Miền ",
+    "code": "NM",
+    "estimate_time": 1.5,
+    "fees": [
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d3c" },
+        "weight_min": 0,
+        "weight_max": 250,
+        "cost": 30000,
+        "scope_id": 3,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d3d" },
+        "weight_min": 250,
+        "weight_max": 500,
+        "cost": 31000,
+        "scope_id": 3,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d3e" },
+        "weight_min": 500,
+        "weight_max": 1000,
+        "cost": 43000,
+        "scope_id": 3,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d3f" },
+        "weight_min": 1000,
+        "weight_max": 1500,
+        "cost": 52000,
+        "scope_id": 3,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d40" },
+        "weight_min": 1500,
+        "weight_max": 2000,
+        "cost": 64000,
+        "scope_id": 3,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d41" },
+        "weight_min": 2000,
+        "weight_max": null,
+        "cost": 5000,
+        "scope_id": 3,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      }
+    ]
+  },
+  {
+    "name": "Liên Miền",
+    "code": "LM",
+    "estimate_time": 2.5,
+    "fees": [
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d42" },
+        "weight_min": 0,
+        "weight_max": 250,
+        "cost": 35000,
+        "scope_id": 4,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d43" },
+        "weight_min": 250,
+        "weight_max": 500,
+        "cost": 38000,
+        "scope_id": 4,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d44" },
+        "weight_min": 500,
+        "weight_max": 1000,
+        "cost": 56000,
+        "scope_id": 4,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d45" },
+        "weight_min": 1000,
+        "weight_max": 1500,
+        "cost": 72000,
+        "scope_id": 4,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d46" },
+        "weight_min": 1500,
+        "weight_max": 2000,
+        "cost": 87000,
+        "scope_id": 4,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d47" },
+        "weight_min": 2000,
+        "weight_max": null,
+        "cost": 12500,
+        "scope_id": 4,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      }
+    ]
+  },
+  {
+    "name": "Liên Miền Đặc Biệt",
+    "code": "LMDB",
+    "estimate_time": 1.5,
+    "fees": [
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d48" },
+        "weight_min": 0,
+        "weight_max": 250,
+        "cost": 33000,
+        "scope_id": 5,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d49" },
+        "weight_min": 250,
+        "weight_max": 500,
+        "cost": 37000,
+        "scope_id": 5,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d4a" },
+        "weight_min": 500,
+        "weight_max": 1000,
+        "cost": 53000,
+        "scope_id": 5,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d4b" },
+        "weight_min": 1000,
+        "weight_max": 1500,
+        "cost": 68000,
+        "scope_id": 5,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d4c" },
+        "weight_min": 1500,
+        "weight_max": 2000,
+        "cost": 83000,
+        "scope_id": 5,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      },
+      {
+        "_id": { "$oid": "60d21b4667d0d8992e610d4d" },
+        "weight_min": 2000,
+        "weight_max": null,
+        "cost": 12000,
+        "scope_id": 5,
+        "available_date": { "$date": "2025-07-10T00:00:00.000Z" },
+        "is_active": true
+      }
+    ]
+  }
+]

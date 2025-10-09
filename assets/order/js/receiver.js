@@ -10,7 +10,19 @@ window.Receiver = (function() {
   function init() {
     initReceiverInfo();
     initSearchableSelects();
-    handleLocationCascading();
+    initAddressSystem();
+  }
+
+  // Initialize address system
+  async function initAddressSystem() {
+    // Wait for AddressData to be available
+    if (window.AddressData) {
+      await window.AddressData.init();
+      window.AddressData.setupAddressCascading();
+    } else {
+      // Fallback to old cascading system
+      handleLocationCascading();
+    }
   }
 
   // Receiver info functionality  
@@ -187,8 +199,8 @@ window.Receiver = (function() {
           dropdown.classList.remove("show");
           display.classList.remove("active");
 
-          // Trigger change event for cascading selects
-          const changeEvent = new CustomEvent("locationChange", {
+          // Trigger change event for cascading selects (for AddressData module)
+          const changeEvent = new CustomEvent("change", {
             detail: {
               value: e.target.getAttribute("data-value"),
               text: selectedText,
@@ -196,6 +208,16 @@ window.Receiver = (function() {
             },
           });
           selectElement.dispatchEvent(changeEvent);
+
+          // Trigger locationChange event for backward compatibility
+          const locationChangeEvent = new CustomEvent("locationChange", {
+            detail: {
+              value: e.target.getAttribute("data-value"),
+              text: selectedText,
+              selectId: selectElement.id,
+            },
+          });
+          selectElement.dispatchEvent(locationChangeEvent);
 
           // Trigger validation for this select
           const errorElement = selectElement.parentElement.querySelector(".text-danger");
@@ -220,19 +242,9 @@ window.Receiver = (function() {
     });
   }
 
-  // Handle location cascading (Province -> District -> Ward -> Street)
+  // Handle location cascading (Province -> District -> Ward -> Street) - Fallback method
   function handleLocationCascading() {
-    const provinceSelect = document.getElementById("provinceSelect");
-    const districtSelect = document.getElementById("districtSelect");
-    const wardSelect = document.getElementById("wardSelect");
-    const streetSelect = document.getElementById("streetSelect");
-
-    // New address mode selects
-    const newProvinceSelect = document.getElementById("newProvinceSelect");
-    const newWardSelect = document.getElementById("newWardSelect");
-    const newStreetSelect = document.getElementById("newStreetSelect");
-
-    // Sample data - in real app this would come from API
+    // Sample data for fallback - in real app this would come from API
     const districts = {
       hanoi: ["Quận Ba Đình", "Quận Hoàn Kiếm", "Quận Tây Hồ", "Quận Long Biên"],
       hcm: ["Quận 1", "Quận 2", "Quận 3", "Quận 4", "Quận 5", "Quận 7"],
@@ -248,6 +260,17 @@ window.Receiver = (function() {
       "Phường Bến Thành": ["Đường Lê Thánh Tôn", "Đường Pasteur", "Đường Hai Bà Trưng"],
       "Phường Thảo Điền": ["Đường Xa Lộ Hà Nội", "Đường Nguyễn Văn Hưởng", "Đường Quốc Hương"],
     };
+
+    // Setup basic cascading with sample data
+    setupBasicCascading(districts, wards, streets);
+  }
+
+  // Setup basic cascading with provided data
+  function setupBasicCascading(districts, wards, streets) {
+    const provinceSelect = document.getElementById("provinceSelect");
+    const districtSelect = document.getElementById("districtSelect");
+    const wardSelect = document.getElementById("wardSelect");
+    const streetSelect = document.getElementById("streetSelect");
 
     // Normal address mode cascading
     if (provinceSelect) {
@@ -271,25 +294,6 @@ window.Receiver = (function() {
       wardSelect.addEventListener("locationChange", function (e) {
         const wardText = e.detail.text;
         updateStreetOptions(streetSelect, streets[wardText] || []);
-      });
-    }
-
-    // New address mode cascading
-    if (newProvinceSelect) {
-      newProvinceSelect.addEventListener("locationChange", function (e) {
-        const provinceValue = e.detail.value;
-        updateWardOptions(
-          newWardSelect,
-          wards[Object.keys(districts[provinceValue] || {})[0]] || []
-        );
-        resetSelect(newStreetSelect, "Đường/Thôn/Xóm");
-      });
-    }
-
-    if (newWardSelect) {
-      newWardSelect.addEventListener("locationChange", function (e) {
-        const wardText = e.detail.text;
-        updateStreetOptions(newStreetSelect, streets[wardText] || []);
       });
     }
   }

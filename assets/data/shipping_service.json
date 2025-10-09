@@ -1,0 +1,49 @@
+[
+  {
+    "code": "STANDARD_SOUTH",
+    "name": "Chuyển phát tiêu chuẩn",
+    "estimate_time_hours": 36
+  },
+  {
+    "code": "EXPRESS_SOUTH",
+    "name": "Chuyển phát nhanh",
+    "estimate_time_hours": 24
+  },
+  {
+    "code": "RUSH_SOUTH",
+    "name": "Chuyển phát hỏa tốc",
+    "estimate_time_hours": 12
+  },
+
+  {
+    "code": "STANDARD_NORTH",
+    "name": "Chuyển phát tiêu chuẩn",
+    "estimate_time_hours": 36
+  },
+  {
+    "code": "EXPRESS_NORTH",
+    "name": "Chuyển phát nhanh",
+    "estimate_time_hours": 24
+  },
+  {
+    "code": "RUSH_NORTH",
+    "name": "Chuyển phát hỏa tốc",
+    "estimate_time_hours": 12
+  },
+
+  {
+    "code": "STANDARD_CENTRAL",
+    "name": "Chuyển phát tiêu chuẩn",
+    "estimate_time_hours": 36
+  },
+  {
+    "code": "EXPRESS_CENTRAL",
+    "name": "Chuyển phát nhanh",
+    "estimate_time_hours": 24
+  },
+  {
+    "code": "RUSH_CENTRAL",
+    "name": "Chuyển phát hỏa tốc",
+    "estimate_time_hours": 12
+  }
+]

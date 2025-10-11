@@ -31,24 +31,75 @@ window.Service = (function() {
     },
   };
 
-  const ADDITIONAL_SERVICE_COSTS = {
-    declareValue: 5000,
-    insurance: 10000,
-    inspection: 8000,
-    specialDelivery: 15000,
-    fragileGoods: 12000,
-    exchange: 10000,
-    specialHandling: 20000,
-    handDelivery: 8000,
-    identityConfirmation: 15000,
-    smsNotification: 2000,
-    zaloNotification: 0, // Free service
-    refundService: 5000,
-  };
-
   // Public methods
-  function init() {
+  async function init() {
+    // Load service data first
+    const loaded = await ServiceData.init();
+    if (!loaded) {
+      console.error('Failed to load service data');
+      return;
+    }
+
+    // Render dynamic content
+    renderAdditionalServices();
+
+    // Initialize functionality
     initServiceSelection();
+    updateServiceCounter();
+  }
+
+  function renderAdditionalServices() {
+    const services = ServiceData.getOtherServices();
+    const container = document.querySelector('.additional-services .row');
+    
+    if (!container || services.length === 0) {
+      console.warn('Additional services container not found or no services available');
+      return;
+    }
+
+    // Clear existing content
+    container.innerHTML = '';
+
+    // Group services into 3 columns
+    const servicesPerColumn = Math.ceil(services.length / 3);
+    
+    for (let col = 0; col < 3; col++) {
+      const columnDiv = document.createElement('div');
+      columnDiv.className = 'col-md-4';
+      
+      const startIdx = col * servicesPerColumn;
+      const endIdx = Math.min(startIdx + servicesPerColumn, services.length);
+      
+      for (let i = startIdx; i < endIdx; i++) {
+        const service = services[i];
+        const serviceId = service.code.toLowerCase();
+        const isChecked = service.code === 'ZALO_THONG_BAO'; // Default checked
+        
+        const serviceHTML = `
+          <div class="form-check mb-2">
+            <input class="form-check-input additional-service-checkbox" 
+                   type="checkbox" 
+                   id="${serviceId}" 
+                   data-code="${service.code}" 
+                   data-cost="${service.cost}"
+                   ${isChecked ? 'checked' : ''}>
+            <label class="form-check-label" for="${serviceId}">${service.name}</label>
+          </div>
+        `;
+        columnDiv.insertAdjacentHTML('beforeend', serviceHTML);
+      }
+      
+      container.appendChild(columnDiv);
+    }
+  }
+
+  function updateServiceCounter() {
+    const checkedCount = document.querySelectorAll('.additional-service-checkbox:checked').length;
+    const counterElement = document.querySelector('.card-body h6');
+    
+    if (counterElement && counterElement.textContent.includes('DỊCH VỤ CỘNG THÊM')) {
+      counterElement.innerHTML = `<i class="fas fa-plus-circle"></i> DỊCH VỤ CỘNG THÊM (${checkedCount})`;
+    }
   }
 
   function initServiceSelection() {
@@ -61,17 +112,14 @@ window.Service = (function() {
       });
     });
 
-    // Initialize with default selected service
-    const checkedService = document.querySelector('input[name="mainService"]:checked');
-    if (checkedService) {
-      updateServiceInfo(checkedService.value);
-      updateServicePrice();
-    }
+    // Don't calculate price on init - keep default 0 đ
+    // Price will be calculated when user fills in package info or selects additional services
 
     // Handle additional services
-    const additionalServices = document.querySelectorAll('.additional-services input[type="checkbox"]');
+    const additionalServices = document.querySelectorAll('.additional-service-checkbox');
     additionalServices.forEach((checkbox) => {
       checkbox.addEventListener("change", function () {
+        updateServiceCounter();
         updateServicePrice();
       });
     });
@@ -104,10 +152,11 @@ window.Service = (function() {
     const basePrice = getCurrentServicePrice();
     let additionalCost = 0;
 
-    const additionalServices = document.querySelectorAll('.additional-services input[type="checkbox"]:checked');
-    additionalServices.forEach((service) => {
-      // Add cost for each selected additional service
-      additionalCost += getAdditionalServiceCost(service.id);
+    const additionalServices = document.querySelectorAll('.additional-service-checkbox:checked');
+    additionalServices.forEach((checkbox) => {
+      // Get cost from data attribute (from JSON)
+      const cost = parseFloat(checkbox.dataset.cost) || 0;
+      additionalCost += cost;
     });
 
     const totalPrice = basePrice + additionalCost;
@@ -145,12 +194,41 @@ window.Service = (function() {
   }
 
   function getCurrentServicePrice() {
+    // Return 0 until package info is filled
+    // Real price calculation should happen after user inputs package weight/dimensions
+    return 0;
+  }
+
+  function calculateMainServicePrice(weight, distance) {
+    // Calculate base price based on weight and distance
+    // This is a placeholder - real calculation would be more complex
     const checkedService = document.querySelector('input[name="mainService"]:checked');
-    return SERVICE_PRICES[checkedService?.value] || SERVICE_PRICES.express;
+    const serviceType = checkedService?.value || 'express';
+    
+    // Base rates per kg
+    const ratesPerKg = {
+      standard: 20000,
+      express: 25000,
+      priority: 35000
+    };
+    
+    const weightInKg = weight / 1000; // Convert grams to kg
+    const basePrice = ratesPerKg[serviceType] * Math.max(weightInKg, 0.5); // Minimum 0.5kg
+    
+    return Math.round(basePrice);
   }
 
   function getAdditionalServiceCost(serviceId) {
-    return ADDITIONAL_SERVICE_COSTS[serviceId] || 0;
+    // Get cost from checkbox data attribute (from JSON)
+    const checkbox = document.getElementById(serviceId);
+    if (checkbox && checkbox.dataset.cost) {
+      return parseFloat(checkbox.dataset.cost);
+    }
+    
+    // If checkbox not found, try to get from ServiceData module
+    const code = serviceId.toUpperCase();
+    const cost = ServiceData.getServiceCost(code);
+    return cost || 0;
   }
 
   function formatPrice(price) {
@@ -164,12 +242,13 @@ window.Service = (function() {
     const basePrice = SERVICE_PRICES[serviceType];
     
     const additionalServices = [];
-    const additionalCost = Array.from(document.querySelectorAll('.additional-services input[type="checkbox"]:checked'))
-      .reduce((total, service) => {
-        const cost = getAdditionalServiceCost(service.id);
+    const additionalCost = Array.from(document.querySelectorAll('.additional-service-checkbox:checked'))
+      .reduce((total, checkbox) => {
+        const cost = parseFloat(checkbox.dataset.cost) || 0;
         additionalServices.push({
-          id: service.id,
-          name: service.nextElementSibling?.textContent || service.id,
+          id: checkbox.id,
+          code: checkbox.dataset.code,
+          name: checkbox.nextElementSibling?.textContent || checkbox.id,
           cost: cost
         });
         return total + cost;
@@ -185,9 +264,42 @@ window.Service = (function() {
     };
   }
 
+  function getSelectedAdditionalServices() {
+    const selected = [];
+    document.querySelectorAll('.additional-service-checkbox:checked').forEach(checkbox => {
+      selected.push({
+        code: checkbox.dataset.code,
+        name: checkbox.nextElementSibling?.textContent || '',
+        cost: parseFloat(checkbox.dataset.cost) || 0
+      });
+    });
+    return selected;
+  }
+
+  function calculateAdditionalServicesCost() {
+    const services = getSelectedAdditionalServices();
+    return services.reduce((total, service) => total + service.cost, 0);
+  }
+
   // Recalculate pricing (useful for external triggers)
   function recalculatePrice() {
     updateServicePrice();
+  }
+
+  // Calculate price based on package info
+  function recalculatePriceWithPackageInfo(weight, distance) {
+    const basePrice = calculateMainServicePrice(weight, distance);
+    let additionalCost = 0;
+
+    const additionalServices = document.querySelectorAll('.additional-service-checkbox:checked');
+    additionalServices.forEach((checkbox) => {
+      const cost = parseFloat(checkbox.dataset.cost) || 0;
+      additionalCost += cost;
+    });
+
+    const totalPrice = basePrice + additionalCost;
+    updatePriceDisplay(totalPrice);
+    return totalPrice;
   }
 
   // Public API
@@ -196,13 +308,17 @@ window.Service = (function() {
     initServiceSelection,
     updateServiceInfo,
     updateServicePrice,
+    updateServiceCounter,
     getCurrentServicePrice,
+    calculateMainServicePrice,
     getAdditionalServiceCost,
     formatPrice,
     getCurrentServiceInfo,
+    getSelectedAdditionalServices,
+    calculateAdditionalServicesCost,
     recalculatePrice,
+    recalculatePriceWithPackageInfo,
     SERVICE_PRICES,
-    SERVICE_INFO,
-    ADDITIONAL_SERVICE_COSTS
+    SERVICE_INFO
   };
 })();

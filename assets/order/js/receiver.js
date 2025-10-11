@@ -3,8 +3,8 @@
  * Handles receiver information, address modes, location cascading
  */
 
-window.Receiver = (function() {
-  'use strict';
+window.Receiver = (function () {
+  "use strict";
 
   // Public methods
   function init() {
@@ -15,42 +15,21 @@ window.Receiver = (function() {
 
   // Initialize address system
   async function initAddressSystem() {
-    // Wait for AddressData to be available
     if (window.AddressData) {
       await window.AddressData.init();
       window.AddressData.setupAddressCascading();
-    } else {
-      // Fallback to old cascading system
-      handleLocationCascading();
     }
   }
 
-  // Receiver info functionality  
+  // Receiver info functionality
   function initReceiverInfo() {
-    // Address mode toggle
-    const useNewAddressToggle = document.getElementById("useNewAddress");
-    const normalMode = document.getElementById("normalAddressMode");
-    const newMode = document.getElementById("newAddressMode");
-
-    if (useNewAddressToggle && normalMode && newMode) {
-      useNewAddressToggle.addEventListener("change", function () {
-        if (this.checked) {
-          normalMode.style.display = "none";
-          newMode.style.display = "block";  
-        } else {
-          normalMode.style.display = "block";
-          newMode.style.display = "none";
-        }
-
-        // Check receiver info completeness after mode change
-        setTimeout(() => checkReceiverInfoComplete(), 100);
-      });
-    }
 
     // Custom delivery time select
     const deliveryTimeSelect = document.getElementById("deliveryTimeSelect");
     const deliveryTimeDisplay = document.getElementById("deliveryTimeDisplay");
-    const deliveryTimeDropdown = document.getElementById("deliveryTimeDropdown");
+    const deliveryTimeDropdown = document.getElementById(
+      "deliveryTimeDropdown"
+    );
 
     if (deliveryTimeSelect && deliveryTimeDisplay && deliveryTimeDropdown) {
       // Toggle dropdown
@@ -101,13 +80,16 @@ window.Receiver = (function() {
 
   // Searchable Select functionality
   function initSearchableSelects() {
-    const searchableSelects = document.querySelectorAll(".custom-select-search");
+    const searchableSelects = document.querySelectorAll(
+      ".custom-select-search"
+    );
 
     searchableSelects.forEach((selectElement) => {
       const display = selectElement.querySelector(".select-display");
       const dropdown = selectElement.querySelector(".select-dropdown");
       const searchInput = selectElement.querySelector(".search-input");
-      const optionsContainer = selectElement.querySelector(".options-container");
+      const optionsContainer =
+        selectElement.querySelector(".options-container");
       const noResults = selectElement.querySelector(".no-results");
 
       if (!display || !dropdown || !searchInput || !optionsContainer) return;
@@ -220,7 +202,8 @@ window.Receiver = (function() {
           selectElement.dispatchEvent(locationChangeEvent);
 
           // Trigger validation for this select
-          const errorElement = selectElement.parentElement.querySelector(".text-danger");
+          const errorElement =
+            selectElement.parentElement.querySelector(".text-danger");
           if (errorElement && window.Validation) {
             window.Validation.hideSelectError(selectElement, errorElement);
           }
@@ -242,169 +225,45 @@ window.Receiver = (function() {
     });
   }
 
-  // Handle location cascading (Province -> District -> Ward -> Street) - Fallback method
-  function handleLocationCascading() {
-    // Sample data for fallback - in real app this would come from API
-    const districts = {
-      hanoi: ["Quận Ba Đình", "Quận Hoàn Kiếm", "Quận Tây Hồ", "Quận Long Biên"],
-      hcm: ["Quận 1", "Quận 2", "Quận 3", "Quận 4", "Quận 5", "Quận 7"],
-    };
-
-    const wards = {
-      "Quận 1": ["Phường Bến Nghé", "Phường Bến Thành", "Phường Cầu Kho"],
-      "Quận 2": ["Phường Thảo Điền", "Phường Bình An", "Phường Bình Trưng Đông"],
-    };
-
-    const streets = {
-      "Phường Bến Nghé": ["Đường Nguyễn Huệ", "Đường Lê Lợi", "Đường Đồng Khởi"],
-      "Phường Bến Thành": ["Đường Lê Thánh Tôn", "Đường Pasteur", "Đường Hai Bà Trưng"],
-      "Phường Thảo Điền": ["Đường Xa Lộ Hà Nội", "Đường Nguyễn Văn Hưởng", "Đường Quốc Hương"],
-    };
-
-    // Setup basic cascading with sample data
-    setupBasicCascading(districts, wards, streets);
-  }
-
-  // Setup basic cascading with provided data
-  function setupBasicCascading(districts, wards, streets) {
-    const provinceSelect = document.getElementById("provinceSelect");
-    const districtSelect = document.getElementById("districtSelect");
-    const wardSelect = document.getElementById("wardSelect");
-    const streetSelect = document.getElementById("streetSelect");
-
-    // Normal address mode cascading
-    if (provinceSelect) {
-      provinceSelect.addEventListener("locationChange", function (e) {
-        const provinceValue = e.detail.value;
-        updateDistrictOptions(districtSelect, districts[provinceValue] || []);
-        resetSelect(wardSelect, "Xã/Phường");
-        resetSelect(streetSelect, "Đường/Thôn/Xóm");
-      });
-    }
-
-    if (districtSelect) {
-      districtSelect.addEventListener("locationChange", function (e) {
-        const districtText = e.detail.text;
-        updateWardOptions(wardSelect, wards[districtText] || []);
-        resetSelect(streetSelect, "Đường/Thôn/Xóm");
-      });
-    }
-
-    if (wardSelect) {
-      wardSelect.addEventListener("locationChange", function (e) {
-        const wardText = e.detail.text;
-        updateStreetOptions(streetSelect, streets[wardText] || []);
-      });
-    }
-  }
-
-  function updateDistrictOptions(selectElement, options) {
-    if (!selectElement) return;
-
-    const optionsContainer = selectElement.querySelector(".options-container");
-    if (options.length > 0) {
-      optionsContainer.innerHTML = options
-        .map(
-          (option) =>
-            `<div class="dropdown-option" data-value="${option
-              .toLowerCase()
-              .replace(/\s+/g, "")}">${option}</div>`
-        )
-        .join("");
-    } else {
-      optionsContainer.innerHTML = '<div class="no-results">Không có dữ liệu</div>';
-    }
-  }
-
-  function updateWardOptions(selectElement, options) {
-    if (!selectElement) return;
-
-    const optionsContainer = selectElement.querySelector(".options-container");
-    if (options.length > 0) {
-      optionsContainer.innerHTML = options
-        .map(
-          (option) =>
-            `<div class="dropdown-option" data-value="${option
-              .toLowerCase()
-              .replace(/\s+/g, "")}">${option}</div>`
-        )
-        .join("");
-    } else {
-      optionsContainer.innerHTML = '<div class="no-results">Không có dữ liệu</div>';
-    }
-  }
-
-  function updateStreetOptions(selectElement, options) {
-    if (!selectElement) return;
-
-    const optionsContainer = selectElement.querySelector(".options-container");
-    if (options.length > 0) {
-      optionsContainer.innerHTML = options
-        .map(
-          (option) =>
-            `<div class="dropdown-option" data-value="${option
-              .toLowerCase()
-              .replace(/\s+/g, "")}">${option}</div>`
-        )
-        .join("");
-    } else {
-      optionsContainer.innerHTML = '<div class="no-results">Không có dữ liệu</div>';
-    }
-  }
-
-  function resetSelect(selectElement, placeholder) {
-    if (!selectElement) return;
-
-    const display = selectElement.querySelector(".select-display");
-    const span = display.querySelector("span");
-    const optionsContainer = selectElement.querySelector(".options-container");
-
-    span.textContent = placeholder;
-    display.classList.remove("has-value");
-    optionsContainer.innerHTML = `<div class="no-results">Vui lòng chọn cấp trên trước</div>`;
-  }
-
   function checkReceiverInfoComplete() {
     const phone = document.getElementById("receiverPhone");
     const name = document.getElementById("receiverName");
     const address = document.getElementById("receiverAddress");
     const newAddress = document.getElementById("newReceiverAddress");
-    const useNewAddress = document.getElementById("useNewAddress");
+    const useNewAddressToggle = document.getElementById("useNewAddressToggle");
 
     // Check basic info
     const phoneValid = phone && phone.value.trim() !== "";
     const nameValid = name && name.value.trim() !== "";
 
     // Check address based on mode
-    const isNewAddressMode = useNewAddress && useNewAddress.checked;
+    const isNewAddressMode = useNewAddressToggle && useNewAddressToggle.checked;
     let addressValid = false;
 
     if (isNewAddressMode) {
       addressValid = newAddress && newAddress.value.trim() !== "";
-      // Also check if location selects are filled for new mode
       const newProvince = document.getElementById("newProvinceSelect");
       const newWard = document.getElementById("newWardSelect");
-      const newStreet = document.getElementById("newStreetSelect");
 
-      const newProvinceValid = newProvince && newProvince.querySelector(".dropdown-option.selected");
-      const newWardValid = newWard && newWard.querySelector(".dropdown-option.selected");
-      const newStreetValid = newStreet && newStreet.querySelector(".dropdown-option.selected");
+      const newProvinceValid =
+        newProvince && newProvince.querySelector(".dropdown-option.selected");
+      const newWardValid =
+        newWard && newWard.querySelector(".dropdown-option.selected");
 
-      addressValid = addressValid && newProvinceValid && newWardValid && newStreetValid;
+      addressValid = addressValid && newProvinceValid && newWardValid;
     } else {
       addressValid = address && address.value.trim() !== "";
-      // Also check if location selects are filled for normal mode
       const province = document.getElementById("provinceSelect");
       const district = document.getElementById("districtSelect");
       const ward = document.getElementById("wardSelect");
-      const street = document.getElementById("streetSelect");
 
-      const provinceValid = province && province.querySelector(".dropdown-option.selected");
-      const districtValid = district && district.querySelector(".dropdown-option.selected");
+      const provinceValid =
+        province && province.querySelector(".dropdown-option.selected");
+      const districtValid =
+        district && district.querySelector(".dropdown-option.selected");
       const wardValid = ward && ward.querySelector(".dropdown-option.selected");
-      const streetValid = street && street.querySelector(".dropdown-option.selected");
 
-      addressValid = addressValid && provinceValid && districtValid && wardValid && streetValid;
+      addressValid = addressValid && provinceValid && districtValid && wardValid;
     }
 
     const isComplete = phoneValid && nameValid && addressValid;
@@ -439,13 +298,6 @@ window.Receiver = (function() {
   // Public API
   return {
     init,
-    initReceiverInfo,
-    initSearchableSelects,
-    handleLocationCascading,
-    updateDistrictOptions,
-    updateWardOptions,
-    updateStreetOptions,
-    resetSelect,
-    checkReceiverInfoComplete
+    checkReceiverInfoComplete,
   };
 })();

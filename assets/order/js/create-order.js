@@ -58,7 +58,7 @@ async function loadComponents() {
   }, 100);
 }
 
-function initializeBasicFunctionality() {
+async function initializeBasicFunctionality() {
   // Initialize all available modules
   if (window.Sender && window.Sender.init) {
     window.Sender.init();
@@ -69,11 +69,11 @@ function initializeBasicFunctionality() {
   }
   
   if (window.Service && window.Service.init) {
-    window.Service.init();
+    await window.Service.init();
   }
   
   if (window.Package && window.Package.init) {
-    window.Package.init();
+    await window.Package.init();
   }
   
   if (window.Pickup && window.Pickup.init) {

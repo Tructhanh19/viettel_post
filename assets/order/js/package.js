@@ -11,12 +11,98 @@ window.Package = (function() {
   let availableNumbers = []; // Array to store reusable numbers
 
   // Public methods
-  function init() {
+  async function init() {
+    // Load package data first
+    const loaded = await PackageData.init();
+    if (!loaded) {
+      console.error('Failed to load package data');
+      return;
+    }
+
+    // Render dynamic content
+    renderPackageTypes();
+    renderPackageCharacteristics();
+
+    // Initialize functionality
     initPackageTypeToggle();
     initAddPackageButton();
     initPackageEventListeners();
     updatePackageItemVisibility();
     updatePackageSummary();
+  }
+
+  function renderPackageTypes() {
+    const packageTypes = PackageData.getPackageTypes();
+    const container = document.querySelector('.d-flex.gap-3');
+    
+    if (!container || packageTypes.length === 0) {
+      console.warn('Package types container not found or no types available');
+      return;
+    }
+
+    // Clear existing content
+    container.innerHTML = '';
+
+    // Render package types from JSON
+    packageTypes.forEach((type, index) => {
+      const typeId = type.code.toLowerCase();
+      const isChecked = index === 0; // First one is checked by default
+      
+      const typeHTML = `
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="packageType" value="${typeId}" id="package${type.code}" ${isChecked ? 'checked' : ''}>
+          <label class="form-check-label" for="package${type.code}">${type.name}</label>
+        </div>
+      `;
+      container.insertAdjacentHTML('beforeend', typeHTML);
+    });
+  }
+
+  function renderPackageCharacteristics() {
+    const allFeatures = PackageData.getPackageFeatures();
+    
+    // Render mail/package characteristics
+    const mailFeatures = allFeatures.filter(f => f.package_type_code === 'PACKAGE');
+    const mailContainer = document.getElementById('mailCharacteristics');
+    
+    if (mailContainer && mailFeatures.length > 0) {
+      mailContainer.innerHTML = renderCharacteristicRows(mailFeatures);
+    }
+
+    // Render document characteristics
+    const docFeatures = allFeatures.filter(f => f.package_type_code === 'DOCUMENT');
+    const docContainer = document.getElementById('documentCharacteristics');
+    
+    if (docContainer && docFeatures.length > 0) {
+      docContainer.innerHTML = renderCharacteristicRows(docFeatures);
+    }
+  }
+
+  function renderCharacteristicRows(features) {
+    let html = '<div class="row">';
+    
+    features.forEach((feature, index) => {
+      const featureId = feature.code.toLowerCase();
+      const colClass = features.length <= 2 ? 'col-md-6' : 'col-md-4';
+      
+      html += `
+        <div class="${colClass}">
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="${featureId}" data-code="${feature.code}" data-cost="${feature.cost}">
+            <label class="form-check-label" for="${featureId}">${feature.name}</label>
+          </div>
+        </div>
+      `;
+      
+      // Create new row after every 3 items (or 2 for documents)
+      const itemsPerRow = features.length <= 2 ? 2 : 3;
+      if ((index + 1) % itemsPerRow === 0 && index < features.length - 1) {
+        html += '</div><div class="row">';
+      }
+    });
+    
+    html += '</div>';
+    return html;
   }
 
   function initPackageTypeToggle() {
@@ -237,6 +323,30 @@ window.Package = (function() {
     return new Intl.NumberFormat("vi-VN").format(num);
   }
 
+  function getSelectedCharacteristics() {
+    const selectedFeatures = [];
+    const checkboxes = document.querySelectorAll('.special-characteristics-section input[type="checkbox"]:checked');
+    
+    checkboxes.forEach(checkbox => {
+      const code = checkbox.dataset.code;
+      const cost = parseFloat(checkbox.dataset.cost) || 0;
+      const label = checkbox.parentElement.querySelector('label').textContent;
+      
+      selectedFeatures.push({
+        code: code,
+        name: label,
+        cost: cost
+      });
+    });
+    
+    return selectedFeatures;
+  }
+
+  function calculateCharacteristicsCost() {
+    const selectedFeatures = getSelectedCharacteristics();
+    return selectedFeatures.reduce((total, feature) => total + feature.cost, 0);
+  }
+
   function validatePackageField(field, errorClass) {
     const container = 
       field.closest(".package-item") ||
@@ -267,6 +377,8 @@ window.Package = (function() {
     removePackageItem,
     updatePackageSummary,
     validatePackageField,
-    formatNumber
+    formatNumber,
+    getSelectedCharacteristics,
+    calculateCharacteristicsCost
   };
 })();

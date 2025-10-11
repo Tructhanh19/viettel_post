@@ -1,0 +1,992 @@
+[
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d05" },
+    "name": "Bưu cục Dương Nội - HNI",
+    "phone": "19008095",
+    "established_date": "2022-09-14T00:00:00.000Z",
+    "address": {
+      "other": "LK6-37 Khu Đô Thị An Hưng",
+      "ward": "Phường Dương Nội",
+      "district": "Quận Hà Đông",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d06" },
+    "name": "Bưu cục Chi nhánh CN Hà Nội",
+    "phone": "19008095",
+    "established_date": "2020-03-01T00:00:00.000Z",
+    "address": {
+      "other": "Km 2 đại lộ Thăng Long",
+      "ward": "Phường Mễ Trì",
+      "district": "Quận Nam Từ Liêm",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d07" },
+    "name": "Bưu cục FMCG Thanh Xuân - HNI",
+    "phone": "19008095",
+    "established_date": "2021-12-07T00:00:00.000Z",
+    "address": {
+      "other": "Toà nhà N1, ĐẠI LỘ Thăng Long",
+      "ward": "Phường Thanh Xuân",
+      "district": "Quận Thanh Xuân",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d08" },
+    "name": "Bưu cục Mễ Trì Thượng - HNI",
+    "phone": "19008095",
+    "established_date": "2023-04-19T00:00:00.000Z",
+    "address": {
+      "other": "74 Miếu Đầm",
+      "ward": "Phường Mễ Trì",
+      "district": "Quận Nam Từ Liêm",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d09" },
+    "name": "Bưu cục Ba Đình",
+    "phone": "02463272299",
+    "established_date": "2022-06-28T00:00:00.000Z",
+    "address": {
+      "other": "Số 30/31 ngõ 135 Đội Cấn",
+      "ward": "Phường Đội Cấn",
+      "district": "Quận Ba Đình",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d0a" },
+    "name": "Bưu cục Ngô Quyền - HNI",
+    "phone": "0869578807",
+    "established_date": "2024-02-11T00:00:00.000Z",
+    "address": {
+      "other": "Số 12 Đường Ngô Quyền",
+      "ward": "Phường Vạn Phúc",
+      "district": "Quận Hà Đông",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d0b" },
+    "name": "Bưu cục Sóc Sơn - HNI",
+    "phone": "19008095",
+    "established_date": "2021-07-05T00:00:00.000Z",
+    "address": {
+      "other": "Số 74 Quốc Lộ 3",
+      "ward": "Thị trấn Sóc Sơn",
+      "district": "Huyện Sóc Sơn",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d0c" },
+    "name": "Bưu cục Trần Duy Hưng - HNI",
+    "phone": "0971117991",
+    "established_date": "2023-08-30T00:00:00.000Z",
+    "address": {
+      "other": "109 Đ. Trần Duy Hưng",
+      "ward": "Phường Trung Hoà",
+      "district": "Quận Cầu Giấy",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d0d" },
+    "name": "Bưu cục Cống Vị - HNI",
+    "phone": "02466814343",
+    "established_date": "2022-03-12T00:00:00.000Z",
+    "address": {
+      "other": "Phố Cống Vị",
+      "ward": "Phường Cống Vị",
+      "district": "Quận Ba Đình",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d0e" },
+    "name": "Bưu cục Lê Đức Thọ - HNI",
+    "phone": "19008095",
+    "established_date": "2024-05-20T00:00:00.000Z",
+    "address": {
+      "other": "Đường Lê Đức Thọ",
+      "ward": "Phường Đại Mỗ",
+      "district": "Quận Nam Từ Liêm",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d0f" },
+    "name": "Bưu cục Mỹ Đình - HNI",
+    "phone": "19008095",
+    "established_date": "2021-02-25T00:00:00.000Z",
+    "address": {
+      "other": "Khu Mỹ Đình II",
+      "ward": "Phường Mỹ Đình II",
+      "district": "Quận Nam Từ Liêm",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d10" },
+    "name": "Bưu cục Quán Thánh - HNI",
+    "phone": "19008095",
+    "established_date": "2023-11-08T00:00:00.000Z",
+    "address": {
+      "other": "Phố Quán Thánh",
+      "ward": "Phường Trúc Bạch",
+      "district": "Quận Ba Đình",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d11" },
+    "name": "Bưu cục Hoàn Kiếm - HNI",
+    "phone": "19008095",
+    "established_date": "2022-08-13T00:00:00.000Z",
+    "address": {
+      "other": "Phố Hàng Đào",
+      "ward": "Phường Hàng Đào",
+      "district": "Quận Hoàn Kiếm",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d12" },
+    "name": "Bưu cục Sóc Sơn 1 - HNI",
+    "phone": "19008095",
+    "established_date": "2024-10-01T00:00:00.000Z",
+    "address": {
+      "other": "Số 11 tổ 2 Miếu Thờ",
+      "ward": "Xã Bắc Phú",
+      "district": "Huyện Sóc Sơn",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d13" },
+    "name": "Bưu cục Kho Vùng HNI5",
+    "phone": "19008095",
+    "established_date": "2021-06-22T00:00:00.000Z",
+    "address": {
+      "other": "Khu kho vùng",
+      "ward": "Phường Tây Mỗ",
+      "district": "Quận Nam Từ Liêm",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d14" },
+    "name": "Bưu cục Huỳnh Cung - HNI",
+    "phone": "19008095",
+    "established_date": "2024-04-06T00:00:00.000Z",
+    "address": {
+      "other": "68 Đường Huỳnh Cung",
+      "ward": "Phường Tam Hiệp",
+      "district": "Quận Thanh Trì",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d15" },
+    "name": "Bưu cục Yên Xá - HNI",
+    "phone": "19008095",
+    "established_date": "2021-09-17T00:00:00.000Z",
+    "address": {
+      "other": "Số 8 liền kề 11, tổng cục 5 Yên Xá",
+      "ward": "Phường Tân Triều",
+      "district": "Quận Thanh Trì",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d16" },
+    "name": "Bưu cục Lạc Thị - HNI",
+    "phone": "19008095",
+    "established_date": "2023-07-31T00:00:00.000Z",
+    "address": {
+      "other": "Ngã Ba Lạc Thị",
+      "ward": "Xã Ngọc Hồi",
+      "district": "Huyện Thanh Trì",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d17" },
+    "name": "Bưu cục Tây Nam Linh Đàm - HNI",
+    "phone": "19008095",
+    "established_date": "2022-01-29T00:00:00.000Z",
+    "address": {
+      "other": "Khu đô thị Linh Đàm",
+      "ward": "Phường Linh Đàm",
+      "district": "Quận Hoàng Mai",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d18" },
+    "name": "Bưu cục Ba Vì - HNI",
+    "phone": "19008095",
+    "established_date": "2023-10-23T00:00:00.000Z",
+    "address": {
+      "other": "Thị trấn Tây Đằng",
+      "ward": "Thị trấn Tây Đằng",
+      "district": "Huyện Ba Vì",
+      "province": "Hà Nội"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d19" },
+    "name": "Bưu cục Bình Chánh - HCM",
+    "phone": "19008095",
+    "established_date": "2023-05-15T00:00:00.000Z",
+    "address": {
+      "other": "221 Hưng Nhơn, Ấp 3",
+      "ward": "Xã Tân Kiên",
+      "district": "Huyện Bình Chánh",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d1a" },
+    "name": "Bưu cục Hùng Vương - HCM",
+    "phone": "19008095",
+    "established_date": "2022-11-20T00:00:00.000Z",
+    "address": {
+      "other": "110/11 Bà Hom, P.13",
+      "ward": "Phường 13",
+      "district": "Quận 6",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d1b" },
+    "name": "Bưu cục Quận 6 - HCM",
+    "phone": "19008095",
+    "established_date": "2024-03-10T00:00:00.000Z",
+    "address": {
+      "other": "Địa chỉ Quận 6",
+      "ward": "Phường 12",
+      "district": "Quận 6",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d1c" },
+    "name": "Bưu cục Bến Thành",
+    "phone": "02862914879",
+    "established_date": "2021-08-05T00:00:00.000Z",
+    "address": {
+      "other": "141 Lê Thị Hồng Gấm",
+      "ward": "Phường Bến Thành",
+      "district": "Quận 1",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d1d" },
+    "name": "Bưu cục Cô Giang",
+    "phone": "02862915353",
+    "established_date": "2023-12-18T00:00:00.000Z",
+    "address": {
+      "other": "40A Hồ Hảo Hớn",
+      "ward": "Phường Cô Giang",
+      "district": "Quận 1",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d1e" },
+    "name": "Bưu cục Phạm Văn Chiêu – HCM",
+    "phone": "19008095",
+    "established_date": "2022-07-22T00:00:00.000Z",
+    "address": {
+      "other": "43 đường số 51, p.14",
+      "ward": "Phường 14",
+      "district": "Quận Gò Vấp",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d1f" },
+    "name": "Bưu cục Phan Văn Trị - HCM",
+    "phone": "19008095",
+    "established_date": "2024-01-14T00:00:00.000Z",
+    "address": {
+      "other": "Địa chỉ Phan Văn Trị",
+      "ward": "Phường 10",
+      "district": "Quận Gò Vấp",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d20" },
+    "name": "Bưu cục Nhà Bè – HCM",
+    "phone": "19008095",
+    "established_date": "2021-04-30T00:00:00.000Z",
+    "address": {
+      "other": "1083 Lê Văn Lương",
+      "ward": "Xã Phước Kiển",
+      "district": "Huyện Nhà Bè",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d21" },
+    "name": "Bưu cục Bình An - HCM",
+    "phone": "19008095",
+    "established_date": "2023-09-08T00:00:00.000Z",
+    "address": {
+      "other": "Địa chỉ Bình An",
+      "ward": "Phường Bình An",
+      "district": "TP. Thủ Đức",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d22" },
+    "name": "Bưu cục Bình Trưng Đông - HCM",
+    "phone": "19008095",
+    "established_date": "2022-02-17T00:00:00.000Z",
+    "address": {
+      "other": "Số 661, Đường Nguyễn Duy Trinh",
+      "ward": "Phường Bình Trưng Đông",
+      "district": "TP. Thủ Đức",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d23" },
+    "name": "Bưu cục An Phú - HCM",
+    "phone": "19008095",
+    "established_date": "2024-06-25T00:00:00.000Z",
+    "address": {
+      "other": "Số 42, Đường Bình Trưng",
+      "ward": "Phường An Phú",
+      "district": "TP. Thủ Đức",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d24" },
+    "name": "Bưu cục Hồ Chí Minh 02",
+    "phone": "02866735559",
+    "established_date": "2021-10-12T00:00:00.000Z",
+    "address": {
+      "other": "1185 QL, KP14, P. Bình Trị Đông B",
+      "ward": "Phường Bình Trị Đông B",
+      "district": "Quận Bình Tân",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d25" },
+    "name": "Bưu cục Cầu Rồng – DNG",
+    "phone": "19008095",
+    "established_date": "2023-01-03T00:00:00.000Z",
+    "address": {
+      "other": "129 Lê Đình Dương",
+      "ward": "Phường Nam Dương",
+      "district": "Quận Hải Châu",
+      "province": "Đà Nẵng"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d26" },
+    "name": "Bưu cục Bế Văn Đàn - DNG",
+    "phone": "19008095",
+    "established_date": "2022-09-14T00:00:00.000Z",
+    "address": {
+      "other": "199 Bế Văn Đàn",
+      "ward": "Phường Chính Gián",
+      "district": "Quận Thanh Khê",
+      "province": "Đà Nẵng"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d27" },
+    "name": "Bưu cục Ông Ích Đường - DNG",
+    "phone": "02366267098",
+    "established_date": "2021-12-07T00:00:00.000Z",
+    "address": {
+      "other": "98 Ông Ích Đường",
+      "ward": "Phường Vĩnh Trung",
+      "district": "Quận Cẩm Lệ",
+      "province": "Đà Nẵng"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d28" },
+    "name": "Bưu cục Hoàng Văn Thụ - DNG",
+    "phone": "19008095",
+    "established_date": "2023-04-19T00:00:00.000Z",
+    "address": {
+      "other": "105 Hoàng Văn Thụ",
+      "ward": "Phường Hải Châu",
+      "district": "Quận Hải Châu",
+      "province": "Đà Nẵng"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d29" },
+    "name": "Bưu cục Lương Trúc Đàm - DNG",
+    "phone": "02366515999",
+    "established_date": "2022-10-04T00:00:00.000Z",
+    "address": {
+      "other": "29 Lương Trúc Đàm",
+      "ward": "Phường Hòa Hiệp Bắc",
+      "district": "Quận Liên Chiểu",
+      "province": "Đà Nẵng"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d2a" },
+    "name": "Bưu cục Cách Mạng Tháng Tám - DNG",
+    "phone": "19008095",
+    "established_date": "2023-12-05T00:00:00.000Z",
+    "address": {
+      "other": "Đường Cách Mạng Tháng Tám",
+      "ward": "Phường Hoà Cường Nam",
+      "district": "Quận Hải Châu",
+      "province": "Đà Nẵng"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d2b" },
+    "name": "Bưu cục 95 Hùng Vương - DNG",
+    "phone": "19008095",
+    "established_date": "2022-05-21T00:00:00.000Z",
+    "address": {
+      "other": "95 Hùng Vương",
+      "ward": "Phường Hải Châu",
+      "district": "Quận Hải Châu",
+      "province": "Đà Nẵng"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d2c" },
+    "name": "Bưu cục Cẩm Lệ – Hòa Thọ Đông - DNG",
+    "phone": "02366250579",
+    "established_date": "2024-09-16T00:00:00.000Z",
+    "address": {
+      "other": "04 Nguyễn Phước Tần",
+      "ward": "Phường Hòa Thọ Đông",
+      "district": "Quận Cẩm Lệ",
+      "province": "Đà Nẵng"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d2d" },
+    "name": "Bưu cục Quế Võ - BNN",
+    "phone": "19008095",
+    "established_date": "2021-05-18T00:00:00.000Z",
+    "address": {
+      "other": "QL18 Việt Hùng",
+      "ward": "Thị trấn Quế Võ",
+      "district": "Huyện Quế Võ",
+      "province": "Bắc Ninh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d2e" },
+    "name": "Bưu cục Lê Văn Thịnh - BNN",
+    "phone": "19008095",
+    "established_date": "2024-07-02T00:00:00.000Z",
+    "address": {
+      "other": "32 Lê Văn Thịnh",
+      "ward": "Phường Suối Hoa",
+      "district": "TP. Bắc Ninh",
+      "province": "Bắc Ninh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d2f" },
+    "name": "Bưu cục Cao Bằng - CBG",
+    "phone": "19008095",
+    "established_date": "2020-12-15T00:00:00.000Z",
+    "address": {
+      "other": "SN 068, Tổ 17",
+      "ward": "Phường Đề Thám",
+      "district": "TP. Cao Bằng",
+      "province": "Cao Bằng"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d30" },
+    "name": "Bưu cục Bình Hưng - HCM",
+    "phone": "19008095",
+    "established_date": "2022-11-20T00:00:00.000Z",
+    "address": {
+      "other": "A19/12 Ấp 1",
+      "ward": "Xã Bình Hưng",
+      "district": "Huyện Bình Chánh",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d31" },
+    "name": "Bưu cục Vĩnh Lộc - HCM",
+    "phone": "19008095",
+    "established_date": "2024-03-10T00:00:00.000Z",
+    "address": {
+      "other": "1596 Hương Lộ 80",
+      "ward": "Xã Vĩnh Lộc B",
+      "district": "Huyện Bình Chánh",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d32" },
+    "name": "Bưu cục Lê Minh Xuân - HCM",
+    "phone": "19008095",
+    "established_date": "2021-08-05T00:00:00.000Z",
+    "address": {
+      "other": "F6/32 Ấp 6",
+      "ward": "Xã Lê Minh Xuân",
+      "district": "Huyện Bình Chánh",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d33" },
+    "name": "Bưu cục Trung Sơn - HCM",
+    "phone": "19008095",
+    "established_date": "2023-12-18T00:00:00.000Z",
+    "address": {
+      "other": "36 Đường Số 5, Kdc Him Lam, Ấp 4A",
+      "ward": "Xã Bình Hưng",
+      "district": "Huyện Bình Chánh",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d34" },
+    "name": "Bưu cục Tân Quý Tây - HCM",
+    "phone": "19008095",
+    "established_date": "2022-07-22T00:00:00.000Z",
+    "address": {
+      "other": "15/2Đ Đoàn Nguyễn Tuấn",
+      "ward": "Xã Tân Quý Tây",
+      "district": "Huyện Bình Chánh",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d35" },
+    "name": "Bưu cục Võ Văn Vân - HCM",
+    "phone": "19008095",
+    "established_date": "2024-01-14T00:00:00.000Z",
+    "address": {
+      "other": "A7/1D Ấp 1",
+      "ward": "Xã Vĩnh Lộc B",
+      "district": "Huyện Bình Chánh",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d36" },
+    "name": "Bưu cục Cần Giờ - HCM",
+    "phone": "19008095",
+    "established_date": "2021-04-30T00:00:00.000Z",
+    "address": {
+      "other": "109 Bình Thuận",
+      "ward": "Xã Bình Khánh",
+      "district": "Huyện Cần Giờ",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d37" },
+    "name": "Bưu cục An Nhơn Tây - HCM",
+    "phone": "19008095",
+    "established_date": "2023-09-08T00:00:00.000Z",
+    "address": {
+      "other": "1346 Tỉnh Lộ 7",
+      "ward": "Xã An Nhơn Tây",
+      "district": "Huyện Củ Chi",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d38" },
+    "name": "Bưu cục Củ Chi - HCM",
+    "phone": "19008095",
+    "established_date": "2022-02-17T00:00:00.000Z",
+    "address": {
+      "other": "363 Tỉnh Lộ 8",
+      "ward": "Thị trấn Củ Chi",
+      "district": "Huyện Củ Chi",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d39" },
+    "name": "Bưu cục Tân Quy - HCM",
+    "phone": "19008095",
+    "established_date": "2024-06-25T00:00:00.000Z",
+    "address": {
+      "other": "237 Tỉnh Lộ 15",
+      "ward": "Xã Tân Thạnh Tây",
+      "district": "Huyện Củ Chi",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d3a" },
+    "name": "Bưu cục Phước Thạnh - HCM",
+    "phone": "19008095",
+    "established_date": "2021-10-12T00:00:00.000Z",
+    "address": {
+      "other": "816B Quốc lộ 22, Ấp Phước Hưng",
+      "ward": "Xã Phước Thạnh",
+      "district": "Huyện Củ Chi",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  },
+  {
+    "_id": { "$oid": "60d21b4667d0d8992e610d3b" },
+    "name": "Bưu cục Tân Phú Trung - HCM",
+    "phone": "19008095",
+    "established_date": "2023-01-03T00:00:00.000Z",
+    "address": {
+      "other": "82 Hồ Văn Tắng, ấp Xóm Đồng",
+      "ward": "Xã Tân Phú Trung",
+      "district": "Huyện Củ Chi",
+      "province": "TP. Hồ Chí Minh"
+    },
+    "working_hours": "7:00 - 19:00",
+    "is_active": true,
+    "created_date": "2025-10-06T00:00:00.000Z",
+    "created_by": "60d21b4667d0d8992e610a01",
+    "modified_date": null,
+    "modified_by": null
+  }
+]

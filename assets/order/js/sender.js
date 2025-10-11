@@ -6,9 +6,12 @@
 window.Sender = (function() {
   'use strict';
 
+  let isPostOfficeSetup = false;
+
   // Public methods
   function init() {
     initializeSenderComponents();
+    initPostOfficeSelector();
   }
 
   function initializeSenderComponents() {
@@ -18,6 +21,131 @@ window.Sender = (function() {
     initQuantityControls();
     initSenderToggle();
     initNoteTemplate();
+  }
+
+  async function initPostOfficeSelector() {
+    if (window.BranchData) {
+      await window.BranchData.init();
+      // Chỉ setup nếu section đang hiển thị
+      const postOfficeSection = document.getElementById("postOfficeSection");
+      if (postOfficeSection && postOfficeSection.style.display !== "none") {
+        setupPostOfficeDropdown();
+      }
+    }
+  }
+
+  function setupPostOfficeDropdown() {
+    const postOfficeSelect = document.getElementById("postOfficeSelect");
+    const searchInput = postOfficeSelect?.querySelector(".search-input");
+    const optionsContainer = document.getElementById("postOfficeOptions");
+    const display = postOfficeSelect?.querySelector(".select-display");
+    const dropdown = postOfficeSelect?.querySelector(".select-dropdown");
+
+    if (!postOfficeSelect || !window.BranchData) {
+      console.warn("Post office setup failed - missing elements or BranchData");
+      return;
+    }
+
+    // Tránh setup nhiều lần
+    if (isPostOfficeSetup) {
+      console.log("Post office already setup");
+      return;
+    }
+
+    console.log("Setting up post office dropdown...");
+
+    // Get sender address (you can customize this based on your sender selection logic)
+    const senderAddress = "Hà Nội"; // Default or get from selected sender
+
+    // Load nearest branches
+    const nearestBranches = window.BranchData.getNearestBranches(senderAddress, 10);
+    console.log("Nearest branches:", nearestBranches.length);
+    renderPostOfficeOptions(nearestBranches, optionsContainer);
+
+    // Toggle dropdown
+    display?.addEventListener("click", function () {
+      const isOpen = dropdown?.classList.contains("show");
+      document.querySelectorAll(".custom-select-search .select-dropdown.show").forEach((dd) => {
+        dd.classList.remove("show");
+        dd.parentElement.querySelector(".select-display").classList.remove("active");
+      });
+
+      if (!isOpen) {
+        dropdown?.classList.add("show");
+        display.classList.add("active");
+        searchInput?.focus();
+      }
+    });
+
+    // Search functionality
+    searchInput?.addEventListener("input", function () {
+      const keyword = this.value;
+      const filtered = window.BranchData.searchBranches(keyword, nearestBranches);
+      renderPostOfficeOptions(filtered, optionsContainer);
+    });
+
+    // Option selection
+    optionsContainer?.addEventListener("click", function (e) {
+      const option = e.target.closest(".post-office-option");
+      if (option) {
+        optionsContainer.querySelectorAll(".post-office-option").forEach((opt) => {
+          opt.classList.remove("selected");
+        });
+
+        option.classList.add("selected");
+
+        const branchName = option.querySelector(".post-office-name")?.textContent.trim();
+        const displaySpan = display?.querySelector("span");
+        if (displaySpan && branchName) {
+          displaySpan.textContent = branchName;
+          display.classList.add("has-value");
+        }
+
+        if (searchInput) searchInput.value = "";
+        renderPostOfficeOptions(nearestBranches, optionsContainer);
+
+        dropdown?.classList.remove("show");
+        display?.classList.remove("active");
+      }
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (event) {
+      if (!postOfficeSelect.contains(event.target)) {
+        dropdown?.classList.remove("show");
+        display?.classList.remove("active");
+      }
+    });
+
+    isPostOfficeSetup = true;
+    console.log("Post office setup complete");
+  }
+
+  function renderPostOfficeOptions(branches, container) {
+    if (!container) return;
+
+    if (branches.length === 0) {
+      container.innerHTML = '<div class="no-results">Không tìm thấy bưu cục</div>';
+      return;
+    }
+
+    container.innerHTML = branches
+      .map((branch) => {
+        const formatted = window.BranchData.formatBranchDisplay(branch);
+        return `
+          <div class="post-office-option" data-id="${formatted.id}">
+            <div class="post-office-name">
+              <span>${formatted.name}</span>
+              <span class="post-office-distance">${formatted.distance} km</span>
+            </div>
+            <div class="post-office-address">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>${formatted.address}</span>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
   }
 
   function initCODFunctionality() {
@@ -163,6 +291,11 @@ window.Sender = (function() {
           // Khi tick: Hiện chọn bưu cục, ẩn thời gian hẹn lấy
           pickupTimeSection.style.display = "none";
           postOfficeSection.style.display = "block";
+          
+          // Setup dropdown khi section được hiển thị
+          if (window.BranchData) {
+            setupPostOfficeDropdown();
+          }
         } else {
           // Khi không tick: Hiện thời gian hẹn lấy, ẩn chọn bưu cục
           pickupTimeSection.style.display = "block";

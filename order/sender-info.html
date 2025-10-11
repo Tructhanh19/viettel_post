@@ -107,7 +107,20 @@
 
     <div id="postOfficeSection" style="display: none;">
       <label class="form-label">Chọn bưu cục</label>
-      <input type="text" class="form-control" placeholder="Tìm kiếm bưu cục...">
+      <div class="custom-select-search" id="postOfficeSelect">
+        <div class="select-display" data-placeholder="Tìm kiếm bưu cục...">
+          <span>Tìm kiếm bưu cục...</span>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="select-dropdown">
+          <div class="search-container">
+            <input type="text" class="search-input" placeholder="Tìm kiếm bưu cục..." />
+          </div>
+          <div class="options-container" id="postOfficeOptions">
+            <div class="no-results">Đang tải danh sách bưu cục...</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="mt-3 text-end">

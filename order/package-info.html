@@ -8,14 +8,7 @@
     <div class="mb-3">
       <label class="form-label fw-bold text-dark">LOẠI HÀNG HÓA</label>
       <div class="d-flex gap-3">
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="packageType" value="mail" id="packageMail" checked>
-          <label class="form-check-label" for="packageMail">Bưu kiện</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="packageType" value="document" id="packageDocument">
-          <label class="form-check-label" for="packageDocument">Tài liệu</label>
-        </div>
+        <!-- Package types will be dynamically loaded from JSON -->
       </div>
     </div>
 
@@ -83,64 +76,12 @@
       
       <!-- Mail characteristics -->
       <div id="mailCharacteristics" class="characteristics-container">
-        <div class="row">
-          <div class="col-md-4">
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" id="highValue">
-              <label class="form-check-label" for="highValue">Giá trị cao</label>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" id="fragile">
-              <label class="form-check-label" for="fragile">Dễ vỡ</label>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" id="dangerous">
-              <label class="form-check-label" for="dangerous">Nguy hiểm khó</label>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-4">
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" id="oversized">
-              <label class="form-check-label" for="oversized">Quá khổ</label>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" id="liquid">
-              <label class="form-check-label" for="liquid">Chất Lỏng</label>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" id="magnetic">
-              <label class="form-check-label" for="magnetic">Từ tính, Pin</label>
-            </div>
-          </div>
-        </div>
+        <!-- Package characteristics will be dynamically loaded from JSON -->
       </div>
 
       <!-- Document characteristics -->
       <div id="documentCharacteristics" class="characteristics-container" style="display: none;">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" id="docHighValue">
-              <label class="form-check-label" for="docHighValue">Giá trị cao</label>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" id="invoiceCertificate">
-              <label class="form-check-label" for="invoiceCertificate">Hóa đơn, Giấy chứng nhận</label>
-            </div>
-          </div>
-        </div>
+        <!-- Document characteristics will be dynamically loaded from JSON -->
       </div>
     </div>
 

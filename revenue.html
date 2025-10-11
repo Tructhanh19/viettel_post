@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo sản lượng địa phương</title>
+    <link rel="stylesheet" href="assets/revenue.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Báo cáo sản lượng địa phương thống kê theo doanh thu</h2>
+            <div class="filters">
+                <div class="filter-control dropdown-wrapper">
+                    <select id="filter-region">
+                        <option>Địa phương</option>
+                        <option>Kho hàng</option>
+                        <option>Khách hàng</option>
+                    </select>
+                </div>
+                <div class="filter-control date-picker-wrapper">
+                    <input type="text" id="date-range-picker" placeholder="Chọn khoảng thời gian">
+                    <i class="fa-regular fa-calendar-days calendar-icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="cards">
+            <div class="card">
+                <h3>Tổng số đơn hàng</h3>
+                <div class="value blue">0</div>
+            </div>
+            <div class="card">
+                <h3>Tổng số tỉnh</h3>
+                <div class="value cyan">0</div>
+            </div>
+            <div class="card">
+                <h3>Tổng số doanh thu</h3>
+                <div class="value yellow">0 ₫</div>
+            </div>
+        </div>
+
+        <div class="report-content">
+            <div class="chart-container">
+                <div class="chart-placeholder"></div>
+            </div>
+            <div class="table-container">
+                <div class="note">* Thông tin này chỉ mang tính chất tham khảo.</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Tên tỉnh</th>
+                            <th>Số đơn</th>
+                            <th>Doanh thu</th>
+                            <th>Tỉ lệ %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" class="empty-row">Không có bản ghi nào</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <span>Bản Ghi Mỗi Trang</span>
+                    <select class="page-size-select"><option>10</option><option>20</option></select>
+                    <span>0 of 0</span>
+                    <div class="nav-arrows">
+                        <span>&lt;&lt;</span><span>&lt;</span><span>&gt;</span><span>&gt;&gt;</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="chat-button">
+        <i class="fa-solid fa-comment-dots"></i>
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+    <script>
+        flatpickr("#date-range-picker", {
+            mode: "range",
+            dateFormat: "d/m/Y",
+            locale: "vn",
+            defaultDate: ["25/09/2025", "08/10/2025"],
+            monthSelectorType: 'static', 
+            showMonths: 2,
+            onReady: function(selectedDates, dateStr, instance) {
+                const shortcuts = document.createElement('div');
+                shortcuts.className = 'flatpickr-shortcuts';
+                const options = ['Hôm nay', 'Hôm qua', '7 ngày trước', '14 ngày trước', '30 ngày trước', 'Tháng này', 'Tháng trước'];
+                
+                options.forEach(optionText => {
+                    const btn = document.createElement('button');
+                    btn.className = 'shortcut-button';
+                    btn.textContent = optionText;
+                    if(optionText === '14 ngày trước') btn.classList.add('active');
+                    
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        
+                        const now = new Date();
+                        let start, end;
+                        
+                        switch(optionText) {
+                            case 'Hôm nay':
+                                start = new Date(now);
+                                end = new Date(now);
+                                break;
+                            case 'Hôm qua':
+                                start = new Date(now);
+                                start.setDate(now.getDate() - 1);
+                                end = new Date(start);
+                                break;
+                            case '7 ngày trước':
+                                end = new Date(now);
+                                start = new Date(now);
+                                start.setDate(now.getDate() - 6);
+                                break;
+                            case '14 ngày trước':
+                                end = new Date(now);
+                                start = new Date(now);
+                                start.setDate(now.getDate() - 13);
+                                break;
+                            case '30 ngày trước':
+                                end = new Date(now);
+                                start = new Date(now);
+                                start.setDate(now.getDate() - 29);
+                                break;
+                            case 'Tháng này':
+                                start = new Date(now.getFullYear(), now.getMonth(), 1);
+                                end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                                break;
+                            case 'Tháng trước':
+                                start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                                end = new Date(now.getFullYear(), now.getMonth(), 0);
+                                break;
+                        }
+                        
+                        document.querySelectorAll('.shortcut-button').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        instance.setDate([start, end]);
+                    });
+                    shortcuts.appendChild(btn);
+                });
+                
+                instance.calendarContainer.prepend(shortcuts);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+:root {
+    --primary-red: #e1251b;
+    --border-color: #ebebeb;
+    --background-color: #f8f9fa;
+    --text-color-light: #888;
+    --text-color-dark: #333;
+    --card-shadow: 0 0 13px rgba(0,0,0,0.03);
+    --active-row-bg: #f0f8ff;
+}
+body {
+    font-family: 'Roboto', sans-serif; background-color: var(--background-color); margin: 0;
+    color: var(--text-color-dark); font-size: 14px;
+}
+.page-container { max-width: 100%; padding: 0 30px; margin: 20px auto; }
+.card {
+    background: #fff; border-radius: 6px; border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+}
+.btn { border: none; border-radius: 4px; padding: 8px 16px; font-weight: 500; cursor: pointer; }
+.btn-red { background-color: var(--primary-red); color: white; }
+i.fa-regular.fa-circle-question { color: #aaa; cursor: help; font-size: 13px; }
+
+/* --- Tab Navigation --- */
+.tab-nav { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
+.tab-link { padding: 12px 20px; text-decoration: none; color: var(--text-color-light); font-weight: 500; position: relative; }
+.tab-link::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background-color: var(--primary-red); transform: scaleX(0); transition: transform 0.3s ease; }
+.tab-link.active { color: var(--text-color-dark); }
+.tab-link.active::after { transform: scaleX(1); }
+.tab-content { display: none; } .tab-content.active { display: block; }
+
+/* --- Filter Controls --- */
+.filter-control { position: relative; }
+.filter-control select, .filter-control input {
+    min-width: 240px; padding: 7px 12px; border: 1px solid #ddd; border-radius: 4px;
+    font-size: 13.5px; background-color: #fff; cursor: pointer;
+}
+.filter-control select { appearance: none; -webkit-appearance: none; padding-right: 30px;}
+.dropdown-wrapper::after { content: '▼'; font-size: 10px; color: #888; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.date-picker-wrapper input { padding-left: 30px; }
+.calendar-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #888; }
+
+/* --- Thống kê Tab --- */
+.stats-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.stats-header h2 { font-size: 18px; margin: 0; font-weight: 400; }
+.total-orders { margin-top: 5px; } .total-orders span { color: var(--text-color-light); font-size: 13px; } .total-orders b { font-size: 24px; margin-left: 10px; }
+.header-right { display: flex; align-items: center; gap: 20px; }
+.summary-item { text-align: right; } .summary-item span { color: var(--text-color-light); font-size: 13px; } .summary-item b { font-size: 18px; font-weight: 700; display: block; }
+.stats-body { display: grid; grid-template-columns: 350px 1fr; gap: 20px; }
+.chart-container.card { padding: 20px; display: flex; align-items: center; justify-content: center; }
+.chart-placeholder.circle { width: 70%; padding-top: 70%; border-radius: 50%; background-color: #f0f0f0; position: relative; }
+.tables-container { display: flex; flex-direction: column; gap: 20px; }
+.table-card th, .table-card td { padding: 14px 10px; border-bottom: 1px solid #f1f1f1; text-align: left; vertical-align: middle; }
+.table-card th { font-size: 13px; color: var(--text-color-light); font-weight: 500; }
+.table-card tbody tr { cursor: pointer; transition: background-color 0.2s ease; }
+.table-card tbody tr:hover { background-color: #f8f9fa; }
+.table-card tbody tr.active-row { background-color: var(--active-row-bg); }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+
+/* --- Dòng tiền Tab --- */
+.cashflow-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.header-left h1 { font-size: 20px; margin: 0; font-weight: 500; } .header-left span { font-size: 13px; color: var(--text-color-light); }
+.cash-summary-item { display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 6px; }
+.cash-summary-item.blue { background-color: #eaf2ff; } .cash-summary-item.red-outline { border: 1px solid var(--primary-red); background-color: #fff; }
+.cash-summary-item.red-outline b { color: var(--primary-red); } .cash-summary-item.white { background-color: #fff; border: 1px solid var(--border-color); }
+.cash-summary-item i { font-size: 18px; } .cash-summary-item div { display: flex; flex-direction: column; }
+.cash-summary-item span { font-size: 13px; color: var(--text-color-light); } .cash-summary-item b { font-size: 16px; font-weight: 700; }
+.cashflow-body { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.cashflow-column h2 { font-size: 16px; margin-bottom: 15px; font-weight: 500;}
+.card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.info-card { padding: 15px; position: relative; } .info-card span { color: var(--text-color-light); }
+.info-card b { font-size: 22px; font-weight: 700; display: block; margin-top: 5px; }
+.info-card i.fa-arrow-right-long { position: absolute; top: 15px; right: 15px; color: #ccc; }
+.chart-card { padding: 20px; margin-top: 20px; }
+.chart-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.chart-header h3 { margin: 0 0 5px 0; font-size: 14px; font-weight: 500; }
+.chart-subtitle { font-size: 12px; color: var(--text-color-light); }
+.chart-legend { display: flex; gap: 15px; font-size: 12px; }
+.chart-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+.chart-link { font-size: 13px; color: var(--primary-red); text-decoration: none; }
+.chart-controls .date-picker-wrapper, .chart-header .date-picker-wrapper { min-width: auto; }
+.chart-controls .date-picker-wrapper input, .chart-header .date-picker-wrapper input { width: 180px; font-size: 13px; padding: 6px 10px 6px 30px;}
+.chart-placeholder-area { margin-top: 20px; }
+.line-chart-svg text { font-size: 11px; fill: #aaa; text-anchor: middle; }
+.line-chart-svg text:first-of-type { text-anchor: start; }
+.line-chart-svg line { stroke: #f0f0f0; stroke-width: 1; }
+.line-chart-svg polyline { fill: none; stroke: #28a745; stroke-width: 2; }
+.line-chart-svg circle { fill: #28a745; }
+.bar-chart { display: flex; margin-top: 10px; height: 250px; }
+.bar-chart-y-axis { display: flex; flex-direction: column; justify-content: space-between; font-size: 12px; color: #aaa; padding-right: 15px; height: 100%; text-align: right; }
+.bar-chart-grid { flex-grow: 1; border-left: 1px solid #f0f0f0; position: relative; background: linear-gradient(to right, #f0f0f0 1px, transparent 1px); background-size: calc(100% / 10) 100%; }
+.bar-chart-x-axis { position: absolute; bottom: -20px; width: 100%; display: flex; justify-content: space-between; font-size: 11px; color: #aaa; }
+
+/* --- Date Picker --- */
+.flatpickr-calendar { font-family: 'Roboto', sans-serif; font-size: 13px; border-radius: 6px; box-shadow: 0 3px 13px rgba(0,0,0,0.15); display: flex; width: auto !important; border: 1px solid #ddd; padding: 0; }
+.flatpickr-shortcuts { border-right: 1px solid #e0e0e0; padding: 5px; display: flex; flex-direction: column; width: 100px; background-color: #f9f9f9; }
+.shortcut-button { background: none; border: none; text-align: left; padding: 6px 8px; font-size: 13px; cursor: pointer; border-radius: 4px; margin-bottom: 2px; }
+.shortcut-button:hover { background-color: #f0f0f0; }
+.shortcut-button.active { background-color: var(--primary-red); color: white; font-weight: 500; }
+.flatpickr-day.inRange { background: #fee2e2; border-color: transparent; }
+.flatpickr-day.startRange, .flatpickr-day.endRange { background: var(--primary-red); border-color: var(--primary-red); color: white; }
+
+/* --- Chat Button --- */
+.chat-button {
+    position: fixed; bottom: 25px; right: 25px; width: 50px; height: 50px;
+    background-color: var(--primary-red); border: none; border-radius: 50%; color: white;
+    font-size: 24px; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); cursor: pointer;
+}

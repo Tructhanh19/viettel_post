@@ -125,11 +125,22 @@ function initContentLoader() {
       const contentUrl = this.getAttribute('data-content');
       loadContent(contentUrl);
       
-      // Update active menu item
+      // Remove active class from all menu items and submenu items
       document.querySelectorAll('.menu-item').forEach(item => {
         item.classList.remove('active');
       });
-      this.closest('.menu-item').classList.add('active');
+      document.querySelectorAll('.submenu a').forEach(item => {
+        item.classList.remove('active');
+      });
+      
+      // Add active class only to the clicked item
+      this.classList.add('active');
+      
+      // If this is a submenu item, also mark parent menu as open
+      const parentMenuItem = this.closest('.menu-item.has-submenu');
+      if (parentMenuItem) {
+        parentMenuItem.classList.add('open');
+      }
     });
   });
 }

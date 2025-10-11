@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Góp ý - Khiếu nại</title>
+    <link rel="stylesheet" href="assets/feedback.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+
+    <div class="page-container">
+        <div class="page-header">
+            <h1>Góp ý - khiếu nại</h1>
+            <button class="btn btn-primary" id="openModalBtn">Tạo khiếu nại mới</button>
+        </div>
+
+        <div class="content-card">
+            <div class="filter-bar">
+                <div class="filter-input-group search-input">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Tìm kiếm theo mã khiếu nại, mã đơn hàng">
+                </div>
+                <div class="filter-input-group date-input">
+                    <i class="fa-regular fa-calendar-days"></i>
+                    <input type="text" id="dateRangePicker" placeholder="Ngày khiếu nại">
+                </div>
+                <button class="btn btn-search">
+                    <i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm
+                </button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>NO</th>
+                            <th>MÃ KHIẾU NẠI</th>
+                            <th>MÃ VẬN ĐƠN</th>
+                            <th>LOẠI KHIẾU NẠI</th>
+                            <th>NỘI DUNG KHIẾU NẠI</th>
+                            <th>NGÀY TẠO</th>
+                            <th>NGÀY CẬP NHẬT</th>
+                            <th>TRẠNG THÁI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="8" class="no-data">Không có bản ghi nào</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <span>Bản Ghi Mỗi Trang</span>
+                <select><option>10</option><option>20</option></select>
+                <span>0 of 0</span>
+                <div class="nav-arrows">
+                    <span>&lt;</span><span>&gt;</span><span>&lt;&lt;</span><span>&gt;&gt;</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="chat-button"><i class="fa-solid fa-comment-dots"></i></button>
+
+    <div class="modal-overlay hidden" id="complaintModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Thông tin khiếu nại</h2>
+                <button class="close-btn" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Mã đơn hàng</label>
+                    <input type="text" placeholder="Nhập mã đơn hàng">
+                </div>
+                <div class="form-group">
+                    <label>Nội dung</label>
+                    <textarea placeholder="Nhập nội dung khiếu nại/ góp ý"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Loại khiếu nại</label>
+                        <div class="custom-dropdown" id="complaintTypeDropdown"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Địa chỉ lấy hàng</label>
+                        <select>
+                            <option>Chọn địa chỉ lấy hàng</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-confirm" id="confirmModalBtn">Xác nhận</button>
+                <button class="btn btn-cancel" id="cancelModalBtn">Hủy bỏ</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Cấu hình Date Picker ---
+            flatpickr("#dateRangePicker", {
+                mode: "range", dateFormat: "d/m/Y", locale: "vn",
+                defaultDate: ["25/09/2025", "08/10/2025"], showMonths: 2,
+                onReady: function(selectedDates, dateStr, instance) {
+                    const shortcuts = document.createElement('div');
+                    shortcuts.className = 'flatpickr-shortcuts';
+                    const options = ['Hôm nay', 'Hôm qua', '7 ngày trước', '14 ngày trước', '30 ngày trước', 'Tháng này', 'Tháng trước'];
+                    
+                    options.forEach(optionText => {
+                        const btn = document.createElement('button');
+                        btn.className = 'shortcut-button';
+                        if (optionText === '14 ngày trước') btn.classList.add('active');
+                        btn.textContent = optionText;
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const now = new Date();
+                            let start = new Date(now);
+                            let end = new Date(now);
+                            
+                            switch(optionText) {
+                                case 'Hôm nay': break; // start and end are already today
+                                case 'Hôm qua':
+                                    start.setDate(now.getDate() - 1);
+                                    end.setDate(now.getDate() - 1);
+                                    break;
+                                case '7 ngày trước':
+                                    start.setDate(now.getDate() - 6);
+                                    break;
+                                case '14 ngày trước':
+                                    start.setDate(now.getDate() - 13);
+                                    break;
+                                case '30 ngày trước':
+                                    start.setDate(now.getDate() - 29);
+                                    break;
+                                case 'Tháng này':
+                                    start = new Date(now.getFullYear(), now.getMonth(), 1);
+                                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                                    break;
+                                case 'Tháng trước':
+                                    start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                                    end = new Date(now.getFullYear(), now.getMonth(), 0);
+                                    break;
+                            }
+                            document.querySelectorAll('.shortcut-button').forEach(b => b.classList.remove('active'));
+                            e.target.classList.add('active');
+                            instance.setDate([start, end]);
+                        });
+                        shortcuts.appendChild(btn);
+                    });
+                    instance.calendarContainer.prepend(shortcuts);
+                }
+            });
+
+            // --- Xử lý Modal ---
+            const modal = document.getElementById('complaintModal');
+            const openModalBtn = document.getElementById('openModalBtn');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const cancelModalBtn = document.getElementById('cancelModalBtn');
+            const confirmModalBtn = document.getElementById('confirmModalBtn');
+
+            const showModal = () => modal.classList.remove('hidden');
+            const hideModal = () => modal.classList.add('hidden');
+
+            openModalBtn.addEventListener('click', showModal);
+            closeModalBtn.addEventListener('click', hideModal);
+            cancelModalBtn.addEventListener('click', hideModal);
+            confirmModalBtn.addEventListener('click', hideModal); // Nút xác nhận giờ cũng sẽ đóng form
+            modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(); });
+
+            // --- Xử lý Custom Dropdown cho Loại Khiếu Nại ---
+            const complaintTypes = ["Chọn loại khiếu nại", "Xác minh kết quả phát bưu gửi_Tuyến Huyện", "Khiếu nại về thái độ phục vụ", "Xác minh kết quả phát bưu gửi", "Khiếu nại về cước, tiền COD", "Hư hỏng, vỡ, suy suyển bưu gửi", "Khiếu nại phát bưu gửi chậm muộn_Huyện", "Hỗ trợ chuyển hoàn bưu gửi tại BC phát"];
+            const dropdownContainer = document.getElementById('complaintTypeDropdown');
+            
+            let optionsHtml = `<ul>${complaintTypes.map(opt => `<li>${opt}</li>`).join('')}</ul>`;
+            dropdownContainer.innerHTML = `
+                <div class="dropdown-selected"><span>${complaintTypes[0]}</span><i class="fa-solid fa-caret-down"></i></div>
+                <div class="dropdown-options">
+                    <div class="dropdown-search"><input type="text" placeholder="Tìm kiếm..."></div>
+                    ${optionsHtml}
+                </div>
+            `;
+            const selected = dropdownContainer.querySelector('.dropdown-selected');
+            const optionsContainer = dropdownContainer.querySelector('.dropdown-options');
+            const allOptions = optionsContainer.querySelectorAll('li');
+            const span = selected.querySelector('span');
+
+            selected.addEventListener('click', (e) => {
+                e.stopPropagation();
+                optionsContainer.classList.toggle('show');
+            });
+            allOptions.forEach((opt, index) => {
+                if (index === 0) opt.classList.add('active');
+                opt.addEventListener('click', () => {
+                    span.textContent = opt.textContent;
+                    allOptions.forEach(o => o.classList.remove('active'));
+                    opt.classList.add('active');
+                    optionsContainer.classList.remove('show');
+                });
+            });
+            window.addEventListener('click', () => optionsContainer.classList.remove('show'));
+        });
+    </script>
+</body>
+</html>

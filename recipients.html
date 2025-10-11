@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách người nhận - Viettel Post</title>
+    <link rel="stylesheet" href="assets/recipients.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="content-header">
+                <h1 class="title">DANH SÁCH NGƯỜI NHẬN</h1>
+                <button class="btn btn-primary" id="addNewBtn">
+                    <span class="plus-icon">+</span> Thêm mới
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="filters">
+                        <div class="dropdown-container">
+                            <select class="custom-select">
+                                <option>Danh sách người nhận</option>
+                                <option>Danh sách người gửi</option>
+                            </select>
+                        </div>
+                        <input type="text" class="search-input" placeholder="Nhập tên/số điện thoại">
+                        <button class="btn btn-search">Tìm kiếm</button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>TÊN NGƯỜI NHẬN</th>
+                                    <th>THẺ TAG</th>
+                                    <th>TỶ LỆ GIAO THÀNH CÔNG</th>
+                                    <th>ĐỊA CHỈ</th>
+                                    <th>THAO TÁC</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="6" class="no-data">Không có bản ghi nào</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination">
+                        <div class="records-per-page">
+                            <span>Bản Ghi Mỗi Trang</span>
+                             <div class="dropdown-container small">
+                                <select class="custom-select">
+                                    <option>10</option>
+                                    <option>20</option>
+                                    <option>50</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="page-info">
+                            <span>0 of 0</span>
+                            <div class="nav-arrows">
+                                <span>&lt;&lt;</span>
+                                <span>&lt;</span>
+                                <span>&gt;</span>
+                                <span>&gt;&gt;</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="addRecipientModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Thêm mới thông tin khách hàng</h2>
+                <button class="close-btn" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="fullName" class="required">Họ tên</label>
+                        <input type="text" id="fullName" name="fullName">
+                    </div>
+                    <div class="form-group">
+                        <label for="phoneNumber" class="required">Số điện thoại</label>
+                        <input type="text" id="phoneNumber" name="phoneNumber">
+                    </div>
+                    <div class="form-group">
+                        <label for="address" class="required">Địa chỉ</label>
+                        <input type="text" id="address" name="address" placeholder="Nhập địa chỉ chi tiết (số nhà/tên đường, phường/xã, quận/huyện, tỉnh/thành...)">
+                        <small class="form-helper">Nếu bạn không tìm thấy địa chỉ gợi ý, <a href="#">nhấn vào đây</a> để tự nhập</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelBtn">Thoát</button>
+                <button class="btn btn-danger">Thêm mới</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const addNewBtn = document.getElementById('addNewBtn');
+        const modal = document.getElementById('addRecipientModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+
+        function showModal() {
+            modal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            modal.classList.add('hidden');
+        }
+
+        addNewBtn.addEventListener('click', showModal);
+        closeModalBtn.addEventListener('click', hideModal);
+        cancelBtn.addEventListener('click', hideModal);
+
+        modal.addEventListener('click', function(event) {
+            if (event.target === this) {
+                hideModal();
+            }
+        });
+    </script>
+</body>
+</html>

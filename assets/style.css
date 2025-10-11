@@ -413,13 +413,22 @@ body {
   padding-left: 58px;
 }
 
+.submenu a.active {
+  background-color: #fff5f5;
+  color: #e53e3e;
+  border-left-color: #e53e3e;
+  font-weight: 500;
+  padding-left: 58px;
+}
+
 .submenu a i {
   margin-right: 8px;
   font-size: 12px;
   color: #666;
 }
 
-.submenu a:hover i {
+.submenu a:hover i,
+.submenu a.active i {
   color: #e53e3e;
 }
 

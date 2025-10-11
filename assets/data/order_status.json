@@ -1,0 +1,97 @@
+[
+  {
+    "code": "RECEIVED",
+    "name": "Đã tiếp nhận",
+    "color": "#0192C9"
+  },
+  {
+    "code": "PICKING_UP",
+    "name": "Đang lấy hàng",
+    "color": "#00C1B0"
+  },
+  {
+    "code": "PICKED_UP",
+    "name": "Đã lấy hàng",
+    "color": "#C4BB38"
+  },
+  {
+    "code": "IN_TRANSIT",
+    "name": "Đang vận chuyển",
+    "color": "#F8AF37"
+  },
+  {
+    "code": "OUT_FOR_DELIVERY",
+    "name": "Đang giao hàng",
+    "color": "#FF7E35"
+  },
+  {
+    "code": "REDELIVERY_PENDING",
+    "name": "Chờ phát lại",
+    "color": "#E26588"
+  },
+  {
+    "code": "DELIVERED",
+    "name": "Giao thành công",
+    "color": "#00944D"
+  },
+  {
+    "code": "PENDING",
+    "name": "Chờ xử lý",
+    "color": "#FF4A24"
+  },
+  {
+    "code": "DRAFT",
+    "name": "Đơn nháp",
+    "color": "#67C0EB"
+  },
+  {
+    "code": "FAILED_PICKUP",
+    "name": "Lấy không thành công",
+    "color": "#FE6D74"
+  },
+  {
+    "code": "RETURN_APPROVED",
+    "name": "Đã duyệt hoàn",
+    "color": "#535DD0"
+  },
+  {
+    "code": "RETURNED",
+    "name": "Đã trả",
+    "color": "#C46BFF"
+  },
+  {
+    "code": "CANCELLED_DELIVERY",
+    "name": "Đã huỷ giao",
+    "color": "#D4BDA1"
+  },
+  {
+    "code": "RETURN_IN_TRANSIT",
+    "name": "Đang chuyển hoàn",
+    "color": "#7986FF"
+  },
+  {
+    "code": "REDELIVERED",
+    "name": "Phát tiếp",
+    "color": "#91B064"
+  },
+  {
+    "code": "VTP_CANCEL_PICKUP",
+    "name": "VTP huỷ lấy",
+    "color": "#DD3436"
+  },
+  {
+    "code": "SHOP_CANCEL_PICKUP",
+    "name": "Shop huỷ lấy",
+    "color": "#E3AF85"
+  },
+  {
+    "code": "COMPENSATION_VERIFY",
+    "name": "Đang xác minh bồi thường",
+    "color": "#FAC412"
+  },
+  {
+    "code": "COMPENSATED",
+    "name": "Đã bồi thường",
+    "color": "#9C9FBB"
+  }
+]

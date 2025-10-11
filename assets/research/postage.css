@@ -1,0 +1,143 @@
+body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .postage-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .postage-header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .postage-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+        
+        .postage-form {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .section-title i {
+            margin-right: 8px;
+            font-size: 18px;
+            color: #e53e3e;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .form-select, .form-control {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .form-select:focus, .form-control:focus {
+            border-color: #e53e3e;
+            box-shadow: 0 0 0 0.2rem rgba(229, 62, 62, 0.25);
+        }
+        
+        .weight-input-group {
+            display: flex;
+            align-items: center;
+        }
+        
+        .weight-input {
+            flex: 1;
+            margin-right: 10px;
+        }
+        
+        .weight-unit {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #666;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .lookup-btn {
+            background: #e53e3e;
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-top: 20px;
+        }
+        
+        .lookup-btn:hover {
+            background: #d63031;
+            transform: translateY(-1px);
+        }
+        
+        .row {
+            margin-bottom: 20px;
+        }
+        
+        .col-md-6:last-child .row {
+            margin-bottom: 0;
+        }
+        
+        /* Ensure equal height for sender and receiver columns */
+        .address-section .col-md-6 {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .address-section .col-md-6 .section-title {
+            margin-bottom: 20px;
+            min-height: 24px;
+        }
+        
+        .address-section .col-md-6 .row {
+            margin-bottom: 15px;
+        }
+        
+        .address-section .col-md-6 .row:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* Spacing for sections */
+        .service-section {
+            margin-bottom: 30px;
+        }
+        
+        .address-section {
+            margin-bottom: 30px;
+        }
+        
+        .package-section {
+            margin-bottom: 20px;
+        }

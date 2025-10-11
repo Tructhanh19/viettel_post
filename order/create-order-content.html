@@ -1,0 +1,89 @@
+<div class="create-order-content">
+    <div class="order-form-container">
+        <div class="row">
+            <!-- Left Column: Sender, Receiver, Service -->
+            <div class="col-md-6">
+                <div id="sender-info"></div>
+                <div id="receiver-info"></div>
+                <div id="service-selection"></div>
+            </div>
+            
+            <!-- Right Column: Package Info, COD -->
+            <div class="col-md-6">
+                <div id="package-info"></div>
+                <div id="cod-info"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Pricing Summary Bar -->
+<div class="pricing-summary-floating" id="pricingSummaryBar">
+  <div class="container-fluid">
+    <div class="d-flex align-items-center justify-content-between">
+      <!-- Left side - Summary info -->
+      <div class="d-flex align-items-center gap-4">
+        <!-- Basic Summary (Default View) -->
+        <div class="summary-item" id="basicSummary">
+          <div class="summary-label">Tổng cước</div>
+          <div class="summary-value">0 đ</div>
+        </div>
+        
+        <!-- Detailed Summary (Hidden by default) -->
+        <div class="detailed-summary-items d-flex gap-4" id="detailedSummary" style="display: none;">
+          <div class="summary-item">
+            <div class="summary-label">
+              <i class="fas fa-info-circle me-1"></i>
+              Tổng cước
+            </div>
+            <div class="summary-value">0 đ</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Tiền thu hộ</div>
+            <div class="summary-value">0 đ</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Tiền thu người gửi</div>
+            <div class="summary-value">0 đ</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Thời gian dự kiến</div>
+            <div class="summary-value">1 ngày</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right side - Actions -->
+      <div class="d-flex align-items-center gap-3">
+        <div class="form-check d-flex align-items-center me-2">
+          <input class="form-check-input me-2" type="checkbox" id="agreeTerms" checked>
+          <label class="form-check-label small text-white" for="agreeTerms">
+            Tôi đã đọc và đồng ý với <a href="#" class="text-primary">Điều khoản quy định</a>
+          </label>
+        </div>
+        <button type="button" class="btn btn-outline-light px-4 me-2">Gửi ngay</button>
+        <button type="button" class="btn btn-secondary px-3">Lưu nhập</button>
+        <button type="button" class="btn btn-secondary px-3">Làm mới</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="../assets/order/css/create-order.css">
+
+<!-- Load modular JavaScript system -->
+<!-- Load all modules first -->
+<script src="../assets/order/js/utils.js"></script>
+<script src="../assets/order/js/validation.js"></script>
+<script src="../assets/fetchData/address.js"></script>
+<script src="../assets/fetchData/branch.js"></script>
+<script src="../assets/fetchData/package.js"></script>
+<script src="../assets/fetchData/service.js"></script>
+<script src="../assets/order/js/sender.js"></script>
+<script src="../assets/order/js/receiver.js"></script>
+<script src="../assets/order/js/service.js"></script>
+<script src="../assets/order/js/package.js"></script>
+<script src="../assets/order/js/pickup.js"></script>
+<script src="../assets/order/js/tags.js"></script>
+<!-- Main controller script -->
+<script src="../assets/order/js/create-order.js"></script>

@@ -1,0 +1,130 @@
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5><i class="fas fa-user"></i> NGƯỜI GỬI</h5>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" id="saveToPostOffice">
+      <label class="form-check-label" for="saveToPostOffice">
+        Gửi tại bưu cục
+      </label>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="mb-3">
+      <select class="form-select" id="senderSelect">
+        <option value="">Chọn thông tin người gửi</option>
+        <option value="sender1">Thanh Trúc Nguyễn Th - 21, Công Ty Cổ Phần Công Nghiệp Cao Su Miền Nam, P... - 0948105203</option>
+      </select>
+      <div class="text-danger small mt-1" id="senderError" style="display: none;">
+        Người gửi không được để trống
+      </div>
+    </div>
+
+    <div id="pickupTimeSection">
+      <label class="form-label">
+        Thời gian hẹn lấy
+        <i class="fas fa-info-circle text-muted" title="Chọn thời gian để shipper đến lấy hàng"></i>
+      </label>
+      
+      <!-- Display Selected Time -->
+      <div class="position-relative">
+        <div class="form-select-custom" id="timePickerBtn">
+          <span id="selectedTimeDisplay">Chọn thời gian</span>
+          <i class="fas fa-chevron-down dropdown-icon"></i>
+        </div>
+        
+        <!-- Time Picker Modal -->
+        <div class="time-picker-modal" id="timePickerModal" style="display: none;">
+          <div class="modal-content">
+            <!-- Date Tabs -->
+            <div class="date-tabs">
+              <ul class="nav nav-tabs" id="dateTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="today-tab" data-bs-toggle="tab" data-bs-target="#today" type="button" role="tab">
+                    Hôm nay
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link active" id="tomorrow-tab" data-bs-toggle="tab" data-bs-target="#tomorrow" type="button" role="tab">
+                    Ngày mai
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="dayafter-tab" data-bs-toggle="tab" data-bs-target="#dayafter" type="button" role="tab">
+                    Ngày kia
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Date Tab Content -->
+            <div class="tab-content" id="dateTabContent">
+              <div class="tab-pane fade" id="today" role="tabpanel">
+                <div class="time-slots-list">
+                  <div class="time-slot" data-time="Tối (18h30 - 21h00)" data-date="07/10/2025">
+                    Tối (18h30 - 21h00)
+                  </div>
+                </div>
+              </div>
+              
+              <div class="tab-pane fade show active" id="tomorrow" role="tabpanel">
+                <div class="time-slots-list">
+                  <div class="time-slot" data-time="Tối (18h30 - 21h00)" data-date="08/10/2025">
+                    Tối (18h30 - 21h00)
+                  </div>
+                  <div class="time-slot" data-time="Cả ngày" data-date="08/10/2025">
+                    Cả ngày
+                  </div>
+                  <div class="time-slot" data-time="Sáng (7h30 - 12h00)" data-date="08/10/2025">
+                    Sáng (7h30 - 12h00)
+                  </div>
+                  <div class="time-slot" data-time="Chiều (13h30 - 18h00)" data-date="08/10/2025">
+                    Chiều (13h30 - 18h00)
+                  </div>
+                </div>
+              </div>
+              
+              <div class="tab-pane fade" id="dayafter" role="tabpanel">
+                <div class="time-slots-list">
+                  <div class="time-slot" data-time="Tối (18h30 - 21h00)" data-date="09/10/2025">
+                    Tối (18h30 - 21h00)
+                  </div>
+                  <div class="time-slot" data-time="Cả ngày" data-date="09/10/2025">
+                    Cả ngày
+                  </div>
+                  <div class="time-slot" data-time="Sáng (7h30 - 12h00)" data-date="09/10/2025">
+                    Sáng (7h30 - 12h00)
+                  </div>
+                  <div class="time-slot" data-time="Chiều (13h30 - 18h00)" data-date="09/10/2025">
+                    Chiều (13h30 - 18h00)
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="postOfficeSection" style="display: none;">
+      <label class="form-label">Chọn bưu cục</label>
+      <div class="custom-select-search" id="postOfficeSelect">
+        <div class="select-display" data-placeholder="Tìm kiếm bưu cục...">
+          <span>Tìm kiếm bưu cục...</span>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="select-dropdown">
+          <div class="search-container">
+            <input type="text" class="search-input" placeholder="Tìm kiếm bưu cục..." />
+          </div>
+          <div class="options-container" id="postOfficeOptions">
+            <div class="no-results">Đang tải danh sách bưu cục...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-3 text-end">
+      <a href="../AccountSetting/senderInfo.html" class="text-danger text-decoration-none">Quản lý thông tin người gửi →</a>
+    </div>
+  </div>
+</div>

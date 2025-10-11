@@ -1,0 +1,18 @@
+[
+  {
+    "code": "ADMIN",
+    "name": "Quản trị viên"
+  },
+  {
+    "code": "EMPLOYEE",
+    "name": "Nhân viên"
+  },
+  {
+    "code": "CUSTOMER",
+    "name": "Khách hàng"
+  },
+  {
+    "code": "LEADER",
+    "name": "Lãnh đạo"
+  }
+]

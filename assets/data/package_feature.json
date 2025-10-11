@@ -1,0 +1,50 @@
+[
+  {
+    "code": "HIGH_VALUE",
+    "name": "Hàng giá trị cao",
+    "package_type_code": "PACKAGE",
+    "cost": 5000
+  },
+  {
+    "code": "HIGH_VALUE_DOC",
+    "name": "Hàng giá trị cao",
+    "package_type_code": "DOCUMENT",
+    "cost": 5000
+  },
+  {
+    "code": "CERTIFICATE_DOCUMENT",
+    "name": "Hóa đơn, Giấy chứng nhận",
+    "package_type_code": "DOCUMENT",
+    "cost": 5000
+  },
+  {
+    "code": "FRAGILE",
+    "name": "Hàng dễ vỡ",
+    "package_type_code": "PACKAGE",
+    "cost": 1000
+  },
+  {
+    "code": "HEAVY_CARGO",
+    "name": "Hàng nguyên khối",
+    "package_type_code": "PACKAGE",
+    "cost": 1000
+  },
+  {
+    "code": "OVERSIZED",
+    "name": "Hàng quá khổ",
+    "package_type_code": "PACKAGE",
+    "cost": 2000
+  },
+  {
+    "code": "LIQUID",
+    "name": "Chất lỏng",
+    "package_type_code": "PACKAGE",
+    "cost": 1000
+  },
+  {
+    "code": "ELECTRONIC_BATTERY",
+    "name": "Từ tính, Pin",
+    "package_type_code": "PACKAGE",
+    "cost": 0
+  }
+]

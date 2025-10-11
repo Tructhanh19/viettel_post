@@ -1,0 +1,123 @@
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+/>
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+  rel="stylesheet"
+/>
+<style>
+  body {
+    background-color: #fff;
+    font-family: "Segoe UI", sans-serif;
+  }
+
+  .card {
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+    padding: 20px;
+  }
+
+  /* Tab custom */
+  .promo-tabs {
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 30px;
+  }
+
+  .promo-tab {
+    position: relative;
+    font-weight: 600;
+    padding: 10px 20px;
+    color: #000;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .promo-tab.active {
+    color: #c82333; /* đỏ */
+    background-color: #f8f8f8;
+  }
+
+  .promo-tab.active::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background-color: #c82333;
+    border-radius: 2px;
+  }
+
+  .search-box {
+    max-width: 400px;
+  }
+
+  .search-box .btn {
+    border: 1px solid #dc3545;
+    color: #dc3545;
+  }
+
+  .search-box .btn:hover {
+    background-color: #dc3545;
+    color: #fff;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 0;
+    color: #6c757d;
+    font-style: italic;
+  }
+</style>
+
+<div class="container mt-4">
+  <div class="card">
+    <!-- Tabs -->
+    <div class="promo-tabs">
+      <div class="promo-tab active" data-tab="unused">Chưa sử dụng</div>
+      <div class="promo-tab" data-tab="used">Đã sử dụng</div>
+    </div>
+
+    <!-- Search -->
+    <div class="input-group search-box mb-3">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Kiếm mã khuyến mãi"
+      />
+      <button class="btn" type="button">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div id="tab-unused" class="promo-content">
+      <div class="empty-state">Không tìm thấy mã khuyến mãi nào !!!</div>
+    </div>
+    <div id="tab-used" class="promo-content d-none">
+      <div class="empty-state">Chưa có mã nào được sử dụng.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll(".promo-tab");
+  const contents = document.querySelectorAll(".promo-content");
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      tabs.forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+
+      contents.forEach((c) => c.classList.add("d-none"));
+      document
+        .getElementById(`tab-${tab.dataset.tab}`)
+        .classList.remove("d-none");
+    });
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

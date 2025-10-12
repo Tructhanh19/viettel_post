@@ -50,7 +50,11 @@
       />
     </div>
 
-    <button class="btn btn-outline-danger">
+    <button
+      class="btn btn-outline-danger"
+      data-bs-toggle="modal"
+      data-bs-target="#addSenderModal"
+    >
       <i class="bi bi-plus-circle"></i> Thêm người gửi
     </button>
   </div>
@@ -148,5 +152,69 @@
         </li>
       </ul>
     </nav>
+  </div>
+
+  <!-- Modal Thêm Người Gửi -->
+  <div
+    class="modal fade"
+    id="addSenderModal"
+    tabindex="-1"
+    aria-labelledby="addSenderLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addSenderLabel">Thêm địa chỉ lấy hàng</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Đóng"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="mb-3">
+              <label for="senderName" class="form-label">Tên*</label>
+              <input
+                type="text"
+                class="form-control"
+                id="senderName"
+                placeholder="Nhập tên người gửi"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="senderPhone" class="form-label">Số điện thoại*</label>
+              <input
+                type="tel"
+                class="form-control"
+                id="senderPhone"
+                placeholder="Nhập số điện thoại"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="senderAddress" class="form-label">Địa chỉ*</label>
+              <input
+                type="text"
+                class="form-control"
+                id="senderAddress"
+                placeholder="Số nhà, tên đường, phường, quận, thành phố"
+                required
+              />
+              <small class="form-text text-muted">
+                Nếu bạn không tìm thấy địa chỉ gợi ý,
+                <a href="#">nhấn vào đây để tự nhập</a>.
+              </small>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger">Lưu</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

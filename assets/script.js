@@ -13,10 +13,16 @@ const userInfo = userDropdown.querySelector(".user-info");
 // Submenu IDs
 const submenus = ["quanLyMenu", "traCuuMenu", "tienIchMenu", "hoiDapMenu"];
 
+// Store initial dashboard content
+let initialDashboard = "";
+
 /**
  * Initialize the application when DOM is loaded
  */
 document.addEventListener("DOMContentLoaded", function () {
+  // Store initial dashboard content
+  initialDashboard = mainContent.innerHTML;
+
   initSidebarToggle();
   initUserDropdown();
   initSubmenus();
@@ -119,27 +125,27 @@ function closeAllSubmenus() {
  */
 function initContentLoader() {
   // Add click handlers for links with data-content attribute
-  document.querySelectorAll('a[data-content]').forEach(link => {
-    link.addEventListener('click', function(e) {
+  document.querySelectorAll("a[data-content]").forEach((link) => {
+    link.addEventListener("click", function (e) {
       e.preventDefault();
-      const contentUrl = this.getAttribute('data-content');
+      const contentUrl = this.getAttribute("data-content");
       loadContent(contentUrl);
-      
+
       // Remove active class from all menu items and submenu items
-      document.querySelectorAll('.menu-item').forEach(item => {
-        item.classList.remove('active');
+      document.querySelectorAll(".menu-item").forEach((item) => {
+        item.classList.remove("active");
       });
-      document.querySelectorAll('.submenu a').forEach(item => {
-        item.classList.remove('active');
+      document.querySelectorAll(".submenu a").forEach((item) => {
+        item.classList.remove("active");
       });
-      
+
       // Add active class only to the clicked item
-      this.classList.add('active');
-      
+      this.classList.add("active");
+
       // If this is a submenu item, also mark parent menu as open
-      const parentMenuItem = this.closest('.menu-item.has-submenu');
+      const parentMenuItem = this.closest(".menu-item.has-submenu");
       if (parentMenuItem) {
-        parentMenuItem.classList.add('open');
+        parentMenuItem.classList.add("open");
       }
     });
   });
@@ -150,44 +156,52 @@ function initContentLoader() {
  * @param {string} url - URL of the content to load
  */
 async function loadContent(url) {
-  const mainContent = document.getElementById('mainContent');
-  
+  const mainContent = document.getElementById("mainContent");
+
+  // Special case for home - restore initial dashboard
+  if (url === "home") {
+    mainContent.innerHTML = initialDashboard;
+    return;
+  }
+
   try {
     // Show loading state
-    mainContent.innerHTML = '<div class="text-center p-5"><i class="fas fa-spinner fa-spin fa-2x"></i><p class="mt-3">Đang tải...</p></div>';
-    
+    mainContent.innerHTML =
+      '<div class="text-center p-5"><i class="fas fa-spinner fa-spin fa-2x"></i><p class="mt-3">Đang tải...</p></div>';
+
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const content = await response.text();
     mainContent.innerHTML = content;
-    
+
     // Clean up old dynamic scripts before adding new ones
-    document.querySelectorAll('script[data-dynamic="true"]').forEach(oldScript => {
-      oldScript.remove();
-    });
-    
+    document
+      .querySelectorAll('script[data-dynamic="true"]')
+      .forEach((oldScript) => {
+        oldScript.remove();
+      });
+
     // Execute any scripts in the loaded content
-    const scripts = mainContent.querySelectorAll('script');
-    scripts.forEach(script => {
-      const newScript = document.createElement('script');
-      newScript.setAttribute('data-dynamic', 'true'); // Mark as dynamic for cleanup
-      
+    const scripts = mainContent.querySelectorAll("script");
+    scripts.forEach((script) => {
+      const newScript = document.createElement("script");
+      newScript.setAttribute("data-dynamic", "true"); // Mark as dynamic for cleanup
+
       if (script.src) {
         newScript.src = script.src;
       } else {
         newScript.textContent = script.textContent;
       }
-      
+
       // Add script to body
       document.body.appendChild(newScript);
-      
+
       // Remove the original script tag from mainContent to avoid duplication
       script.remove();
     });
-    
   } catch (error) {
     mainContent.innerHTML = `
       <div class="alert alert-danger text-center">

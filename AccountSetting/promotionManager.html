@@ -73,34 +73,26 @@
   }
 </style>
 
-<div class="container mt-4">
-  <div class="card">
-    <!-- Tabs -->
-    <div class="promo-tabs">
-      <div class="promo-tab active" data-tab="unused">Chưa sử dụng</div>
-      <div class="promo-tab" data-tab="used">Đã sử dụng</div>
-    </div>
+<!-- Tabs -->
+<div class="promo-tabs">
+  <div class="promo-tab active" data-tab="unused">Chưa sử dụng</div>
+  <div class="promo-tab" data-tab="used">Đã sử dụng</div>
+</div>
 
-    <!-- Search -->
-    <div class="input-group search-box mb-3">
-      <input
-        type="text"
-        class="form-control"
-        placeholder="Kiếm mã khuyến mãi"
-      />
-      <button class="btn" type="button">
-        <i class="bi bi-search"></i>
-      </button>
-    </div>
+<!-- Search -->
+<div class="input-group search-box mb-3">
+  <input type="text" class="form-control" placeholder="Kiếm mã khuyến mãi" />
+  <button class="btn" type="button">
+    <i class="bi bi-search"></i>
+  </button>
+</div>
 
-    <!-- Content -->
-    <div id="tab-unused" class="promo-content">
-      <div class="empty-state">Không tìm thấy mã khuyến mãi nào !!!</div>
-    </div>
-    <div id="tab-used" class="promo-content d-none">
-      <div class="empty-state">Chưa có mã nào được sử dụng.</div>
-    </div>
-  </div>
+<!-- Content -->
+<div id="tab-unused" class="promo-content">
+  <div class="empty-state">Không tìm thấy mã khuyến mãi nào !!!</div>
+</div>
+<div id="tab-used" class="promo-content d-none">
+  <div class="empty-state">Chưa có mã nào được sử dụng.</div>
 </div>
 
 <script>

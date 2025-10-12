@@ -62,6 +62,7 @@
 /* Specific icons for each menu item */
 .account-menu li:nth-child(1) a::before {
   content: "\f007"; /* user icon */
+  color: #999;
 }
 .account-menu li:nth-child(2) a::before {
   content: "\f023"; /* lock icon */

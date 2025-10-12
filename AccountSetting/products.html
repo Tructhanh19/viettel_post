@@ -52,127 +52,222 @@
   }
 </style>
 
-<div class="container mt-4">
-  <div class="card p-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h5 class="fw-bold mb-0">DANH SÁCH HÀNG HÓA</h5>
-      <button class="btn btn-add">
-        <i class="bi bi-plus-circle"></i> Thêm mới
-      </button>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="fw-bold mb-0">DANH SÁCH HÀNG HÓA</h5>
+  <button
+    class="btn btn-add"
+    data-bs-toggle="modal"
+    data-bs-target="#addProductModal"
+  >
+    <i class="bi bi-plus-circle"></i> Thêm mới
+  </button>
+</div>
 
-    <div class="d-flex align-items-center mb-3 gap-2">
-      <div class="input-group search-box">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Nhập mã hàng hóa, tên hàng hóa"
-        />
-        <button class="btn btn-success">
-          <i class="bi bi-search"></i>
-        </button>
+<div class="d-flex align-items-center mb-3 gap-2">
+  <div class="input-group search-box">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Nhập mã hàng hóa, tên hàng hóa"
+    />
+    <button class="btn btn-success">
+      <i class="bi bi-search"></i>
+    </button>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-bordered align-middle mb-0">
+    <thead>
+      <tr>
+        <th>STT</th>
+        <th>Mã hàng hóa</th>
+        <th>Tên hàng hóa</th>
+        <th>Trọng lượng (gram)</th>
+        <th>Đơn giá</th>
+        <th>Kích thước (cm)</th>
+        <th>Thao tác</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- DỮ LIỆU MẪU -->
+      <tr>
+        <td>1</td>
+        <td>HH001</td>
+        <td>Áo thun nam cổ tròn</td>
+        <td>250</td>
+        <td>120.000₫</td>
+        <td>30 x 25 x 3</td>
+        <td>
+          <i
+            class="bi bi-pencil-square text-primary me-2"
+            style="cursor: pointer"
+          ></i>
+          <i class="bi bi-trash text-danger" style="cursor: pointer"></i>
+        </td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>HH002</td>
+        <td>Quần jean nữ cao cấp</td>
+        <td>500</td>
+        <td>320.000₫</td>
+        <td>40 x 30 x 5</td>
+        <td>
+          <i
+            class="bi bi-pencil-square text-primary me-2"
+            style="cursor: pointer"
+          ></i>
+          <i class="bi bi-trash text-danger" style="cursor: pointer"></i>
+        </td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>HH003</td>
+        <td>Giày thể thao nam bản giới hạn Nike</td>
+        <td>850</td>
+        <td>1.450.000₫</td>
+        <td>45 x 30 x 15</td>
+        <td>
+          <i
+            class="bi bi-pencil-square text-primary me-2"
+            style="cursor: pointer"
+          ></i>
+          <i class="bi bi-trash text-danger" style="cursor: pointer"></i>
+        </td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>HH004</td>
+        <td>Túi xách da thật cao cấp màu nâu sang trọng</td>
+        <td>700</td>
+        <td>2.200.000₫</td>
+        <td>35 x 25 x 10</td>
+        <td>
+          <i
+            class="bi bi-pencil-square text-primary me-2"
+            style="cursor: pointer"
+          ></i>
+          <i class="bi bi-trash text-danger" style="cursor: pointer"></i>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mt-3">
+  <div>
+    Hiển thị
+    <select class="form-select d-inline-block w-auto ms-1">
+      <option>10</option>
+      <option>20</option>
+      <option>50</option>
+    </select>
+    bản ghi
+  </div>
+  <nav>
+    <ul class="pagination mb-0">
+      <li class="page-item disabled">
+        <a class="page-link" href="#">‹</a>
+      </li>
+      <li class="page-item active"><a class="page-link" href="#">1</a></li>
+      <li class="page-item"><a class="page-link" href="#">2</a></li>
+      <li class="page-item"><a class="page-link" href="#">›</a></li>
+    </ul>
+  </nav>
+
+  <!-- Modal Thêm Mới Hàng Hóa -->
+  <div
+    class="modal fade"
+    id="addProductModal"
+    tabindex="-1"
+    aria-labelledby="addProductLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="addProductLabel">
+            Thêm mới hàng hóa
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Đóng"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="mb-3">
+              <label class="form-label">Mã hàng hóa</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Tự động tạo"
+                disabled
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Tên hàng hóa</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Nhập tên hàng hóa"
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Trọng lượng (gram)</label>
+              <input type="number" class="form-control" placeholder="VD: 500" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Đơn giá (VND)</label>
+              <input
+                type="number"
+                class="form-control"
+                placeholder="VD: 120000"
+              />
+            </div>
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Dài (cm)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  placeholder="VD: 30"
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Rộng (cm)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  placeholder="VD: 25"
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Cao (cm)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  placeholder="VD: 10"
+                />
+              </div>
+            </div>
+            <!-- <div class="mb-3">
+              <label class="form-label">Lựa chọn trạng thái lưu</label>
+              <select class="form-select">
+                <option selected>Lưu và đóng</option>
+                <option>Lưu và thêm mới</option>
+                <option>Lưu nháp</option>
+              </select>
+            </div> -->
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger">Xác nhận</button>
+        </div>
       </div>
-    </div>
-
-    <div class="table-responsive">
-      <table class="table table-bordered align-middle mb-0">
-        <thead>
-          <tr>
-            <th>STT</th>
-            <th>Mã hàng hóa</th>
-            <th>Tên hàng hóa</th>
-            <th>Trọng lượng (gram)</th>
-            <th>Đơn giá</th>
-            <th>Kích thước (cm)</th>
-            <th>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- DỮ LIỆU MẪU -->
-          <tr>
-            <td>1</td>
-            <td>HH001</td>
-            <td>Áo thun nam cổ tròn</td>
-            <td>250</td>
-            <td>120.000₫</td>
-            <td>30 x 25 x 3</td>
-            <td>
-              <i
-                class="bi bi-pencil-square text-primary me-2"
-                style="cursor: pointer"
-              ></i>
-              <i class="bi bi-trash text-danger" style="cursor: pointer"></i>
-            </td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>HH002</td>
-            <td>Quần jean nữ cao cấp</td>
-            <td>500</td>
-            <td>320.000₫</td>
-            <td>40 x 30 x 5</td>
-            <td>
-              <i
-                class="bi bi-pencil-square text-primary me-2"
-                style="cursor: pointer"
-              ></i>
-              <i class="bi bi-trash text-danger" style="cursor: pointer"></i>
-            </td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>HH003</td>
-            <td>Giày thể thao nam bản giới hạn Nike</td>
-            <td>850</td>
-            <td>1.450.000₫</td>
-            <td>45 x 30 x 15</td>
-            <td>
-              <i
-                class="bi bi-pencil-square text-primary me-2"
-                style="cursor: pointer"
-              ></i>
-              <i class="bi bi-trash text-danger" style="cursor: pointer"></i>
-            </td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td>HH004</td>
-            <td>Túi xách da thật cao cấp màu nâu sang trọng</td>
-            <td>700</td>
-            <td>2.200.000₫</td>
-            <td>35 x 25 x 10</td>
-            <td>
-              <i
-                class="bi bi-pencil-square text-primary me-2"
-                style="cursor: pointer"
-              ></i>
-              <i class="bi bi-trash text-danger" style="cursor: pointer"></i>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="d-flex justify-content-between align-items-center mt-3">
-      <div>
-        Hiển thị
-        <select class="form-select d-inline-block w-auto ms-1">
-          <option>10</option>
-          <option>20</option>
-          <option>50</option>
-        </select>
-        bản ghi
-      </div>
-      <nav>
-        <ul class="pagination mb-0">
-          <li class="page-item disabled">
-            <a class="page-link" href="#">‹</a>
-          </li>
-          <li class="page-item active"><a class="page-link" href="#">1</a></li>
-          <li class="page-item"><a class="page-link" href="#">2</a></li>
-          <li class="page-item"><a class="page-link" href="#">›</a></li>
-        </ul>
-      </nav>
     </div>
   </div>
 </div>

@@ -19,8 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
         content.innerHTML = html;
 
         // 🎨 Highlight menu đang chọn
-        links.forEach((l) => l.classList.remove("active"));
-        link.classList.add("active");
+        links.forEach((l) => l.parentElement.classList.remove("active"));
+        link.parentElement.classList.add("active");
       } catch (error) {
         content.innerHTML = `<p class="text-danger">Lỗi tải nội dung: ${error.message}</p>`;
       }

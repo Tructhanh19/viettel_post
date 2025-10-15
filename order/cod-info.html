@@ -1,92 +1,121 @@
 <div class="card">
   <div class="card-body">
-    <!-- Left Column -->
     <div class="row">
+      <!-- LEFT COLUMN -->
       <div class="col-md-6">
         <!-- TIỀN THU HỘ Section -->
         <div class="mb-4">
           <h6 class="fw-bold text-dark mb-3">TIỀN THU HỘ</h6>
-          
-          <!-- COD Payment Info -->
           <div class="d-flex align-items-center mb-3">
             <i class="fas fa-info-circle text-primary me-2"></i>
             <span class="text-primary">Hình thức thanh toán tiền COD</span>
           </div>
-          
-          <!-- Thu hộ bằng tiền hàng checkbox -->
+
+          <!-- Thu hộ bằng tiền hàng -->
           <div class="form-check mb-3">
             <input class="form-check-input" type="checkbox" id="codByGoods">
             <label class="form-check-label" for="codByGoods">
               Thu hộ bằng tiền hàng
             </label>
           </div>
-          
-          <!-- COD Amount Input -->
+
+          <!-- COD Amount -->
           <div class="mb-3">
-            <input type="number" class="form-control form-control-lg" id="codAmount" value="0" min="0" placeholder="0">
+            <input
+              type="number"
+              class="form-control form-control-lg"
+              id="codAmount"
+              value="0"
+              min="0"
+              placeholder="0"
+              readonly
+            />
           </div>
         </div>
-        
-        <!-- GHI CHÚ Section -->
+
+        <!-- GHI CHÚ -->
         <div class="mb-4">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h6 class="fw-bold text-dark mb-0">GHI CHÚ</h6>
             <a href="#" class="text-primary text-decoration-none" id="noteTemplateBtn">Ghi chú mẫu</a>
           </div>
-          
           <textarea class="form-control" rows="4" placeholder="Nhập ghi chú" id="noteTextarea"></textarea>
         </div>
-        
-        <!-- Save Order Info Checkbox -->
+
+        <!-- Save Order Info -->
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="saveOrderInfo">
+          <input class="form-check-input" type="checkbox" id="saveOrderInfo" />
           <label class="form-check-label" for="saveOrderInfo">
             Lưu thông tin đơn hàng
             <i class="fas fa-info-circle text-muted ms-1"></i>
           </label>
         </div>
       </div>
-      
-      <!-- Right Column -->
+
+      <!-- RIGHT COLUMN -->
       <div class="col-md-6">
-        <!-- NGƯỜI TRẢ CƯỚC Section -->
+        <!-- NGƯỜI TRẢ CƯỚC -->
         <div class="mb-4">
           <div class="d-flex align-items-center mb-3">
             <h6 class="fw-bold text-dark mb-0 me-2">NGƯỜI TRẢ CƯỚC</h6>
             <i class="fas fa-info-circle text-primary"></i>
           </div>
-          
+
           <div class="d-flex gap-4">
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="paymentPerson" id="senderPays" value="sender" checked>
-              <label class="form-check-label" for="senderPays">
-                Người gửi
-              </label>
+              <input
+                class="form-check-input"
+                type="radio"
+                name="paymentPerson"
+                id="senderPays"
+                value="sender"
+                checked
+              />
+              <label class="form-check-label" for="senderPays">Người gửi</label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="paymentPerson" id="receiverPays" value="receiver">
-              <label class="form-check-label" for="receiverPays">
-                Người nhận
-              </label>
+              <input
+                class="form-check-input"
+                type="radio"
+                name="paymentPerson"
+                id="receiverPays"
+                value="receiver"
+              />
+              <label class="form-check-label" for="receiverPays">Người nhận</label>
             </div>
           </div>
-          
-          <!-- Sender payment notification -->
-          <div class="mt-3">
-            <div class="alert alert-warning d-flex align-items-center" id="senderPaymentAlert">
-              <i class="fas fa-dollar-sign me-2" style="background-color: #ff9800; color: white; padding: 8px; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 12px;"></i>
-              <span>Thanh toán ngay khi gửi hàng cho Viettel Post</strong></span>
+
+          <!-- Alert when sender pays -->
+          <div class="mt-3" id="senderPaymentBox">
+            <div class="alert alert-warning d-flex align-items-center mb-0">
+              <i
+                class="fas fa-dollar-sign me-2"
+                style="
+                  background-color: #ff9800;
+                  color: white;
+                  padding: 8px;
+                  border-radius: 50%;
+                  width: 32px;
+                  height: 32px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-size: 12px;
+                "
+              ></i>
+              <div>
+                <strong class="payment-label">Người gửi thanh toán:</strong>
+                <span class="payment-value ms-1">0 ₫</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    
-
   </div>
 </div>
 
-<!-- Note Template Modal -->
+<!-- MODAL: Note Templates -->
 <div class="modal fade" id="noteTemplateModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -99,51 +128,40 @@
       <div class="modal-body px-4">
         <div class="note-options">
           <div class="form-check mb-3">
-            <input class="form-check-input note-template-option" type="checkbox" id="note1" value="Giao hàng một phần, nhận lại sản phẩm từ khách">
-            <label class="form-check-label" for="note1">
-              Giao hàng một phần, nhận lại sản phẩm từ khách
-            </label>
+            <input
+              class="form-check-input note-template-option"
+              type="checkbox"
+              id="note1"
+              value="Giao hàng một phần, nhận lại sản phẩm từ khách"
+            />
+            <label class="form-check-label" for="note1">Giao hàng một phần, nhận lại sản phẩm từ khách</label>
           </div>
-          
           <div class="form-check mb-3">
-            <input class="form-check-input note-template-option" type="checkbox" id="note2" value="Hàng dễ vỡ, vui lòng nhẹ tay">
-            <label class="form-check-label" for="note2">
-              Hàng dễ vỡ, vui lòng nhẹ tay
-            </label>
+            <input class="form-check-input note-template-option" type="checkbox" id="note2" value="Hàng dễ vỡ, vui lòng nhẹ tay" />
+            <label class="form-check-label" for="note2">Hàng dễ vỡ, vui lòng nhẹ tay</label>
           </div>
-          
           <div class="form-check mb-3">
-            <input class="form-check-input note-template-option" type="checkbox" id="note3" value="Gọi điện cho khách trước khi giao">
-            <label class="form-check-label" for="note3">
-              Gọi điện cho khách trước khi giao
-            </label>
+            <input class="form-check-input note-template-option" type="checkbox" id="note3" value="Gọi điện cho khách trước khi giao" />
+            <label class="form-check-label" for="note3">Gọi điện cho khách trước khi giao</label>
           </div>
-          
           <div class="form-check mb-3">
-            <input class="form-check-input note-template-option" type="checkbox" id="note4" value="Giao hàng vào giờ hành chính">
-            <label class="form-check-label" for="note4">
-              Giao hàng vào giờ hành chính
-            </label>
+            <input class="form-check-input note-template-option" type="checkbox" id="note4" value="Giao hàng vào giờ hành chính" />
+            <label class="form-check-label" for="note4">Giao hàng vào giờ hành chính</label>
           </div>
-          
           <div class="form-check mb-4">
-            <input class="form-check-input note-template-option" type="checkbox" id="note5" value="Cho khách xem hàng">
-            <label class="form-check-label" for="note5">
-              Cho khách xem hàng
-            </label>
+            <input class="form-check-input note-template-option" type="checkbox" id="note5" value="Cho khách xem hàng" />
+            <label class="form-check-label" for="note5">Cho khách xem hàng</label>
           </div>
         </div>
       </div>
       <div class="modal-footer border-0 px-4 pb-4">
-        <button type="button" class="btn btn-danger w-100 py-3 rounded-3" id="selectNotesBtn">
-          Chọn ghi chú
-        </button>
+        <button type="button" class="btn btn-danger w-100 py-3 rounded-3" id="selectNotesBtn">Chọn ghi chú</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Receiver Payment Warning Modal -->
+<!-- MODAL: Warning when receiver pays while COD off -->
 <div class="modal fade" id="receiverPaymentModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -156,11 +174,24 @@
       <div class="modal-body px-4 text-center">
         <div class="mb-4">
           <div class="d-flex justify-content-center mb-3">
-            <i class="fas fa-bell text-white" style="background-color: #dc3545; padding: 20px; border-radius: 50%; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; font-size: 24px;"></i>
+            <i
+              class="fas fa-bell text-white"
+              style="
+                background-color: #dc3545;
+                padding: 20px;
+                border-radius: 50%;
+                width: 64px;
+                height: 64px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+              "
+            ></i>
           </div>
           <h5 class="fw-bold mb-3">Đơn hàng không thể chọn người nhận trả cước!</h5>
           <p class="text-muted mb-3">
-            Do đơn hàng được xác định là thanh toán ngay khi gửi hàng cho Viettel Post nên không thể chọn người nhận trả cước
+            Do đơn hàng được xác định là thanh toán ngay khi gửi hàng cho Viettel Post nên không thể chọn người nhận trả cước.
           </p>
           <p class="text-muted">
             Vui lòng chọn người gửi thanh toán cước để giữ nguyên thông tin đơn hàng hiện tại.
@@ -168,7 +199,7 @@
         </div>
       </div>
       <div class="modal-footer border-0 px-4 pb-4">
-        <button type="button" class="btn btn-danger w-100 py-3 rounded-3" id="confirmSenderPayment">
+        <button type="button" class="btn btn-danger w-100 py-3 rounded-3" id="confirmSenderPayment" data-bs-dismiss="modal">
           Giữ "Người gửi trả cước"
         </button>
       </div>

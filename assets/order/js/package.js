@@ -1,78 +1,76 @@
-/**
- * PACKAGE INFO FUNCTIONALITY
- * Handles package items, weight calculation, value calculation
- */
+window.Package = (function () {
+  "use strict";
 
-window.Package = (function() {
-  'use strict';
-
-  // Private variables
-  let packageItemCounter = 1;
-  let availableNumbers = []; // Array to store reusable numbers
-
-  // Public methods
   async function init() {
-    // Load package data first
     const loaded = await PackageData.init();
     if (!loaded) {
-      console.error('Failed to load package data');
+      console.error("❌ Không thể load package data");
       return;
     }
 
-    // Render dynamic content
+    await window.ProductData.init();
+
     renderPackageTypes();
     renderPackageCharacteristics();
 
-    // Initialize functionality
     initPackageTypeToggle();
     initAddPackageButton();
     initPackageEventListeners();
+    initProductAutocomplete();
     updatePackageItemVisibility();
     updatePackageSummary();
   }
 
   function renderPackageTypes() {
     const packageTypes = PackageData.getPackageTypes();
-    const container = document.querySelector('.d-flex.gap-3');
-    
+    const container = document.querySelector(".d-flex.gap-3");
+
     if (!container || packageTypes.length === 0) {
-      console.warn('Package types container not found or no types available');
+      console.warn("Package types container not found or no types available");
       return;
     }
 
     // Clear existing content
-    container.innerHTML = '';
+    container.innerHTML = "";
 
     // Render package types from JSON
     packageTypes.forEach((type, index) => {
       const typeId = type.code.toLowerCase();
       const isChecked = index === 0; // First one is checked by default
-      
+
       const typeHTML = `
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="packageType" value="${typeId}" id="package${type.code}" ${isChecked ? 'checked' : ''}>
-          <label class="form-check-label" for="package${type.code}">${type.name}</label>
+          <input class="form-check-input" type="radio" name="packageType" value="${typeId}" id="package${
+        type.code
+      }" ${isChecked ? "checked" : ""}>
+          <label class="form-check-label" for="package${type.code}">${
+        type.name
+      }</label>
         </div>
       `;
-      container.insertAdjacentHTML('beforeend', typeHTML);
+      container.insertAdjacentHTML("beforeend", typeHTML);
     });
   }
 
   function renderPackageCharacteristics() {
     const allFeatures = PackageData.getPackageFeatures();
-    
+
     // Render mail/package characteristics
-    const mailFeatures = allFeatures.filter(f => f.package_type_code === 'PACKAGE');
-    const mailContainer = document.getElementById('mailCharacteristics');
-    
+    const mailFeatures = allFeatures.filter(
+      (f) => f.package_type_code === "PACKAGE"
+    );
+    const mailContainer = document.getElementById("mailCharacteristics");
+
     if (mailContainer && mailFeatures.length > 0) {
       mailContainer.innerHTML = renderCharacteristicRows(mailFeatures);
     }
 
     // Render document characteristics
-    const docFeatures = allFeatures.filter(f => f.package_type_code === 'DOCUMENT');
-    const docContainer = document.getElementById('documentCharacteristics');
-    
+    const docFeatures = allFeatures.filter(
+      (f) => f.package_type_code === "DOCUMENT"
+    );
+    const docContainer = document.getElementById("documentCharacteristics");
+
     if (docContainer && docFeatures.length > 0) {
       docContainer.innerHTML = renderCharacteristicRows(docFeatures);
     }
@@ -80,11 +78,11 @@ window.Package = (function() {
 
   function renderCharacteristicRows(features) {
     let html = '<div class="row">';
-    
+
     features.forEach((feature, index) => {
       const featureId = feature.code.toLowerCase();
-      const colClass = features.length <= 2 ? 'col-md-6' : 'col-md-4';
-      
+      const colClass = features.length <= 2 ? "col-md-6" : "col-md-4";
+
       html += `
         <div class="${colClass}">
           <div class="form-check mb-2">
@@ -93,25 +91,33 @@ window.Package = (function() {
           </div>
         </div>
       `;
-      
+
       // Create new row after every 3 items (or 2 for documents)
       const itemsPerRow = features.length <= 2 ? 2 : 3;
       if ((index + 1) % itemsPerRow === 0 && index < features.length - 1) {
         html += '</div><div class="row">';
       }
     });
-    
-    html += '</div>';
+
+    html += "</div>";
     return html;
   }
 
   function initPackageTypeToggle() {
     // Package type switching
-    const packageTypeInputs = document.querySelectorAll('input[name="packageType"]');
+    const packageTypeInputs = document.querySelectorAll(
+      'input[name="packageType"]'
+    );
     const mailCharacteristics = document.getElementById("mailCharacteristics");
-    const documentCharacteristics = document.getElementById("documentCharacteristics");
+    const documentCharacteristics = document.getElementById(
+      "documentCharacteristics"
+    );
 
-    if (!packageTypeInputs.length || !mailCharacteristics || !documentCharacteristics) {
+    if (
+      !packageTypeInputs.length ||
+      !mailCharacteristics ||
+      !documentCharacteristics
+    ) {
       console.log("⚠️ Package type elements not found");
       return;
     }
@@ -145,6 +151,16 @@ window.Package = (function() {
         e.target.classList.contains("package-quantity")
       ) {
         updatePackageSummary();
+        // Notify pricing calculator
+        notifyPackageChanged();
+      }
+    });
+
+    // Add event listener for package feature checkboxes
+    document.addEventListener("change", function (e) {
+      if (e.target.type === "checkbox" && e.target.dataset.code) {
+        // Package feature checkbox changed
+        notifyPackageChanged();
       }
 
       // Validation for required fields
@@ -162,26 +178,146 @@ window.Package = (function() {
     });
 
     // Validation on blur
-    document.addEventListener("blur", function (e) {
-      if (
-        e.target.classList.contains("package-name") ||
-        e.target.classList.contains("package-weight") ||
-        e.target.classList.contains("dimension-length") ||
-        e.target.classList.contains("dimension-width") ||
-        e.target.classList.contains("dimension-height")
-      ) {
-        const errorClass = e.target.className.includes("package-name")
-          ? "package-name-error"
-          : e.target.className.includes("package-weight")
-          ? "package-weight-error"
-          : e.target.className.includes("dimension-length")
-          ? "dimension-length-error"
-          : e.target.className.includes("dimension-width")
-          ? "dimension-width-error"
-          : "dimension-height-error";
-        validatePackageField(e.target, errorClass);
+    document.addEventListener(
+      "blur",
+      function (e) {
+        if (
+          e.target.classList.contains("package-name") ||
+          e.target.classList.contains("package-weight") ||
+          e.target.classList.contains("dimension-length") ||
+          e.target.classList.contains("dimension-width") ||
+          e.target.classList.contains("dimension-height")
+        ) {
+          const errorClass = e.target.className.includes("package-name")
+            ? "package-name-error"
+            : e.target.className.includes("package-weight")
+            ? "package-weight-error"
+            : e.target.className.includes("dimension-length")
+            ? "dimension-length-error"
+            : e.target.className.includes("dimension-width")
+            ? "dimension-width-error"
+            : "dimension-height-error";
+          validatePackageField(e.target, errorClass);
+        }
+      },
+      true
+    );
+  }
+
+  function initProductAutocomplete() {
+    // Handle input event for all package name fields
+    document.addEventListener("input", function (e) {
+      if (e.target.classList.contains("package-name")) {
+        handleProductSearch(e.target);
       }
-    }, true);
+    });
+
+    // Handle click outside to close dropdown
+    document.addEventListener("click", function (e) {
+      if (!e.target.closest(".position-relative")) {
+        closeAllProductDropdowns();
+      }
+    });
+  }
+
+  function handleProductSearch(input) {
+    const query = input.value.trim();
+    const wrapper = input.closest(".position-relative");
+    const dropdown = wrapper?.querySelector(".product-dropdown");
+
+    if (!dropdown) return;
+
+    // Hide dropdown if query is empty
+    if (query.length === 0) {
+      dropdown.style.display = "none";
+      return;
+    }
+
+    // Search products
+    const products = window.ProductData.searchProducts(query);
+    populateProductDropdown(dropdown, products, input);
+
+    // Show dropdown if there are results
+    dropdown.style.display = products.length > 0 ? "block" : "none";
+  }
+
+  function populateProductDropdown(dropdown, products, input) {
+    const list = dropdown.querySelector(".product-dropdown-list");
+    if (!list) return;
+
+    // Clear existing items
+    list.innerHTML = "";
+
+    if (products.length === 0) {
+      list.innerHTML =
+        '<div class="product-dropdown-item text-muted">Không tìm thấy sản phẩm</div>';
+      return;
+    }
+
+    // Add product items
+    products.forEach((product) => {
+      const item = document.createElement("div");
+      item.className = "product-dropdown-item";
+      item.innerHTML = `
+        <div class="product-name">${product.name}</div>
+        <div class="product-details">
+          <span class="product-code">${product.code}</span>
+          <span class="product-value">${formatNumber(product.value)} đ</span>
+        </div>
+      `;
+
+      // Handle product selection
+      item.addEventListener("click", function (e) {
+        e.stopPropagation();
+        selectProduct(input, product);
+      });
+
+      list.appendChild(item);
+    });
+  }
+
+  function selectProduct(input, product) {
+    // Fill product name
+    input.value = product.name;
+
+    // Find parent package item
+    const packageItem = input.closest(".package-item");
+    if (!packageItem) return;
+
+    // Auto-fill weight and value
+    const weightInput = packageItem.querySelector(".package-weight");
+    const valueInput = packageItem.querySelector(".package-value");
+
+    if (weightInput) weightInput.value = product.weight;
+    if (valueInput) valueInput.value = product.value;
+
+    // Auto-fill dimensions if available
+    if (product.dimensions) {
+      const lengthInput = document.querySelector(".dimension-length");
+      const widthInput = document.querySelector(".dimension-width");
+      const heightInput = document.querySelector(".dimension-height");
+
+      if (lengthInput) lengthInput.value = product.dimensions.length;
+      if (widthInput) widthInput.value = product.dimensions.width;
+      if (heightInput) heightInput.value = product.dimensions.height;
+    }
+
+    // Hide dropdown
+    const wrapper = input.closest(".position-relative");
+    const dropdown = wrapper?.querySelector(".product-dropdown");
+    if (dropdown) {
+      dropdown.style.display = "none";
+    }
+
+    // Update summary
+    updatePackageSummary();
+  }
+
+  function closeAllProductDropdowns() {
+    const dropdowns = document.querySelectorAll(".product-dropdown");
+    dropdowns.forEach((dropdown) => {
+      dropdown.style.display = "none";
+    });
   }
 
   function addPackageItem() {
@@ -215,9 +351,12 @@ window.Package = (function() {
             </button>
         </div>
         
-        <div class="mb-3">
-            <input type="text" class="form-control package-name" placeholder="Nhập tên hàng hóa" required>
+        <div class="mb-3 position-relative">
+            <input type="text" class="form-control package-name" placeholder="Nhập tên hàng hóa" required autocomplete="off">
             <div class="package-name-error text-danger small mt-1" style="display: none;">Tên hàng hóa không được để trống</div>
+            <div class="product-dropdown" style="display: none;">
+                <div class="product-dropdown-list"></div>
+            </div>
         </div>
 
         <div class="row mb-3">
@@ -298,8 +437,10 @@ window.Package = (function() {
     let totalValue = 0;
 
     items.forEach((item) => {
-      const quantity = parseFloat(item.querySelector(".package-quantity").value) || 0;
-      const weight = parseFloat(item.querySelector(".package-weight").value) || 0;  
+      const quantity =
+        parseFloat(item.querySelector(".package-quantity").value) || 0;
+      const weight =
+        parseFloat(item.querySelector(".package-weight").value) || 0;
       const value = parseFloat(item.querySelector(".package-value").value) || 0;
 
       totalWeight += quantity * weight;
@@ -317,6 +458,7 @@ window.Package = (function() {
     if (totalValueEl) {
       totalValueEl.textContent = formatNumber(totalValue) + " đ";
     }
+    notifyPackageChanged();
   }
 
   function formatNumber(num) {
@@ -325,20 +467,22 @@ window.Package = (function() {
 
   function getSelectedCharacteristics() {
     const selectedFeatures = [];
-    const checkboxes = document.querySelectorAll('.special-characteristics-section input[type="checkbox"]:checked');
-    
-    checkboxes.forEach(checkbox => {
+    const checkboxes = document.querySelectorAll(
+      '.special-characteristics-section input[type="checkbox"]:checked'
+    );
+
+    checkboxes.forEach((checkbox) => {
       const code = checkbox.dataset.code;
       const cost = parseFloat(checkbox.dataset.cost) || 0;
-      const label = checkbox.parentElement.querySelector('label').textContent;
-      
+      const label = checkbox.parentElement.querySelector("label").textContent;
+
       selectedFeatures.push({
         code: code,
         name: label,
-        cost: cost
+        cost: cost,
       });
     });
-    
+
     return selectedFeatures;
   }
 
@@ -348,7 +492,7 @@ window.Package = (function() {
   }
 
   function validatePackageField(field, errorClass) {
-    const container = 
+    const container =
       field.closest(".package-item") ||
       field.closest(".dimensions-section") ||
       field.closest(".mb-3");
@@ -357,7 +501,7 @@ window.Package = (function() {
     if (!errorElement) return;
 
     const isEmpty = !field.value || field.value.trim() === "";
-    const isInvalid = 
+    const isInvalid =
       field.type === "number" &&
       (isNaN(field.value) || parseFloat(field.value) <= 0);
 
@@ -370,7 +514,50 @@ window.Package = (function() {
     }
   }
 
-  // Public API
+  /**
+   * Calculate total weight and value from all package items
+   */
+  function calculateTotals() {
+    const items = document.querySelectorAll(".package-item");
+    let totalWeight = 0;
+    let totalValue = 0;
+
+    items.forEach((item) => {
+      const weightInput = item.querySelector(".package-weight");
+      const valueInput = item.querySelector(".package-value");
+      const quantityInput = item.querySelector(".package-quantity");
+
+      const weight = parseFloat(weightInput?.value || 0);
+      const value = parseFloat(valueInput?.value || 0);
+      const quantity = parseInt(quantityInput?.value || 1);
+
+      totalWeight += weight * quantity;
+      totalValue += value * quantity;
+    });
+
+    // Get selected package features and their costs
+    const selectedFeatures = getSelectedCharacteristics();
+    const featuresCost = calculateCharacteristicsCost();
+
+    return {
+      totalWeight,
+      totalValue,
+      itemCount: items.length,
+      selectedFeatures,
+      featuresCost,
+    };
+  }
+
+  /**
+   * Dispatch event when package items change
+   */
+  function notifyPackageChanged() {
+    const totals = calculateTotals();
+    const event = new CustomEvent("packageItemsChanged", { detail: totals });
+    document.dispatchEvent(event);
+    console.log("📦 Package items changed:", totals);
+  }
+
   return {
     init,
     addPackageItem,
@@ -379,6 +566,8 @@ window.Package = (function() {
     validatePackageField,
     formatNumber,
     getSelectedCharacteristics,
-    calculateCharacteristicsCost
+    calculateCharacteristicsCost,
+    calculateTotals,
+    notifyPackageChanged,
   };
 })();

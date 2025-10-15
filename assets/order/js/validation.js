@@ -287,19 +287,19 @@ window.Validation = (function() {
     }
 
     // Validate street
-    const streetSelect = document.getElementById("streetSelect");
-    const streetError = document.getElementById("streetError");
-    if (streetSelect) {
-      const selectedOption = streetSelect.querySelector(".dropdown-option.selected");
-      if (!selectedOption) {
-        showSelectError(streetSelect, streetError, "Đường/Thôn/Xóm không được để trống");
-        isValid = false;
-      } else {
-        hideSelectError(streetSelect, streetError);
-      }
-    }
+    // const streetSelect = document.getElementById("streetSelect");
+    // const streetError = document.getElementById("streetError");
+    // if (streetSelect) {
+    //   const selectedOption = streetSelect.querySelector(".dropdown-option.selected");
+    //   if (!selectedOption) {
+    //     showSelectError(streetSelect, streetError, "Đường/Thôn/Xóm không được để trống");
+    //     isValid = false;
+    //   } else {
+    //     hideSelectError(streetSelect, streetError);
+    //   }
+    // }
 
-    return isValid;
+    // return isValid;
   }
 
   function validateNewAddressSelects() {

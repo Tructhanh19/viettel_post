@@ -23,8 +23,13 @@
           </button>
         </div>
         
-        <div class="mb-3">
-          <input type="text" class="form-control package-name" placeholder="Nhập tên hàng hóa" required>
+        <div class="mb-3 position-relative">
+          <input type="text" class="form-control package-name" placeholder="Nhập tên hàng hóa" required autocomplete="off">
+          <div class="product-dropdown" style="display: none;">
+            <div class="product-dropdown-list">
+              <!-- Product suggestions will be populated here -->
+            </div>
+          </div>
           <div class="package-name-error text-danger small mt-1" style="display: none;">Tên hàng hóa không được để trống</div>
         </div>
 
@@ -103,7 +108,7 @@
         </div>
       </div>
       <div class="small text-muted mb-3">
-        Quy đổi kích thước (đối với hàng hoá cồng kềnh) <span class="text-primary">Chi tiết</span>
+        Quy đổi kích thước (đối với hàng hoá cồng kềnh) <a href="https://viettelpost.com.vn/dich_vu/chuyen-phat-nhanh-2/" target="_blank" class="text-primary text-decoration-none">Chi tiết</a>
       </div>
     </div>
 
@@ -113,7 +118,7 @@
         <div class="col-md-6">
           <label class="form-label">Quy đổi</label>
           <div class="input-group">
-            <input type="number" class="form-control" placeholder="Khối lượng quy đổi từ kích thước hàng hóa" min="0" readonly disabled>
+            <input type="number" class="form-control" name="packageWeight" placeholder="Khối lượng quy đổi từ kích thước hàng hóa" min="0" readonly disabled>
             <span class="input-group-text">g</span>
           </div>
         </div>

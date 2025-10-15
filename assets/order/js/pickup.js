@@ -80,9 +80,9 @@ window.Pickup = (function() {
 
     // Update tab labels with real dates
     const dayAfterTab = document.getElementById("dayafter-tab");
-    if (todayTab) todayTab.textContent = `Hôm nay (${todayStr})`;
-    if (tomorrowTab) tomorrowTab.textContent = `Ngày mai (${tomorrowStr})`;
-    if (dayAfterTab) dayAfterTab.textContent = `Ngày kia (${dayAfterStr})`;
+    if (todayTab) todayTab.textContent = `Hôm nay`;
+    if (tomorrowTab) tomorrowTab.textContent = `Ngày mai`;
+    if (dayAfterTab) dayAfterTab.textContent = `Ngày kia`;
 
     // Full time slots for tomorrow and day after
     const fullTimeSlots = [

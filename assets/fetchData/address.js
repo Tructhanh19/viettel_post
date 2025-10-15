@@ -13,7 +13,12 @@ window.AddressData = (function () {
 
   // Public methods
   async function init() {
+    console.log('[AddressData] Bắt đầu init');
     await loadAddressData();
+    console.log('[AddressData] Đã load xong dữ liệu:', {
+      addressData63,
+      addressData34
+    });
   }
 
   // Load both address data files
@@ -23,10 +28,16 @@ window.AddressData = (function () {
     isLoading = true;
 
     try {
-      const [data63Response, data34Response] = await Promise.all([
-        fetch("../assets/data/address_63.json"),
-        fetch("../assets/data/address_34.json"),
-      ]);
+      // Try relative path first, then fallback to root path
+      let data63Response = await fetch("../assets/data/address_63.json").catch(() => null);
+      if (!data63Response || !data63Response.ok) {
+        data63Response = await fetch("assets/data/address_63.json");
+      }
+
+      let data34Response = await fetch("../assets/data/address_34.json").catch(() => null);
+      if (!data34Response || !data34Response.ok) {
+        data34Response = await fetch("assets/data/address_34.json");
+      }
 
       if (data63Response.ok) {
         addressData63 = await data63Response.json();
@@ -36,7 +47,7 @@ window.AddressData = (function () {
         addressData34 = await data34Response.json();
       }
     } catch (error) {
-      console.error("Error loading address data:", error);
+      // Silent error - data loading failed
     } finally {
       isLoading = false;
     }
@@ -44,15 +55,19 @@ window.AddressData = (function () {
 
   // Get provinces for old address system (63 provinces)
   function getProvinces63() {
-    if (!addressData63) return [];
-
-    return addressData63.map((province) => ({
+    if (!addressData63) {
+      console.warn('[AddressData] addressData63 chưa có dữ liệu');
+      return [];
+    }
+    const provinces = addressData63.map((province) => ({
       code: province.code,
       name: province.name,
       codename: province.codename,
       phone_code: province.phone_code,
       region: province.region,
     }));
+    console.log('[AddressData] getProvinces63 trả về:', provinces.length, 'tỉnh/thành');
+    return provinces;
   }
 
   // Get provinces for new address system (34 provinces)
@@ -72,7 +87,10 @@ window.AddressData = (function () {
   function getDistricts63(provinceCode) {
     if (!addressData63) return [];
 
-    const province = addressData63.find((p) => p.code === provinceCode);
+    // Convert to string for comparison
+    const codeStr = String(provinceCode);
+    const province = addressData63.find((p) => String(p.code) === codeStr);
+    
     if (!province || !province.districts) return [];
 
     return province.districts.map((district) => ({
@@ -88,7 +106,9 @@ window.AddressData = (function () {
   function getDistricts34(provinceCode) {
     if (!addressData34) return [];
 
-    const province = addressData34.find((p) => p.code === provinceCode);
+    // Convert to string for comparison
+    const codeStr = String(provinceCode);
+    const province = addressData34.find((p) => String(p.code) === codeStr);
     if (!province || !province.districts) return [];
 
     return province.districts.map((district) => ({
@@ -104,10 +124,11 @@ window.AddressData = (function () {
   function getWards63(provinceCode, districtCode) {
     if (!addressData63) return [];
 
-    const province = addressData63.find((p) => p.code === provinceCode);
+    // So sánh bằng chuỗi để tránh lỗi kiểu dữ liệu
+    const province = addressData63.find((p) => String(p.code) === String(provinceCode));
     if (!province || !province.districts) return [];
 
-    const district = province.districts.find((d) => d.code === districtCode);
+    const district = province.districts.find((d) => String(d.code) === String(districtCode));
     if (!district || !district.wards) return [];
 
     return district.wards.map((ward) => ({
@@ -203,15 +224,59 @@ window.AddressData = (function () {
     const provinces = getProvinces63();
     populateSelectOptions(provinceSelect, provinces, "Tỉnh/Thành phố");
 
+    // Khôi phục lựa chọn từ localStorage nếu có
+    const savedProvince = localStorage.getItem('sender_province');
+    const savedDistrict = localStorage.getItem('sender_district');
+    const savedWard = localStorage.getItem('sender_ward');
+    if (savedProvince) {
+      const provinceOption = provinceSelect.querySelector(`.dropdown-option[data-value='${savedProvince}']`);
+      if (provinceOption) {
+        provinceOption.classList.add('selected');
+        provinceSelect.querySelector('.select-display span').textContent = provinceOption.textContent;
+        provinceSelect.querySelector('.select-display').classList.add('has-value');
+        // Load districts
+        const districts = getDistricts63(parseInt(savedProvince));
+        populateSelectOptions(districtSelect, districts, "Quận/Huyện");
+        if (savedDistrict) {
+          const districtOption = districtSelect.querySelector(`.dropdown-option[data-value='${savedDistrict}']`);
+          if (districtOption) {
+            districtOption.classList.add('selected');
+            districtSelect.querySelector('.select-display span').textContent = districtOption.textContent;
+            districtSelect.querySelector('.select-display').classList.add('has-value');
+            // Load wards
+            const wards = getWards63(parseInt(savedProvince), parseInt(savedDistrict));
+            populateSelectOptions(wardSelect, wards, "Xã/Phường");
+            if (savedWard) {
+              const wardOption = wardSelect.querySelector(`.dropdown-option[data-value='${savedWard}']`);
+              if (wardOption) {
+                wardOption.classList.add('selected');
+                wardSelect.querySelector('.select-display span').textContent = wardOption.textContent;
+                wardSelect.querySelector('.select-display').classList.add('has-value');
+              }
+            }
+          }
+        }
+      }
+    }
+
     // Province change handler
     provinceSelect.addEventListener("change", function (e) {
       if (e.detail && e.detail.value) {
         const provinceCode = parseInt(e.detail.value);
+        localStorage.setItem('sender_province', provinceCode);
+        localStorage.removeItem('sender_district');
+        localStorage.removeItem('sender_ward');
         const districts = getDistricts63(provinceCode);
-
         populateSelectOptions(districtSelect, districts, "Quận/Huyện");
         resetSelect(wardSelect, "Xã/Phường");
-
+        // Cập nhật trạng thái selected cho option mới
+        provinceSelect.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
+        const selectedOpt = provinceSelect.querySelector(`.dropdown-option[data-value='${provinceCode}']`);
+        if (selectedOpt) {
+          selectedOpt.classList.add('selected');
+          provinceSelect.querySelector('.select-display span').textContent = selectedOpt.textContent;
+          provinceSelect.querySelector('.select-display').classList.add('has-value');
+        }
         // Trigger custom event
         provinceSelect.dispatchEvent(
           new CustomEvent("locationChange", {
@@ -233,16 +298,38 @@ window.AddressData = (function () {
             selectedProvince.getAttribute("data-value")
           );
           const districtCode = parseInt(e.detail.value);
+          localStorage.setItem('sender_district', districtCode);
+          localStorage.removeItem('sender_ward');
           const wards = getWards63(provinceCode, districtCode);
-
           populateSelectOptions(wardSelect, wards, "Xã/Phường");
-
+          // Cập nhật trạng thái selected cho option mới
+          districtSelect.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
+          const selectedOpt = districtSelect.querySelector(`.dropdown-option[data-value='${districtCode}']`);
+          if (selectedOpt) {
+            selectedOpt.classList.add('selected');
+            districtSelect.querySelector('.select-display span').textContent = selectedOpt.textContent;
+            districtSelect.querySelector('.select-display').classList.add('has-value');
+          }
           // Trigger custom event
           districtSelect.dispatchEvent(
             new CustomEvent("locationChange", {
               detail: { value: e.detail.value, text: e.detail.text },
             })
           );
+        }
+      }
+    });
+    // Ward change handler
+    wardSelect.addEventListener("change", function (e) {
+      if (e.detail && e.detail.value) {
+        localStorage.setItem('sender_ward', e.detail.value);
+        // Cập nhật trạng thái selected cho option mới
+        wardSelect.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
+        const selectedOpt = wardSelect.querySelector(`.dropdown-option[data-value='${e.detail.value}']`);
+        if (selectedOpt) {
+          selectedOpt.classList.add('selected');
+          wardSelect.querySelector('.select-display span').textContent = selectedOpt.textContent;
+          wardSelect.querySelector('.select-display').classList.add('has-value');
         }
       }
     });
@@ -378,5 +465,11 @@ window.AddressData = (function () {
   return {
     init,
     setupAddressCascading,
+    getProvinces63,
+    getDistricts63,
+    getWards63,
+    getProvinces34,
+    getDistricts34,
+    getWards34,
   };
 })();

@@ -184,24 +184,63 @@ async function loadContent(url) {
         oldScript.remove();
       });
 
+    // Reset global modules to force reinit when loading dynamic pages
+    // This ensures event listeners and DOM bindings are recreated for new elements
+    const modulesToReset = [
+      'AddressData', 'BranchData', 'PackageData', 'ProductData', 
+      'SenderData', 'ServiceData', 'TagData',
+      'Sender', 'Receiver', 'Service', 'Package', 'Pickup', 'Tags',
+      'OrderController', 'SenderInfo', 'PostageCalculator'
+    ];
+    
+    modulesToReset.forEach(moduleName => {
+      if (window[moduleName]) {
+        delete window[moduleName];
+      }
+    });
+
     // Execute any scripts in the loaded content
     const scripts = mainContent.querySelectorAll("script");
+    
+    // Separate external and inline scripts
+    const externalScripts = [];
+    const inlineScripts = [];
+    
     scripts.forEach((script) => {
-      const newScript = document.createElement("script");
-      newScript.setAttribute("data-dynamic", "true"); // Mark as dynamic for cleanup
-
       if (script.src) {
-        newScript.src = script.src;
+        externalScripts.push(script);
       } else {
-        newScript.textContent = script.textContent;
+        inlineScripts.push(script);
       }
-
-      // Add script to body
-      document.body.appendChild(newScript);
-
-      // Remove the original script tag from mainContent to avoid duplication
-      script.remove();
+      script.remove(); // Remove from mainContent
     });
+    
+    // Load external scripts first (in sequence)
+    // Add cache-busting timestamp to force reload
+    const timestamp = Date.now();
+    for (const script of externalScripts) {
+      await new Promise((resolve, reject) => {
+        const newScript = document.createElement("script");
+        newScript.setAttribute("data-dynamic", "true");
+        // Add timestamp to force reload (cache busting)
+        const separator = script.src.includes('?') ? '&' : '?';
+        newScript.src = script.src + separator + '_t=' + timestamp;
+        newScript.onload = resolve;
+        newScript.onerror = reject;
+        document.body.appendChild(newScript);
+      });
+    }
+    
+    // Then execute inline scripts (in sequence)
+    for (const script of inlineScripts) {
+      const newScript = document.createElement("script");
+      newScript.setAttribute("data-dynamic", "true");
+      newScript.textContent = script.textContent;
+      document.body.appendChild(newScript);
+      
+      // Small delay to ensure script executes
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
   } catch (error) {
     mainContent.innerHTML = `
       <div class="alert alert-danger text-center">
@@ -276,47 +315,190 @@ function initCharts() {
 document.addEventListener("DOMContentLoaded", function () {
   initSearch();
   initCharts();
-  // initAccountSettingsMenu();
+  initAccountSettingsMenu();
+  initReceiverManagementHandler();
 });
 
+/**
+ * Initialize Account Settings menu handler
+ */
 function initAccountSettingsMenu() {
-  const accountMenuItem = document.getElementById("accountSettingsMenu");
-
+  const accountMenu = document.querySelector("#accountSettingsMenu a");
   const mainContent = document.getElementById("mainContent");
 
-  if (accountMenuItem && mainContent) {
-    const link = accountMenuItem.querySelector("a.menu-link");
+  if (accountMenu && mainContent) {
+    accountMenu.addEventListener("click", function (e) {
+      e.preventDefault();
 
-    if (link) {
-      link.addEventListener("click", function (event) {
-        event.preventDefault();
+      // Tải sidebar.html
+      fetch("./AccountSetting/sidebar.html")
+        .then((res) => res.text())
+        .then((html) => {
+          mainContent.innerHTML = html;
 
-        fetch(link.getAttribute("href"))
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Lỗi kết nối mạng hoặc không tìm thấy file");
-            }
-            return response.text();
-          })
+          // Khi sidebar load xong, khởi tạo sidebar
+          initSidebarAjax();
+
+          // Tải sẵn trang accountDetail.html khi vừa mở "Cài đặt tài khoản"
+          const accountContent = document.getElementById("accountContent");
+          if (accountContent) {
+            accountContent.innerHTML = "<p>Đang tải...</p>";
+            fetch("./AccountSetting/accountDetail.html")
+              .then((res) => res.text())
+              .then((html) => {
+                accountContent.innerHTML = html;
+              })
+              .catch((err) => {
+                accountContent.innerHTML = `<p style='color:red;'>Không thể tải trang mặc định.</p>`;
+              });
+          }
+        })
+        .catch((err) => {
+          mainContent.innerHTML = `<p style="color:red;">Lỗi tải sidebar.html</p>`;
+        });
+    });
+  }
+}
+
+/**
+ * Initialize handler for sender management links
+ */
+function initReceiverManagementHandler() {
+  const mainContent = document.getElementById("mainContent");
+
+  if (mainContent) {
+    mainContent.addEventListener("click", function (e) {
+      if (e.target.matches('a[data-action="load-receiver-management"]')) {
+        e.preventDefault();
+
+        // Tải sidebar.html
+        fetch("./AccountSetting/sidebar.html")
+          .then((res) => res.text())
           .then((html) => {
-            html = html.replace(
-              "../assets/AccountSetting/account.css",
-              "assets/AccountSetting/account.css"
-            );
-
             mainContent.innerHTML = html;
 
-            document.querySelectorAll(".menu-item").forEach((item) => {
-              item.classList.remove("active");
-            });
+            // Khi sidebar load xong, khởi tạo sidebar
+            initSidebarAjax();
 
-            accountMenuItem.classList.add("active");
+            // Active thẻ li "Thông tin người gửi"
+            const senderLink = document.querySelector(
+              '.account-menu .menu-link[href="receiverInfo.html"]'
+            );
+            if (senderLink) {
+              senderLink.parentElement.classList.add("active");
+            }
+
+            // Tải trang receiverInfo.html
+            const accountContent = document.getElementById("accountContent");
+            if (accountContent) {
+              loadAccountPage(accountContent, "./AccountSetting/receiverInfo.html");
+            }
           })
-          .catch((error) => {
-            console.error("Lỗi khi tải nội dung:", error);
-            alert("Không thể tải nội dung. Vui lòng thử lại sau.");
+          .catch((err) => {
+            mainContent.innerHTML = `<p style="color:red;">Lỗi tải sidebar.html</p>`;
           });
+      }
+    });
+  }
+}
+
+/**
+ * Initialize sidebar ajax navigation for account settings
+ */
+function initSidebarAjax() {
+  const accountLinks = document.querySelectorAll(".account-menu .menu-link");
+  const accountContent = document.getElementById("accountContent");
+
+  if (!accountContent) return;
+
+  accountLinks.forEach((link) => {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      const page = this.getAttribute("href");
+
+      // Highlight menu đang chọn
+      accountLinks.forEach((l) => l.parentElement.classList.remove("active"));
+      this.parentElement.classList.add("active");
+
+      // Load page
+      loadAccountPage(accountContent, `./AccountSetting/${page}`);
+    });
+  });
+}
+
+/**
+ * Load account page with script execution
+ * @param {HTMLElement} container - Container to load content into
+ * @param {string} url - URL to load
+ */
+async function loadAccountPage(container, url) {
+  console.log('🔄 loadAccountPage called:', url);
+  container.innerHTML = "<p>Đang tải...</p>";
+  
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    
+    const html = await response.text();
+    container.innerHTML = html;
+    
+    console.log('📄 HTML loaded, resetting modules...');
+    
+    // Reset global modules to force reinit
+    const modulesToReset = ['AddressData', 'SenderData', 'SenderInfo'];
+    modulesToReset.forEach(moduleName => {
+      if (window[moduleName]) {
+        console.log('🗑️ Deleting module:', moduleName);
+        delete window[moduleName];
+      }
+    });
+    
+    // Execute scripts in the loaded content
+    const scripts = container.querySelectorAll("script");
+    const externalScripts = [];
+    const inlineScripts = [];
+    
+    scripts.forEach((script) => {
+      if (script.src) {
+        externalScripts.push(script);
+      } else {
+        inlineScripts.push(script);
+      }
+      script.remove();
+    });
+    
+    // Clean up old dynamic scripts first
+    const oldScripts = document.querySelectorAll('script[data-dynamic="true"]');
+    console.log('🧹 Cleaning up old scripts:', oldScripts.length);
+    oldScripts.forEach((oldScript) => {
+      oldScript.remove();
+    });
+    
+    console.log('📦 Loading', externalScripts.length, 'external scripts and', inlineScripts.length, 'inline scripts');
+    
+    // Load external scripts with cache busting
+    const timestamp = Date.now();
+    for (const script of externalScripts) {
+      await new Promise((resolve, reject) => {
+        const newScript = document.createElement("script");
+        newScript.setAttribute("data-dynamic", "true");
+        const separator = script.src.includes('?') ? '&' : '?';
+        newScript.src = script.src + separator + '_t=' + timestamp;
+        newScript.onload = resolve;
+        newScript.onerror = reject;
+        document.body.appendChild(newScript);
       });
     }
+    
+    // Execute inline scripts
+    for (const script of inlineScripts) {
+      const newScript = document.createElement("script");
+      newScript.setAttribute("data-dynamic", "true");
+      newScript.textContent = script.textContent;
+      document.body.appendChild(newScript);
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+  } catch (err) {
+    container.innerHTML = `<p style="color:red;">Không thể tải trang. Vui lòng thử lại.</p>`;
   }
 }

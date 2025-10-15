@@ -1,374 +1,689 @@
 /**
- * SENDER INFO FUNCTIONALITY  
- * Handles sender information, COD, payment, post office selection
+ * SENDER INFO FUNCTIONALITY
+ * Handles sender information, address modes, location cascading
  */
 
-window.Sender = (function() {
-  'use strict';
-
-  let isPostOfficeSetup = false;
+window.Sender = (function () {
+  "use strict";
 
   // Public methods
-  function init() {
-    initializeSenderComponents();
-    initPostOfficeSelector();
+  async function init() {
+    initSenderInfo();
+    initSearchableSelects();
+    await initAddressSystem();
+    await initTagSystem();
   }
 
-  function initializeSenderComponents() {
-    initCODFunctionality();
-    initPaymentNotification();
-    initPricingSummary();
-    initQuantityControls();
-    initSenderToggle();
-    initNoteTemplate();
-  }
-
-  async function initPostOfficeSelector() {
-    if (window.BranchData) {
-      await window.BranchData.init();
-      // Chỉ setup nếu section đang hiển thị
-      const postOfficeSection = document.getElementById("postOfficeSection");
-      if (postOfficeSection && postOfficeSection.style.display !== "none") {
-        setupPostOfficeDropdown();
-      }
+  // Initialize address system
+  async function initAddressSystem() {
+    if (window.AddressData) {
+      await window.AddressData.init();
+      window.AddressData.setupAddressCascading();
     }
   }
 
-  function setupPostOfficeDropdown() {
-    const postOfficeSelect = document.getElementById("postOfficeSelect");
-    const searchInput = postOfficeSelect?.querySelector(".search-input");
-    const optionsContainer = document.getElementById("postOfficeOptions");
-    const display = postOfficeSelect?.querySelector(".select-display");
-    const dropdown = postOfficeSelect?.querySelector(".select-dropdown");
-
-    if (!postOfficeSelect || !window.BranchData) {
-      console.warn("Post office setup failed - missing elements or BranchData");
+  // Initialize tag system
+  async function initTagSystem() {
+    if (!window.TagData) {
+      console.error("TagData not available");
       return;
     }
 
-    // Tránh setup nhiều lần
-    if (isPostOfficeSetup) {
-      console.log("Post office already setup");
-      return;
-    }
-
-    console.log("Setting up post office dropdown...");
-
-    // Get sender address (you can customize this based on your sender selection logic)
-    const senderAddress = "Hà Nội"; // Default or get from selected sender
-
-    // Load nearest branches
-    const nearestBranches = window.BranchData.getNearestBranches(senderAddress, 10);
-    console.log("Nearest branches:", nearestBranches.length);
-    renderPostOfficeOptions(nearestBranches, optionsContainer);
-
-    // Toggle dropdown
-    display?.addEventListener("click", function () {
-      const isOpen = dropdown?.classList.contains("show");
-      document.querySelectorAll(".custom-select-search .select-dropdown.show").forEach((dd) => {
-        dd.classList.remove("show");
-        dd.parentElement.querySelector(".select-display").classList.remove("active");
-      });
-
-      if (!isOpen) {
-        dropdown?.classList.add("show");
-        display.classList.add("active");
-        searchInput?.focus();
-      }
-    });
-
-    // Search functionality
-    searchInput?.addEventListener("input", function () {
-      const keyword = this.value;
-      const filtered = window.BranchData.searchBranches(keyword, nearestBranches);
-      renderPostOfficeOptions(filtered, optionsContainer);
-    });
-
-    // Option selection
-    optionsContainer?.addEventListener("click", function (e) {
-      const option = e.target.closest(".post-office-option");
-      if (option) {
-        optionsContainer.querySelectorAll(".post-office-option").forEach((opt) => {
-          opt.classList.remove("selected");
-        });
-
-        option.classList.add("selected");
-
-        const branchName = option.querySelector(".post-office-name")?.textContent.trim();
-        const displaySpan = display?.querySelector("span");
-        if (displaySpan && branchName) {
-          displaySpan.textContent = branchName;
-          display.classList.add("has-value");
-        }
-
-        if (searchInput) searchInput.value = "";
-        renderPostOfficeOptions(nearestBranches, optionsContainer);
-
-        dropdown?.classList.remove("show");
-        display?.classList.remove("active");
-      }
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener("click", function (event) {
-      if (!postOfficeSelect.contains(event.target)) {
-        dropdown?.classList.remove("show");
-        display?.classList.remove("active");
-      }
-    });
-
-    isPostOfficeSetup = true;
-    console.log("Post office setup complete");
+    await window.TagData.init();
+    setupTagModal();
   }
 
-  function renderPostOfficeOptions(branches, container) {
-    if (!container) return;
+  // Initialize multiple phone numbers functionality
+  function initMultiplePhoneNumbers() {
+    const addPhoneBtn = document.getElementById("addPhoneBtn");
+    const additionalPhonesContainer = document.getElementById(
+      "additionalPhonesContainer"
+    );
 
-    if (branches.length === 0) {
-      container.innerHTML = '<div class="no-results">Không tìm thấy bưu cục</div>';
-      return;
-    }
+    if (!addPhoneBtn || !additionalPhonesContainer) return;
 
-    container.innerHTML = branches
-      .map((branch) => {
-        const formatted = window.BranchData.formatBranchDisplay(branch);
-        return `
-          <div class="post-office-option" data-id="${formatted.id}">
-            <div class="post-office-name">
-              <span>${formatted.name}</span>
-              <span class="post-office-distance">${formatted.distance} km</span>
-            </div>
-            <div class="post-office-address">
-              <i class="fas fa-map-marker-alt"></i>
-              <span>${formatted.address}</span>
-            </div>
-          </div>
-        `;
-      })
-      .join("");
+    let phoneCounter = 0;
+
+    addPhoneBtn.addEventListener("click", function () {
+      phoneCounter++;
+      const phoneItem = document.createElement("div");
+      phoneItem.className = "additional-phone-item";
+      phoneItem.dataset.phoneId = phoneCounter;
+      phoneItem.innerHTML = `
+        <input
+          type="tel"
+          class="form-control additional-phone-input"
+          placeholder="Nhập số điện thoại khác"
+        />
+        <button class="btn-remove-phone" type="button" onclick="this.closest('.additional-phone-item').remove()">
+          <i class="fas fa-times-circle"></i>
+        </button>
+      `;
+
+      additionalPhonesContainer.appendChild(phoneItem);
+    });
   }
 
-  function initCODFunctionality() {
-    // COD functionality
-    const codByGoodsCheckbox = document.getElementById("codByGoods");
-    const codAmountInput = document.getElementById("codAmount");
+  // Get all phone numbers (primary + additional)
+  function getAllPhoneNumbers() {
+    const phones = [];
 
-    if (codByGoodsCheckbox && codAmountInput) {
-      codByGoodsCheckbox.addEventListener("change", function () {
-        if (this.checked) {
-          // When checked, enable COD amount input and focus on it
-          codAmountInput.disabled = false;
-          codAmountInput.focus();
+    // Primary phone
+    const primaryPhone = document.getElementById("senderPhone");
+    if (primaryPhone && primaryPhone.value.trim()) {
+      phones.push(primaryPhone.value.trim());
+    }
+
+    // Additional phones
+    const additionalPhones = document.querySelectorAll(
+      ".additional-phone-input"
+    );
+    additionalPhones.forEach((input) => {
+      if (input.value.trim()) {
+        phones.push(input.value.trim());
+      }
+    });
+
+    return phones;
+  }
+
+  /**
+   * Initialize delivery type handling (address vs post office)
+   */
+  function initDeliveryTypeHandling() {
+    const deliveryAddressRadio = document.getElementById("deliveryAddress");
+    const deliveryPostRadio = document.getElementById("deliveryPost");
+    const senderAddressTextarea = document.getElementById("senderAddress");
+    const newSenderAddressTextarea =
+      document.getElementById("newSenderAddress");
+
+    if (!deliveryAddressRadio || !deliveryPostRadio) return;
+
+    // Handle delivery type change
+    const handleDeliveryTypeChange = () => {
+      const isPostOffice = deliveryPostRadio.checked;
+
+      // Disable/enable address input
+      if (senderAddressTextarea) {
+        senderAddressTextarea.disabled = isPostOffice;
+        if (isPostOffice) {
+          senderAddressTextarea.style.backgroundColor = "#f0f0f0";
+          senderAddressTextarea.style.cursor = "not-allowed";
         } else {
-          // When unchecked, reset amount to 0 and disable
-          codAmountInput.value = "0";
-          codAmountInput.disabled = true;
-        }
-      });
-
-      // Initially disable COD amount input
-      codAmountInput.disabled = true;
-    }
-  }
-
-  function initPaymentNotification() {
-    // Payment person notification logic
-    const senderPaymentRadio = document.getElementById("senderPays");
-    const receiverPaymentRadio = document.getElementById("receiverPays");
-    const senderAlert = document.getElementById("senderPaymentAlert");
-    const receiverPaymentModal = document.getElementById("receiverPaymentModal");
-    const confirmSenderPaymentBtn = document.getElementById("confirmSenderPayment");
-
-    if (senderPaymentRadio && receiverPaymentRadio && senderAlert) {
-      function updatePaymentNotification() {
-        if (senderPaymentRadio.checked) {
-          senderAlert.style.display = "flex";
-        } else {
-          senderAlert.style.display = "none";
+          senderAddressTextarea.style.backgroundColor = "";
+          senderAddressTextarea.style.cursor = "";
         }
       }
 
-      // Handle receiver payment selection - show modal
-      receiverPaymentRadio.addEventListener("change", function () {
-        if (this.checked && receiverPaymentModal) {
-          const modal = new bootstrap.Modal(receiverPaymentModal);
-          modal.show();
+      if (newSenderAddressTextarea) {
+        newSenderAddressTextarea.disabled = isPostOffice;
+        if (isPostOffice) {
+          newSenderAddressTextarea.style.backgroundColor = "#f0f0f0";
+          newSenderAddressTextarea.style.cursor = "not-allowed";
+        } else {
+          newSenderAddressTextarea.style.backgroundColor = "";
+          newSenderAddressTextarea.style.cursor = "";
         }
-      });
+      }
 
-      // Handle confirm sender payment button
-      if (confirmSenderPaymentBtn) {
-        confirmSenderPaymentBtn.addEventListener("click", function () {
-          // Revert to sender payment
-          senderPaymentRadio.checked = true;
-          receiverPaymentRadio.checked = false;
-          updatePaymentNotification();
+      // If post office mode, try to find and display branch
+      if (isPostOffice) {
+        findAndDisplayBranch();
+      } else {
+        hideBranchCard();
+      }
+    };
 
-          // Close modal
-          const modalInstance = bootstrap.Modal.getInstance(receiverPaymentModal);
-          if (modalInstance) {
-            modalInstance.hide();
+    deliveryAddressRadio.addEventListener("change", handleDeliveryTypeChange);
+    deliveryPostRadio.addEventListener("change", handleDeliveryTypeChange);
+
+    // Also trigger when address selections change
+    setupAddressChangeListeners();
+  }
+
+  /**
+   * Setup listeners for address changes to auto-find branch
+   */
+  function setupAddressChangeListeners() {
+    // Normal address mode
+    const wardSelect = document.getElementById("wardSelect");
+    const newWardSelect = document.getElementById("newWardSelect");
+
+    if (wardSelect) {
+      const optionsContainer = wardSelect.querySelector(".options-container");
+      if (optionsContainer) {
+        optionsContainer.addEventListener("click", (e) => {
+          if (e.target.classList.contains("dropdown-option")) {
+            setTimeout(() => {
+              const deliveryPostRadio = document.getElementById("deliveryPost");
+              if (deliveryPostRadio && deliveryPostRadio.checked) {
+                findAndDisplayBranch();
+              }
+              // Phát sự kiện senderChanged cho PricingCalculator
+              const provinceSelect = document.getElementById("provinceSelect");
+              const districtSelect = document.getElementById("districtSelect");
+              const wardSelect = document.getElementById("wardSelect");
+              const province = provinceSelect?.querySelector(
+                ".select-display span"
+              )?.textContent;
+              const district = districtSelect?.querySelector(
+                ".select-display span"
+              )?.textContent;
+              const ward = wardSelect?.querySelector(
+                ".select-display span"
+              )?.textContent;
+              document.dispatchEvent(
+                new CustomEvent("senderChanged", {
+                  detail: {
+                    province,
+                    district,
+                    ward,
+                  },
+                })
+              );
+            }, 300);
           }
         });
       }
+    }
 
-      // Handle modal close - also revert to sender
-      if (receiverPaymentModal) {
-        receiverPaymentModal.addEventListener("hidden.bs.modal", function () {
-          senderPaymentRadio.checked = true;
-          receiverPaymentRadio.checked = false;
-          updatePaymentNotification();
+    if (newWardSelect) {
+      const optionsContainer =
+        newWardSelect.querySelector(".options-container");
+      if (optionsContainer) {
+        optionsContainer.addEventListener("click", (e) => {
+          if (e.target.classList.contains("dropdown-option")) {
+            setTimeout(() => {
+              const deliveryPostRadio = document.getElementById("deliveryPost");
+              if (deliveryPostRadio && deliveryPostRadio.checked) {
+                findAndDisplayBranch();
+              }
+              // Phát sự kiện senderChanged cho PricingCalculator (new address mode)
+              const newProvinceSelect =
+                document.getElementById("newProvinceSelect");
+              const newWardSelect = document.getElementById("newWardSelect");
+              const province = newProvinceSelect?.querySelector(
+                ".select-display span"
+              )?.textContent;
+              const ward = newWardSelect?.querySelector(
+                ".select-display span"
+              )?.textContent;
+              document.dispatchEvent(
+                new CustomEvent("senderChanged", {
+                  detail: {
+                    province,
+                    district: null,
+                    ward,
+                  },
+                })
+              );
+            }, 300);
+          }
         });
       }
-
-      senderPaymentRadio.addEventListener("change", updatePaymentNotification);
-
-      // Initialize with sender selected
-      updatePaymentNotification();
-    }
-  }
-
-  function initPricingSummary() {
-    // Pricing summary toggle (will be implemented when form is complete)
-    const basicSummary = document.getElementById("basicSummary");
-    const detailedSummary = document.getElementById("detailedSummary");
-
-    if (basicSummary && detailedSummary) {
-      // Function to show detailed view when form is complete
-      window.showDetailedPricing = function () {
-        basicSummary.style.display = "none";
-        detailedSummary.style.display = "block";
-      };
-
-      // Function to show basic view (default)
-      window.showBasicPricing = function () {
-        basicSummary.style.display = "block";
-        detailedSummary.style.display = "none";
-      };
-    }
-
-    // Initialize floating pricing bar
-    const floatingBar = document.getElementById("pricingSummaryBar");
-    if (floatingBar) {
-      // Add class to body to add padding
-      document.body.classList.add("has-floating-bar");
-
-      // Show floating bar after a short delay
-      setTimeout(() => {
-        floatingBar.classList.add("show");
-      }, 500);
-    }
-  }
-
-  function initQuantityControls() {
-    // Quantity controls
-    document.querySelectorAll(".qty-btn").forEach((btn) => {
-      btn.addEventListener("click", function () {
-        const input = this.parentNode.querySelector(".qty-input");
-        const isPlus = this.classList.contains("plus");
-        let value = parseInt(input.value) || 1;
-
-        if (isPlus) {
-          value++;
-        } else if (value > 1) {
-          value--;
-        }
-
-        input.value = value;
-      });
-    });
-  }
-
-  function initSenderToggle() {
-    // Sender toggle functionality
-    const senderToggle = document.getElementById("saveToPostOffice");
-    const pickupTimeSection = document.getElementById("pickupTimeSection");
-    const postOfficeSection = document.getElementById("postOfficeSection");
-
-    if (senderToggle && pickupTimeSection && postOfficeSection) {
-      senderToggle.addEventListener("change", function () {
-        if (this.checked) {
-          // Khi tick: Hiện chọn bưu cục, ẩn thời gian hẹn lấy
-          pickupTimeSection.style.display = "none";
-          postOfficeSection.style.display = "block";
-          
-          // Setup dropdown khi section được hiển thị
-          if (window.BranchData) {
-            setupPostOfficeDropdown();
-          }
-        } else {
-          // Khi không tick: Hiện thời gian hẹn lấy, ẩn chọn bưu cục
-          pickupTimeSection.style.display = "block";
-          postOfficeSection.style.display = "none";
-        }
-      });
     }
   }
 
   /**
-   * NOTE TEMPLATE FUNCTIONALITY
+   * Find and display branch based on selected address
    */
-  function initNoteTemplate() {
-    const noteTemplateBtn = document.getElementById("noteTemplateBtn");
-    const noteTemplateModal = document.getElementById("noteTemplateModal");
-    const selectNotesBtn = document.getElementById("selectNotesBtn");
-    const noteTextarea = document.getElementById("noteTextarea");
+  async function findAndDisplayBranch() {
+    const useNewAddress = document.getElementById(
+      "useNewAddressToggle"
+    ).checked;
 
-    if (noteTemplateBtn && noteTemplateModal) {
-      // Show modal when clicking "Ghi chú mẫu"
-      noteTemplateBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        const modal = new bootstrap.Modal(noteTemplateModal);
-        modal.show();
+    let province, district, ward;
+
+    if (useNewAddress) {
+      // New address mode
+      const newProvinceSelect = document.getElementById("newProvinceSelect");
+      const newWardSelect = document.getElementById("newWardSelect");
+
+      province = newProvinceSelect?.querySelector(
+        ".select-display span"
+      )?.textContent;
+      ward = newWardSelect?.querySelector(".select-display span")?.textContent;
+    } else {
+      // Normal address mode
+      const provinceSelect = document.getElementById("provinceSelect");
+      const districtSelect = document.getElementById("districtSelect");
+      const wardSelect = document.getElementById("wardSelect");
+
+      province = provinceSelect?.querySelector(
+        ".select-display span"
+      )?.textContent;
+      district = districtSelect?.querySelector(
+        ".select-display span"
+      )?.textContent;
+      ward = wardSelect?.querySelector(".select-display span")?.textContent;
+    }
+
+    // Check if required fields are selected
+    if (
+      !province ||
+      province === "Tỉnh/Thành phố" ||
+      !ward ||
+      ward === "Xã/Phường" ||
+      ward === "Xã/Phường/Đặc khu"
+    ) {
+      hideBranchCard();
+      return;
+    }
+
+    // Find branch
+    const branch = await findBranchByAddress(province, district, ward);
+
+    if (branch) {
+      displayBranchCard(branch);
+    } else {
+      showBranchNotFound();
+    }
+  }
+
+  /**
+   * Find branch by address from BranchData
+   */
+  async function findBranchByAddress(province, district, ward) {
+    if (!window.BranchData) return null;
+
+    await window.BranchData.init();
+    const allBranches = window.BranchData.getAllBranches();
+
+    // Search for matching branch
+    const branch = allBranches.find((b) => {
+      const branchProvince = b.province?.toLowerCase() || "";
+      const branchDistrict = b.district?.toLowerCase() || "";
+      const branchWard = b.ward?.toLowerCase() || "";
+
+      const searchProvince = province?.toLowerCase() || "";
+      const searchDistrict = district?.toLowerCase() || "";
+      const searchWard = ward?.toLowerCase() || "";
+
+      // Match province and ward (district optional for new address mode)
+      const provinceMatch =
+        branchProvince.includes(searchProvince) ||
+        searchProvince.includes(branchProvince);
+      const wardMatch =
+        branchWard.includes(searchWard) || searchWard.includes(branchWard);
+
+      if (district) {
+        const districtMatch =
+          branchDistrict.includes(searchDistrict) ||
+          searchDistrict.includes(branchDistrict);
+        return provinceMatch && districtMatch && wardMatch;
+      } else {
+        return provinceMatch && wardMatch;
+      }
+    });
+
+    return branch || null;
+  }
+
+  /**
+   * Display branch card with branch information
+   */
+  function displayBranchCard(branch) {
+    const branchCard = document.getElementById("selectedBranchCard");
+    const branchInfoContent = document.getElementById("branchInfoContent");
+    const branchNotFoundWarning = document.getElementById(
+      "branchNotFoundWarning"
+    );
+
+    if (!branchCard || !branchInfoContent) return;
+
+    // Hide warning
+    if (branchNotFoundWarning) {
+      branchNotFoundWarning.style.display = "none";
+    }
+
+    // Extract address information (handle both direct properties and nested address object)
+    const other = branch.address?.other || branch.other || "";
+    const ward = branch.address?.ward || branch.ward || "";
+    const district = branch.address?.district || branch.district || "";
+    const province = branch.address?.province || branch.province || "";
+
+    // Build full address string: "Tên bưu cục - Địa chỉ, Phường, Quận, Tỉnh"
+    const addressParts = [other, ward, district, province].filter(
+      (part) => part && part.trim() !== ""
+    );
+    const fullAddress = addressParts.join(", ");
+
+    // Build branch info HTML - single line format (no icon)
+    branchInfoContent.innerHTML = `
+      <div class="branch-full-info">
+        <span>${branch.name} - ${fullAddress}</span>
+      </div>
+    `;
+
+    // Show card
+    branchCard.style.display = "block";
+  }
+
+  /**
+   * Show branch not found warning
+   */
+  function showBranchNotFound() {
+    const branchCard = document.getElementById("selectedBranchCard");
+    const branchNotFoundWarning = document.getElementById(
+      "branchNotFoundWarning"
+    );
+
+    if (branchCard) {
+      branchCard.style.display = "none";
+    }
+
+    if (branchNotFoundWarning) {
+      branchNotFoundWarning.style.display = "flex";
+    }
+  }
+
+  /**
+   * Hide branch card and warning
+   */
+  function hideBranchCard() {
+    const branchCard = document.getElementById("selectedBranchCard");
+    const branchNotFoundWarning = document.getElementById(
+      "branchNotFoundWarning"
+    );
+
+    if (branchCard) {
+      branchCard.style.display = "none";
+    }
+
+    if (branchNotFoundWarning) {
+      branchNotFoundWarning.style.display = "none";
+    }
+  }
+
+  /**
+   * Calculate and display customer tag based on delivery history
+   * @param {string} customerPhone - Customer phone number
+   */
+
+  function initSenderInfo() {
+    initMultiplePhoneNumbers();
+    initDeliveryTypeHandling();
+
+    // Custom delivery time select
+    const deliveryTimeSelect = document.getElementById("deliveryTimeSelect");
+    const deliveryTimeDisplay = document.getElementById("deliveryTimeDisplay");
+    const deliveryTimeDropdown = document.getElementById(
+      "deliveryTimeDropdown"
+    );
+
+    if (deliveryTimeSelect && deliveryTimeDisplay && deliveryTimeDropdown) {
+      // Toggle dropdown
+      deliveryTimeDisplay.addEventListener("click", function () {
+        const isOpen = deliveryTimeDropdown.classList.contains("show");
+
+        if (isOpen) {
+          deliveryTimeDropdown.classList.remove("show");
+          deliveryTimeDisplay.classList.remove("active");
+        } else {
+          deliveryTimeDropdown.classList.add("show");
+          deliveryTimeDisplay.classList.add("active");
+        }
       });
 
-      // Handle note selection
-      if (selectNotesBtn && noteTextarea) {
-        selectNotesBtn.addEventListener("click", function () {
-          const selectedNotes = [];
-          const checkedOptions = document.querySelectorAll(".note-template-option:checked");
+      // Handle option selection
+      const options = deliveryTimeDropdown.querySelectorAll(".dropdown-option");
+      options.forEach((option) => {
+        option.addEventListener("click", function () {
+          // Remove previous selection
+          options.forEach((opt) => opt.classList.remove("selected"));
 
-          checkedOptions.forEach((option) => {
-            selectedNotes.push(option.value);
-          });
+          // Add selection to clicked option
+          this.classList.add("selected");
 
-          // Add selected notes to textarea
-          const currentText = noteTextarea.value.trim();
-          let newText = currentText;
-
-          if (selectedNotes.length > 0) {
-            const notesToAdd = selectedNotes.join("\n- ");
-            if (currentText) {
-              newText += "\n- " + notesToAdd;
-            } else {
-              newText = "- " + notesToAdd;
-            }
-            noteTextarea.value = newText;
+          // Update display
+          const selectedText = this.textContent;
+          const displaySpan = deliveryTimeDisplay.querySelector("span");
+          if (displaySpan) {
+            displaySpan.textContent = selectedText;
           }
 
-          // Close modal
-          const modalInstance = bootstrap.Modal.getInstance(noteTemplateModal);
-          if (modalInstance) {
-            modalInstance.hide();
-          }
-
-          // Clear selections for next time
-          checkedOptions.forEach((option) => {
-            option.checked = false;
-          });
+          // Close dropdown
+          deliveryTimeDropdown.classList.remove("show");
+          deliveryTimeDisplay.classList.remove("active");
         });
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", function (event) {
+        if (!deliveryTimeSelect.contains(event.target)) {
+          deliveryTimeDropdown.classList.remove("show");
+          deliveryTimeDisplay.classList.remove("active");
+        }
+      });
+    }
+  }
+
+  // Searchable Select functionality
+  function initSearchableSelects() {
+    const searchableSelects = document.querySelectorAll(
+      ".custom-select-search"
+    );
+
+    searchableSelects.forEach((selectElement) => {
+      const display = selectElement.querySelector(".select-display");
+      const dropdown = selectElement.querySelector(".select-dropdown");
+      const searchInput = selectElement.querySelector(".search-input");
+      const optionsContainer =
+        selectElement.querySelector(".options-container");
+      const noResults = selectElement.querySelector(".no-results");
+
+      if (!display || !dropdown || !searchInput || !optionsContainer) return;
+
+      // Toggle dropdown
+      display.addEventListener("click", function () {
+        const isOpen = dropdown.classList.contains("show");
+
+        // Close all other dropdowns
+        document
+          .querySelectorAll(".custom-select-search .select-dropdown.show")
+          .forEach((dd) => {
+            dd.classList.remove("show");
+            dd.parentElement
+              .querySelector(".select-display")
+              .classList.remove("active");
+          });
+
+        if (isOpen) {
+          dropdown.classList.remove("show");
+          display.classList.remove("active");
+        } else {
+          dropdown.classList.add("show");
+          display.classList.add("active");
+          searchInput.focus();
+        }
+      });
+
+      // Search functionality
+      searchInput.addEventListener("input", function () {
+        const searchTerm = this.value.toLowerCase();
+        const options = optionsContainer.querySelectorAll(".dropdown-option");
+        let hasVisibleOptions = false;
+
+        options.forEach((option) => {
+          const text = option.textContent.toLowerCase();
+          if (text.includes(searchTerm)) {
+            option.style.display = "block";
+            hasVisibleOptions = true;
+          } else {
+            option.style.display = "none";
+          }
+        });
+
+        // Show/hide no results message
+        if (noResults) {
+          if (hasVisibleOptions || searchTerm === "") {
+            noResults.style.display = "none";
+          } else {
+            noResults.style.display = "block";
+            noResults.textContent = "Không tìm thấy kết quả";
+          }
+        }
+      });
+
+      // Option selection
+      optionsContainer.addEventListener("click", function (e) {
+        if (e.target.classList.contains("dropdown-option")) {
+          // Remove previous selection
+          optionsContainer
+            .querySelectorAll(".dropdown-option")
+            .forEach((opt) => {
+              opt.classList.remove("selected");
+            });
+
+          // Add selection to clicked option
+          e.target.classList.add("selected");
+
+          // Update display
+          const selectedText = e.target.textContent;
+          const displaySpan = display.querySelector("span");
+          if (displaySpan) {
+            displaySpan.textContent = selectedText;
+            display.classList.add("has-value");
+          }
+
+          // Clear search
+          searchInput.value = "";
+
+          // Reset options visibility
+          optionsContainer
+            .querySelectorAll(".dropdown-option")
+            .forEach((opt) => {
+              opt.style.display = "block";
+            });
+          if (noResults) noResults.style.display = "none";
+
+          // Close dropdown
+          dropdown.classList.remove("show");
+          display.classList.remove("active");
+
+          // Trigger change event for cascading selects (for AddressData module)
+          const changeEvent = new CustomEvent("change", {
+            detail: {
+              value: e.target.getAttribute("data-value"),
+              text: selectedText,
+              selectId: selectElement.id,
+            },
+          });
+          selectElement.dispatchEvent(changeEvent);
+
+          // Trigger locationChange event for backward compatibility
+          const locationChangeEvent = new CustomEvent("locationChange", {
+            detail: {
+              value: e.target.getAttribute("data-value"),
+              text: selectedText,
+              selectId: selectElement.id,
+            },
+          });
+          selectElement.dispatchEvent(locationChangeEvent);
+
+          // Trigger validation for this select
+          const errorElement =
+            selectElement.parentElement.querySelector(".text-danger");
+          if (errorElement && window.Validation) {
+            window.Validation.hideSelectError(selectElement, errorElement);
+          }
+        }
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", function (event) {
+        if (!selectElement.contains(event.target)) {
+          dropdown.classList.remove("show");
+          display.classList.remove("active");
+        }
+      });
+
+      // Prevent dropdown close when clicking on search input
+      searchInput.addEventListener("click", function (e) {
+        e.stopPropagation();
+      });
+    });
+  }
+
+  function checkSenderInfoComplete() {
+    const phone = document.getElementById("senderPhone");
+    const name = document.getElementById("senderName");
+    const address = document.getElementById("senderAddress");
+    const newAddress = document.getElementById("newSenderAddress");
+    const useNewAddressToggle = document.getElementById("useNewAddressToggle");
+
+    // Check basic info
+    const phoneValid = phone && phone.value.trim() !== "";
+    const nameValid = name && name.value.trim() !== "";
+
+    // Check address based on mode
+    const isNewAddressMode = useNewAddressToggle && useNewAddressToggle.checked;
+    let addressValid = false;
+
+    if (isNewAddressMode) {
+      addressValid = newAddress && newAddress.value.trim() !== "";
+      const newProvince = document.getElementById("newProvinceSelect");
+      const newWard = document.getElementById("newWardSelect");
+
+      const newProvinceValid =
+        newProvince && newProvince.querySelector(".dropdown-option.selected");
+      const newWardValid =
+        newWard && newWard.querySelector(".dropdown-option.selected");
+
+      addressValid = addressValid && newProvinceValid && newWardValid;
+    } else {
+      addressValid = address && address.value.trim() !== "";
+      const province = document.getElementById("provinceSelect");
+      const district = document.getElementById("districtSelect");
+      const ward = document.getElementById("wardSelect");
+
+      const provinceValid =
+        province && province.querySelector(".dropdown-option.selected");
+      const districtValid =
+        district && district.querySelector(".dropdown-option.selected");
+      const wardValid = ward && ward.querySelector(".dropdown-option.selected");
+
+      addressValid =
+        addressValid && provinceValid && districtValid && wardValid;
+    }
+
+    const isComplete = phoneValid && nameValid && addressValid;
+
+    // Show/hide rating and tag sections
+    const ratingSection = document.getElementById("senderRatingSection");
+    const tagSection = document.getElementById("senderTagSection");
+
+    if (isComplete) {
+      if (ratingSection && ratingSection.style.display === "none") {
+        ratingSection.style.display = "block";
+        setTimeout(() => ratingSection.classList.add("show"), 10);
+      }
+      if (tagSection && tagSection.style.display === "none") {
+        tagSection.style.display = "block";
+        setTimeout(() => tagSection.classList.add("show"), 100);
+
+        // Auto-calculate and display customer tag based on phone number
+        if (phone && phone.value.trim()) {
+          calculateAndDisplayCustomerTag(phone.value.trim());
+        }
+      }
+    } else {
+      if (ratingSection) {
+        ratingSection.classList.remove("show");
+        setTimeout(() => (ratingSection.style.display = "none"), 300);
+      }
+      if (tagSection) {
+        tagSection.classList.remove("show");
+        setTimeout(() => (tagSection.style.display = "none"), 300);
       }
     }
+
+    return isComplete;
   }
 
   // Public API
   return {
     init,
-    initCODFunctionality,
-    initPaymentNotification,
-    initPricingSummary,
-    initQuantityControls,
-    initSenderToggle,
-    initNoteTemplate
+    checkSenderInfoComplete,
   };
 })();

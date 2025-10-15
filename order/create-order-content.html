@@ -3,8 +3,8 @@
         <div class="row">
             <!-- Left Column: Sender, Receiver, Service -->
             <div class="col-md-6">
-                <div id="sender-info"></div>
                 <div id="receiver-info"></div>
+                <div id="sender-info"></div>
                 <div id="service-selection"></div>
             </div>
             
@@ -23,12 +23,6 @@
     <div class="d-flex align-items-center justify-content-between">
       <!-- Left side - Summary info -->
       <div class="d-flex align-items-center gap-4">
-        <!-- Basic Summary (Default View) -->
-        <div class="summary-item" id="basicSummary">
-          <div class="summary-label">Tổng cước</div>
-          <div class="summary-value">0 đ</div>
-        </div>
-        
         <!-- Detailed Summary (Hidden by default) -->
         <div class="detailed-summary-items d-flex gap-4" id="detailedSummary" style="display: none;">
           <div class="summary-item">
@@ -36,14 +30,14 @@
               <i class="fas fa-info-circle me-1"></i>
               Tổng cước
             </div>
-            <div class="summary-value">0 đ</div>
+            <div class="summary-value" id="totalFeeDisplay">0 đ</div>
           </div>
           <div class="summary-item">
             <div class="summary-label">Tiền thu hộ</div>
             <div class="summary-value">0 đ</div>
           </div>
           <div class="summary-item">
-            <div class="summary-label">Tiền thu người gửi</div>
+            <div class="summary-label">Tiền trả người gửi</div>
             <div class="summary-value">0 đ</div>
           </div>
           <div class="summary-item">
@@ -71,19 +65,48 @@
 
 <link rel="stylesheet" href="../assets/order/css/create-order.css">
 
-<!-- Load modular JavaScript system -->
-<!-- Load all modules first -->
-<script src="../assets/order/js/utils.js"></script>
-<script src="../assets/order/js/validation.js"></script>
+<!-- ① API CONFIG + DATA LAYER -->
+<script src="../assets/api/config.js"></script>
+<script src="../assets/api/receiver-data.js"></script>
+
+<!-- ② FETCH DATA LAYER (dùng API để lấy dữ liệu, render UI) -->
 <script src="../assets/fetchData/address.js"></script>
 <script src="../assets/fetchData/branch.js"></script>
 <script src="../assets/fetchData/package.js"></script>
+<script src="../assets/fetchData/product.js"></script>
 <script src="../assets/fetchData/service.js"></script>
-<script src="../assets/order/js/sender.js"></script>
+<script src="../assets/fetchData/tag.js"></script>
+<script src="../assets/fetchData/scope.js"></script>
+<script src="../assets/fetchData/receiver.js"></script>
+
+<!-- ③ ORDER MODULES (logic trang đặt hàng, event DOM, validation, pricing...) -->
+<script src="../assets/order/js/utils.js"></script>
+<script src="../assets/order/js/validation.js"></script>
+<script src="../assets/order/js/pricing.js"></script>
 <script src="../assets/order/js/receiver.js"></script>
+<script src="../assets/order/js/sender.js"></script>
 <script src="../assets/order/js/service.js"></script>
 <script src="../assets/order/js/package.js"></script>
 <script src="../assets/order/js/pickup.js"></script>
 <script src="../assets/order/js/tags.js"></script>
-<!-- Main controller script -->
+<script src="../assets/order/js/cod.js"></script>
+
+<!-- ④ MAIN CONTROLLER -->
 <script src="../assets/order/js/create-order.js"></script>
+<script>
+// Hiển thị tổng cước phí động ở thanh tổng kết
+document.addEventListener('DOMContentLoaded', function() {
+  function updateTotalFee() {
+    if (window.PricingCalculator && typeof window.PricingCalculator.getCurrentPricing === 'function') {
+      const pricing = window.PricingCalculator.getCurrentPricing();
+      const fee = pricing && pricing.totalFee ? pricing.totalFee : 0;
+      const feeDisplay = document.getElementById('totalFeeDisplay');
+      if (feeDisplay) feeDisplay.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fee);
+    }
+  }
+  // Cập nhật khi có sự kiện thay đổi dữ liệu
+  document.addEventListener('orderDataChanged', updateTotalFee);
+  // Cập nhật lần đầu
+  updateTotalFee();
+});
+</script>

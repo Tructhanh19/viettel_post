@@ -1,0 +1,301 @@
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+/>
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+  rel="stylesheet"
+/>
+
+<style>
+  body {
+    background-color: #f8f9fa;
+  }
+
+  .sender-card {
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.15s ease;
+  }
+
+  .badge {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    border-radius: 6px;
+  }
+
+  .search-box {
+    max-width: 280px;
+  }
+
+  .top-bar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  /* Custom Select Search Dropdown Styles - giống trang tạo đơn */
+  .custom-select-search {
+    position: relative;
+    width: 100%;
+  }
+  .custom-select-search .select-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #6c757d;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 38px;
+  }
+  .custom-select-search .select-display:hover {
+    border-color: #86b7fe;
+  }
+  .custom-select-search .select-display.active {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+  .custom-select-search .select-display.has-value {
+    color: #212529;
+  }
+  .custom-select-search .select-display i {
+    transition: transform 0.2s ease;
+    color: #6c757d;
+    font-size: 0.8rem;
+  }
+  .custom-select-search .select-display.active i {
+    transform: rotate(180deg);
+  }
+  .custom-select-search .select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ced4da;
+    border-top: none;
+    border-radius: 0 0 0.375rem 0.375rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    max-height: 400px;
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+  }
+  .custom-select-search .select-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .custom-select-search .search-container {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    background: #f8f9fa;
+  }
+  .custom-select-search .search-input {
+    width: 100%;
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    outline: none;
+  }
+  .custom-select-search .search-input:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.125rem rgba(13, 110, 253, 0.25);
+  }
+  .custom-select-search .options-container {
+    max-height: 250px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+  .custom-select-search .dropdown-option {
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #f8f9fa;
+    color: #333;
+  }
+  .custom-select-search .dropdown-option:hover {
+    background-color: #f8f9fa;
+  }
+  .custom-select-search .dropdown-option.selected {
+    background-color: #dc3545;
+    color: white;
+  }
+  .custom-select-search .dropdown-option:last-child {
+    border-bottom: none;
+  }
+  .custom-select-search .no-results {
+    padding: 10px 12px;
+    color: #6c757d;
+    font-style: italic;
+    text-align: center;
+  }
+  /* Error states */
+  .form-control.error,
+  .form-select.error,
+  .custom-select-search.error .select-display {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.125rem rgba(220, 53, 69, 0.25);
+  }
+</style>
+
+<div class="container mt-4">
+  <!-- Thanh công cụ trên cùng -->
+  <div class="d-flex align-items-center justify-content-between mb-4 top-bar">
+  <div class="d-flex align-items-center w-100">
+    <input
+      type="text"
+      class="form-control flex-grow-1"
+      id="searchInput"
+      placeholder="Nhập họ tên, sđt để tìm kiếm"
+    />
+  </div>
+</div>
+
+
+  <!-- Form thêm người gửi trực tiếp -->
+  <div class="card mb-4">
+  <div class="card-body">
+    <form id="addSenderForm" class="row g-3">
+      <!-- Hàng 1 -->
+      <div class="col-md-6">
+        <input type="text" class="form-control" id="senderName" placeholder="Tên" required>
+      </div>
+      <div class="col-md-6">
+        <input type="tel" class="form-control" id="senderPhone" placeholder="Số điện thoại" required>
+      </div>
+
+      <!-- Hàng 2: Custom Select Search -->
+      <div class="col-md-4 mb-3">
+        <div class="custom-select-search" id="provinceSelect">
+          <div class="select-display" data-placeholder="Tỉnh/Thành phố">
+            <span>Tỉnh/Thành phố</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="select-dropdown">
+            <div class="search-container">
+              <input type="text" class="search-input" placeholder="Tìm kiếm Tỉnh/Thành phố" />
+            </div>
+            <div class="options-container">
+              <div class="no-results" style="display: none">Không tìm thấy kết quả</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="custom-select-search" id="districtSelect">
+          <div class="select-display" data-placeholder="Huyện/Quận">
+            <span>Huyện/Quận</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="select-dropdown">
+            <div class="search-container">
+              <input type="text" class="search-input" placeholder="Tìm kiếm Huyện/Quận" />
+            </div>
+            <div class="options-container">
+              <div class="no-results">Vui lòng chọn Tỉnh/Thành phố trước</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="custom-select-search" id="wardSelect">
+          <div class="select-display" data-placeholder="Xã/Phường">
+            <span>Xã/Phường</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="select-dropdown">
+            <div class="search-container">
+              <input type="text" class="search-input" placeholder="Tìm kiếm Xã/Phường" />
+            </div>
+            <div class="options-container">
+              <div class="no-results">Vui lòng chọn Huyện/Quận trước</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hàng 3 -->
+      <div class="col-12">
+        <input type="text" class="form-control" id="senderFullAddress" placeholder="Địa chỉ chi tiết" required>
+      </div>
+
+      <!-- Nút submit -->
+      <div class="col-12 text-end">
+        <button type="submit" class="btn btn-danger" id="saveSenderBtn">Thêm người gửi</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+  <!-- Danh sách người gửi -->
+  <div class="row" id="sender-list">
+    <!-- Sender cards will be dynamically loaded from senders.json -->
+  </div>
+
+  <!-- Phân trang -->
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      Bản ghi mỗi trang
+      <select class="form-select d-inline-block w-auto ms-1">
+        <option>6</option>
+        <option>12</option>
+        <option>24</option>
+      </select>
+    </div>
+
+    <nav>
+      <ul class="pagination mb-0">
+        <li class="page-item disabled">
+          <a class="page-link" href="#">‹</a>
+        </li>
+        <li class="page-item active">
+          <a class="page-link" href="#">1</a>
+        </li>
+        <li class="page-item disabled">
+          <a class="page-link" href="#">›</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- Modal Thêm Người Gửi -->
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/fetchData/address.js"></script>
+<script src="/assets/fetchData/receiver.js"></script>
+<script src="/assets/AccountSetting/js/receiver.js"></script>
+<script>
+  $(document).ready(function() {
+    $('#senderProvince').select2({
+      placeholder: 'Tỉnh/Thành phố',
+      width: '100%',
+      allowClear: true
+    });
+    $('#senderDistrict').select2({
+      placeholder: 'Huyện/Quận',
+      width: '100%',
+      allowClear: true
+    });
+    $('#senderWard').select2({
+      placeholder: 'Xã/Phường',
+      width: '100%',
+      allowClear: true
+    });
+  });
+</script>
+<!-- <script src="/assets/AccountSetting/js/senderInfo.js"></script> -->

@@ -12,7 +12,8 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="../assets/research/postage.css" />
+    <link rel="stylesheet" href="assets/research/postage.css" />
+    <link rel="stylesheet" href="assets/order/css/create-order.css" />
   </head>
   <body>
     <div class="postage-container">
@@ -27,13 +28,10 @@
           </div>
           <div class="row">
             <div class="col-12">
-              <select class="form-select">
-                <option selected>
+              <select class="form-select" id="serviceType" disabled>
+                <option selected value="domestic">
                   Chuyển phát trong nước (Miễn phí thu hộ)
                 </option>
-                <option value="express">Chuyển phát nhanh</option>
-                <option value="standard">Chuyển phát tiêu chuẩn</option>
-                <option value="economy">Chuyển phát tiết kiệm</option>
               </select>
             </div>
           </div>
@@ -51,16 +49,46 @@
 
               <div class="mb-3">
                 <label class="form-label">Tỉnh/Thành phố</label>
-                <select class="form-select">
-                  <option selected>Tỉnh/Thành phố</option>
-                </select>
+                <div class="custom-select-search" id="senderProvinceSelect">
+                  <div class="select-display" data-placeholder="Tỉnh/Thành phố">
+                    <span>Tỉnh/Thành phố</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="select-dropdown">
+                    <div class="search-container">
+                      <input
+                        type="text"
+                        class="search-input"
+                        placeholder="Tìm kiếm Tỉnh/Thành phố"
+                      />
+                    </div>
+                    <div class="options-container">
+                      <!-- Options will be populated by JavaScript -->
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div class="mb-3">
                 <label class="form-label">Quận/Huyện</label>
-                <select class="form-select">
-                  <option selected>Quận/Huyện</option>
-                </select>
+                <div class="custom-select-search" id="senderDistrictSelect">
+                  <div class="select-display" data-placeholder="Quận/Huyện">
+                    <span>Quận/Huyện</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="select-dropdown">
+                    <div class="search-container">
+                      <input
+                        type="text"
+                        class="search-input"
+                        placeholder="Tìm kiếm Quận/Huyện"
+                      />
+                    </div>
+                    <div class="options-container">
+                      <div class="no-results">Vui lòng chọn Tỉnh/Thành phố trước</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -73,16 +101,46 @@
 
               <div class="mb-3">
                 <label class="form-label">Tỉnh/Thành phố</label>
-                <select class="form-select">
-                  <option selected>Tỉnh/Thành phố</option>
-                </select>
+                <div class="custom-select-search" id="receiverProvinceSelect">
+                  <div class="select-display" data-placeholder="Tỉnh/Thành phố">
+                    <span>Tỉnh/Thành phố</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="select-dropdown">
+                    <div class="search-container">
+                      <input
+                        type="text"
+                        class="search-input"
+                        placeholder="Tìm kiếm Tỉnh/Thành phố"
+                      />
+                    </div>
+                    <div class="options-container">
+                      <!-- Options will be populated by JavaScript -->
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div class="mb-3">
                 <label class="form-label">Quận/Huyện</label>
-                <select class="form-select">
-                  <option selected>Quận/Huyện</option>
-                </select>
+                <div class="custom-select-search" id="receiverDistrictSelect">
+                  <div class="select-display" data-placeholder="Quận/Huyện">
+                    <span>Quận/Huyện</span>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="select-dropdown">
+                    <div class="search-container">
+                      <input
+                        type="text"
+                        class="search-input"
+                        placeholder="Tìm kiếm Quận/Huyện"
+                      />
+                    </div>
+                    <div class="options-container">
+                      <div class="no-results">Vui lòng chọn Tỉnh/Thành phố trước</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -102,6 +160,7 @@
                 <input
                   type="number"
                   class="form-control weight-input"
+                  id="packageWeight"
                   placeholder="0"
                   min="0"
                 />
@@ -114,6 +173,7 @@
               <input
                 type="number"
                 class="form-control"
+                id="codAmount"
                 placeholder="0"
                 min="0"
               />
@@ -123,12 +183,35 @@
 
         <!-- Lookup Button -->
         <div class="text-start">
-          <button type="button" class="lookup-btn">Tra cứu</button>
+          <button type="button" class="lookup-btn" id="lookupBtn">Tra cứu</button>
+        </div>
+      </div>
+
+      <!-- Results Section -->
+      <div id="resultsSection" class="results-section" style="display: none;">
+        <h4 class="results-title">Dịch vụ của chúng tôi</h4>
+        <div id="servicesContainer" class="services-container">
+          <!-- Services will be populated here -->
         </div>
       </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../assets/research/postage.js"></script>
+    <script>
+      // Load required modules for postage estimation
+      (async function() {
+        const loadScript = (src) => new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = src;
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+
+        if (!window.ScopeData) await loadScript('assets/fetchData/scope.js');
+        if (!window.AddressData) await loadScript('assets/fetchData/address.js');
+        await loadScript('assets/research/postage.js');
+      })();
+    </script>
   </body>
 </html>

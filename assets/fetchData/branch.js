@@ -17,6 +17,11 @@ window.BranchData = (function () {
 
   // Load branch data from JSON file
   async function loadBranchData() {
+    if (branchData) {
+      console.log("Branch data already loaded");
+      return;
+    }
+
     if (isLoading) {
       console.log("Already loading branch data...");
       return;
@@ -26,7 +31,14 @@ window.BranchData = (function () {
     console.log("Loading branch data from JSON...");
 
     try {
-      const response = await fetch("../assets/data/branch.json");
+      // Try multiple possible paths
+      let response = await fetch("../assets/data/branch.json");
+      
+      if (!response.ok) {
+        // Try alternative path from root
+        response = await fetch("assets/data/branch.json");
+      }
+      
       console.log("Branch data response status:", response.status);
 
       if (response.ok) {
@@ -115,11 +127,15 @@ window.BranchData = (function () {
 
   // Format branch for display
   function formatBranchDisplay(branch) {
-    const address =
-      branch.address &&
-      `${branch.address.street || ""}, ${branch.address.ward || ""}, ${
-        branch.address.district || ""
-      }, ${branch.address.province || ""}`.replace(/^,\s*|,\s*,/g, ", ");
+    // Build address parts and filter out empty values
+    const addressParts = [
+      branch.address?.street,
+      branch.address?.ward,
+      branch.address?.district,
+      branch.address?.province
+    ].filter(part => part && part.trim() !== "");
+    
+    const address = addressParts.join(", ");
 
     return {
       id: branch._id?.$oid || branch._id,

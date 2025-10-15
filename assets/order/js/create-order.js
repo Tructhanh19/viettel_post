@@ -28,8 +28,8 @@ function initCreateOrder() {
 
 async function loadComponents() {
   const components = [
-    { id: "sender-info", file: "order/sender-info.html" },
     { id: "receiver-info", file: "order/receiver-info.html" },
+    { id: "sender-info", file: "order/sender-info.html" },
     { id: "service-selection", file: "order/service-selection.html" },
     { id: "package-info", file: "order/package-info.html" },
     { id: "cod-info", file: "order/cod-info.html" },
@@ -59,38 +59,31 @@ async function loadComponents() {
 }
 
 async function initializeBasicFunctionality() {
-  // Initialize all available modules
-  if (window.Sender && window.Sender.init) {
-    window.Sender.init();
-  }
-  
-  if (window.Receiver && window.Receiver.init) {
-    window.Receiver.init();
-  }
-  
-  if (window.Service && window.Service.init) {
-    await window.Service.init();
-  }
-  
-  if (window.Package && window.Package.init) {
-    await window.Package.init();
-  }
-  
-  if (window.Pickup && window.Pickup.init) {
-    window.Pickup.init();
-  }
-  
-  if (window.Tags && window.Tags.init) {
-    window.Tags.init();
-  }
-  
-  if (window.Validation && window.Validation.init) {
-    window.Validation.init();
+  // 1️⃣ Initialize data modules first
+  if (window.AddressData?.init) await window.AddressData.init();
+  if (window.BranchData?.init) await window.BranchData.init();
+  if (window.PackageData?.init) await window.PackageData.init();
+  if (window.ServiceData?.init) await window.ServiceData.init();
+  if (window.ScopeData?.init) await window.ScopeData.init();
+
+  // 2️⃣ Initialize core logic modules (order-related)
+  if (window.PricingCalculator?.init) window.PricingCalculator.init();
+  if (window.Package?.init) await window.Package.init();
+
+  // 3️⃣ Initialize UI-related modules
+  if (window.Sender?.init) window.Sender.init();
+  if (window.Receiver?.init) window.Receiver.init();
+  if (window.Service?.init) await window.Service.init();
+  if (window.Pickup?.init) window.Pickup.init();
+  if (window.Tags?.init) window.Tags.init();
+  if (window.Validation?.init) window.Validation.init();
+
+  // 4️⃣ ✅ Finally, initialize COD module (after Package & Pricing ready)
+  if (window.CODModule?.init) {
+    window.CODModule.init();
+    console.log("💵 COD Module initialized after core modules");
   }
 }
-
-
-
 
 
 // Debug function (silent)

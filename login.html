@@ -37,26 +37,106 @@
     <script src="assets/utils.js"></script>
     <script src="assets/script.js"></script>
     <script>
-        // Thêm event cho form (sử dụng utils.js để validate)
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        const API_BASE_URL = 'http://localhost:8585/api/v1';
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const email = document.getElementById('email').value;
+            
+            // Clear previous errors
+            document.getElementById('emailError').style.display = 'none';
+            document.getElementById('passwordError').style.display = 'none';
+            
+            const username = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             
-            if (!validateEmail(email) && !validatePhone(email)) {
-                document.getElementById('emailError').textContent = 'Email hoặc số điện thoại không hợp lệ';
+            // Basic validation
+            if (!username) {
+                document.getElementById('emailError').textContent = 'Vui lòng nhập tên đăng nhập';
                 document.getElementById('emailError').style.display = 'block';
                 return;
             }
+            
             if (password.length < 6) {
                 document.getElementById('passwordError').textContent = 'Mật khẩu phải ít nhất 6 ký tự';
                 document.getElementById('passwordError').style.display = 'block';
                 return;
             }
             
-            // Giả lập success (thay bằng API call thật)
-            showNotification('Đăng nhập thành công!', 'success');
-            window.location.href = 'index.html'; // Chuyển về dashboard
+            // Disable submit button
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Đang đăng nhập...';
+            
+            try {
+                // Call login API
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Đăng nhập thất bại');
+                }
+
+                // Check if login successful
+                if (data.code === 10000 && data.result && data.result.accessToken) {
+                    // Save token to localStorage
+                    localStorage.setItem('accessToken', data.result.accessToken);
+                    localStorage.setItem('username', username);
+                    
+                    console.log('✅ Login successful!');
+                    console.log('Token saved:', data.result.accessToken.substring(0, 20) + '...');
+                    
+                    // Show success message
+                    if (typeof showNotification === 'function') {
+                        showNotification('Đăng nhập thành công!', 'success');
+                    } else {
+                        alert('Đăng nhập thành công!');
+                    }
+                    
+                    // Redirect to dashboard after short delay
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 500);
+                } else {
+                    throw new Error('Phản hồi từ server không hợp lệ');
+                }
+                
+            } catch (error) {
+                console.error('❌ Login error:', error);
+                
+                // Show error message
+                const errorMsg = error.message || 'Đã có lỗi xảy ra. Vui lòng thử lại!';
+                document.getElementById('passwordError').textContent = errorMsg;
+                document.getElementById('passwordError').style.display = 'block';
+                
+                if (typeof showNotification === 'function') {
+                    showNotification(errorMsg, 'error');
+                }
+                
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+
+        // Check if already logged in
+        window.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('accessToken');
+            if (token) {
+                console.log('✅ Already logged in, redirecting...');
+                window.location.href = 'index.html';
+            }
         });
     </script>
 </body>

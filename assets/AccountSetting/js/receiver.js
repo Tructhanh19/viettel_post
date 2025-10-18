@@ -1,113 +1,304 @@
 /**
- * RECEIVER INFO CONTROLLER
- * Manages receiver information UI with MongoDB integration
+ * USER PROFILE INFO CONTROLLER
+ * Manages user profile information UI with MongoDB integration
  */
 
 (function () {
   "use strict";
 
-  console.log("[DEBUG] Đã chạy receiver.js UI (AccountSetting/js)");
+  console.log(
+    "[DEBUG] Đã chạy receiver.js UI (AccountSetting/js) - User Profiles"
+  );
 
-  let currentReceivers = [];
-  let filteredReceivers = [];
+  let currentUser = null;
+  let currentProfiles = [];
+  let filteredProfiles = [];
+  let isEditing = false;
+  let editingProfileIndex = -1;
+
+  // Pagination variables
+  let currentPage = 1;
+  let itemsPerPage = 6;
+  let totalPages = 1;
 
   /**
-   * Initialize the receiver info page
+   * Initialize the user profile info page
    */
   async function init() {
-    console.log("🎬 Initializing Receiver Info page...");
+    console.log("🎬 Initializing User Profile Info page...");
 
-    // Initialize ReceiverData module
-    if (!window.ReceiverData) {
-      console.error("❌ ReceiverData module not loaded");
+    // Initialize UserData module
+    if (!window.UserData) {
+      console.error("❌ UserData module not loaded");
       return;
     }
 
-    // Load data from MongoDB
-    const success = await window.ReceiverData.init();
-    if (!success) {
-      showError("Không thể tải dữ liệu người nhận từ server");
+    // Get user ID from token
+    const userId = window.API_CONFIG.getUserId();
+    if (!userId) {
+      showError("Không thể xác định user ID từ token");
       return;
     }
 
-    // Get receivers
-    currentReceivers = window.ReceiverData.getAllReceivers();
-    filteredReceivers = [...currentReceivers];
+    try {
+      // Load user data with profiles
+      currentUser = await window.UserData.fetchUserById(userId);
+      if (!currentUser || !currentUser.profiles) {
+        showError("Không thể tải thông tin user hoặc profiles");
+        return;
+      }
 
-    // Render receivers
-    renderReceivers(filteredReceivers);
+      currentProfiles = currentUser.profiles;
+      filteredProfiles = [...currentProfiles];
 
-    // Setup event listeners
-    setupEventListeners();
+      // Initialize pagination
+      totalPages = Math.ceil(filteredProfiles.length / itemsPerPage);
+      currentPage = 1;
 
-    // Khởi tạo AddressData và cascading custom-select-search
-    if (window.AddressData) {
-      await window.AddressData.init();
-      window.AddressData.setupAddressCascading();
+      // Render profiles with pagination
+      renderProfilesWithPagination();
+
+      // Setup event listeners
+      setupEventListeners();
+
+      // Khởi tạo AddressData và cascading custom-select-search
+      if (window.AddressData) {
+        await window.AddressData.init();
+        window.AddressData.setupAddressCascading();
+      }
+
+      console.log("✅ User Profile Info page initialized");
+    } catch (error) {
+      showError("Lỗi khi tải dữ liệu user: " + error.message);
     }
-
-    console.log("✅ Receiver Info page initialized");
   }
 
   /**
-   * Render receiver cards
+   * Render profile cards with pagination
    */
-  function renderReceivers(receivers) {
-    const container = document.getElementById("sender-list");
-    if (!container) return;
+  function renderProfilesWithPagination() {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const profilesToShow = filteredProfiles.slice(startIndex, endIndex);
 
-    if (receivers.length === 0) {
+    renderProfiles(profilesToShow);
+    renderPagination();
+  }
+
+  /**
+   * Render pagination controls
+   */
+  function renderPagination() {
+    const paginationContainer = document.querySelector(".pagination");
+    if (!paginationContainer) return;
+
+    const prevDisabled = currentPage === 1 ? "disabled" : "";
+    const nextDisabled = currentPage === totalPages ? "disabled" : "";
+
+    let paginationHtml = `
+      <li class="page-item ${prevDisabled}">
+        <a class="page-link" href="#" onclick="changePage(${
+          currentPage - 1
+        })">‹</a>
+      </li>
+    `;
+
+    // Show page numbers
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+
+    for (let i = startPage; i <= endPage; i++) {
+      const activeClass = i === currentPage ? "active" : "";
+      paginationHtml += `
+        <li class="page-item ${activeClass}">
+          <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+        </li>
+      `;
+    }
+
+    paginationHtml += `
+      <li class="page-item ${nextDisabled}">
+        <a class="page-link" href="#" onclick="changePage(${
+          currentPage + 1
+        })">›</a>
+      </li>
+    `;
+
+    paginationContainer.innerHTML = paginationHtml;
+  }
+
+  /**
+   * Change page
+   */
+  window.changePage = function (page) {
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    renderProfilesWithPagination();
+  };
+
+  /**
+   * Render pagination controls
+   */
+  function renderPagination() {
+    const paginationContainer = document.querySelector(".pagination");
+    if (!paginationContainer) return;
+
+    const prevDisabled = currentPage === 1 ? "disabled" : "";
+    const nextDisabled = currentPage === totalPages ? "disabled" : "";
+
+    let paginationHtml = `
+      <li class="page-item ${prevDisabled}">
+        <a class="page-link" href="#" onclick="changePage(${
+          currentPage - 1
+        })">‹</a>
+      </li>
+    `;
+
+    // Show page numbers
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+
+    for (let i = startPage; i <= endPage; i++) {
+      const activeClass = i === currentPage ? "active" : "";
+      paginationHtml += `
+        <li class="page-item ${activeClass}">
+          <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+        </li>
+      `;
+    }
+
+    paginationHtml += `
+      <li class="page-item ${nextDisabled}">
+        <a class="page-link" href="#" onclick="changePage(${
+          currentPage + 1
+        })">›</a>
+      </li>
+    `;
+
+    paginationContainer.innerHTML = paginationHtml;
+  }
+
+  /**
+   * Render profile cards with pagination
+   */
+  function renderProfilesWithPagination() {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const profilesToShow = filteredProfiles.slice(startIndex, endIndex);
+
+    renderProfiles(profilesToShow);
+    renderPagination();
+  }
+
+  /**
+   * Render pagination controls
+   */
+  function renderPagination() {
+    const paginationContainer = document.querySelector(".pagination");
+    if (!paginationContainer) return;
+
+    const prevDisabled = currentPage === 1 ? "disabled" : "";
+    const nextDisabled = currentPage === totalPages ? "disabled" : "";
+
+    let paginationHtml = `
+      <li class="page-item ${prevDisabled}">
+        <a class="page-link" href="#" onclick="changePage(${
+          currentPage - 1
+        })">‹</a>
+      </li>
+    `;
+
+    // Show page numbers
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+
+    for (let i = startPage; i <= endPage; i++) {
+      const activeClass = i === currentPage ? "active" : "";
+      paginationHtml += `
+        <li class="page-item ${activeClass}">
+          <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+        </li>
+      `;
+    }
+
+    paginationHtml += `
+      <li class="page-item ${nextDisabled}">
+        <a class="page-link" href="#" onclick="changePage(${
+          currentPage + 1
+        })">›</a>
+      </li>
+    `;
+
+    paginationContainer.innerHTML = paginationHtml;
+  }
+
+  /**
+   * Render profile cards with pagination
+   */
+  function renderProfilesWithPagination() {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const profilesToShow = filteredProfiles.slice(startIndex, endIndex);
+
+    renderProfiles(profilesToShow, startIndex);
+    renderPagination();
+  }
+
+  /**
+   * Render profile cards
+   */
+  function renderProfiles(profiles, startIndex = 0) {
+    if (profiles.length === 0) {
       container.innerHTML = `
         <div class="col-12 text-center py-5">
           <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
-          <p class="text-muted mt-3">Không có người nhận nào</p>
+          <p class="text-muted mt-3">Không có profile nào</p>
         </div>
       `;
       return;
     }
 
-    container.innerHTML = receivers
-      .map((receiver) => {
-        // Format address if it's an object
-        let address = "N/A";
-        if (receiver.address) {
-          if (typeof receiver.address === "object") {
-            address = [
-              receiver.address.detail,
-              receiver.address.street,
-              receiver.address.ward,
-              receiver.address.district,
-              receiver.address.province,
-            ]
-              .filter(Boolean)
-              .join(", ");
-          } else {
-            address = receiver.address;
-          }
-        }
+    container.innerHTML = profiles
+      .map((profile, index) => {
+        const globalIndex = startIndex + index;
+        // Format address
+        const addressText = [
+          profile.address?.other,
+          profile.address?.ward,
+          profile.address?.district,
+          profile.address?.province,
+        ]
+          .filter(Boolean)
+          .join(", ");
+
         return `
       <div class="col-md-6 mb-3">
-        <div class="card sender-card h-100">
+        <div class="card sender-card h-100 ${
+          profile.is_default ? "border-danger" : ""
+        }">
           <div class="card-body">
             <div>
-              <h6 class="mb-1">${escapeHtml(receiver.name || "N/A")}</h6>
+              <h6 class="mb-1">${escapeHtml(profile.name || "N/A")}</h6>
               <small class="text-muted">${escapeHtml(
-                receiver.phone || "N/A"
+                profile.phone_number || "N/A"
               )}</small>
+              ${
+                profile.is_default
+                  ? '<span class="badge bg-danger ms-2">Mặc định</span>'
+                  : ""
+              }
             </div>
             <p class="mb-2">
               <i class="bi bi-geo-alt text-danger"></i>
-              <small>${escapeHtml(address)}</small>
+              <small>${escapeHtml(addressText)}</small>
             </p>
             <div class="d-flex gap-2 mt-3">
-              <button class="btn btn-sm btn-outline-primary flex-fill" 
-                      onclick="editReceiver('${receiver._id || receiver.id}')">
+              <button class="btn btn-sm btn-outline-primary flex-fill"
+                      onclick="editProfile(${globalIndex})">
                 <i class="bi bi-pencil"></i> Sửa
               </button>
               <button class="btn btn-sm btn-outline-danger flex-fill"
-                      onclick="deleteReceiver('${
-                        receiver._id || receiver.id
-                      }')">
+                      onclick="deleteProfile(${globalIndex})">
                 <i class="bi bi-trash"></i> Xóa
               </button>
             </div>
@@ -123,14 +314,6 @@
    * Setup event listeners
    */
   function setupEventListeners() {
-    // Status filter
-    const statusFilter = document.getElementById("statusFilter");
-    if (statusFilter) {
-      statusFilter.addEventListener("change", function () {
-        applyFilters();
-      });
-    }
-
     // Search input
     const searchInput = document.getElementById("searchInput");
     if (searchInput) {
@@ -139,10 +322,23 @@
       });
     }
 
-    // Save receiver button
-    const saveSenderBtn = document.getElementById("saveSenderBtn");
-    if (saveSenderBtn) {
-      saveSenderBtn.addEventListener("click", handleSaveReceiver);
+    // Items per page select
+    const itemsPerPageSelect = document.querySelector(
+      ".d-flex.justify-content-between.align-items-center select"
+    );
+    if (itemsPerPageSelect) {
+      itemsPerPageSelect.addEventListener("change", function () {
+        itemsPerPage = parseInt(this.value);
+        totalPages = Math.ceil(filteredProfiles.length / itemsPerPage);
+        currentPage = 1;
+        renderProfilesWithPagination();
+      });
+    }
+
+    // Save profile button
+    const saveProfileBtn = document.getElementById("saveProfileBtn");
+    if (saveProfileBtn) {
+      saveProfileBtn.addEventListener("click", handleSaveProfile);
     }
 
     // Khởi tạo custom-select-search (tìm kiếm, chọn, đóng/mở, sự kiện change)
@@ -150,119 +346,368 @@
   }
 
   /**
-   * Apply filters (status + search)
+   * Apply filters (search)
    */
   function applyFilters() {
-    let results = [...currentReceivers];
-
-    // Filter by status
-    const statusFilter = document.getElementById("statusFilter");
-    if (statusFilter && statusFilter.value) {
-      results = window.ReceiverData.filterByStatus(statusFilter.value);
-    }
+    let results = [...currentProfiles];
 
     // Search by name or phone
     const searchInput = document.getElementById("searchInput");
     if (searchInput && searchInput.value.trim()) {
-      results = window.ReceiverData.searchReceivers(searchInput.value.trim());
+      const term = searchInput.value.trim().toLowerCase();
+      results = results.filter(
+        (profile) =>
+          profile.name?.toLowerCase().includes(term) ||
+          profile.phone_number?.includes(term)
+      );
     }
 
-    filteredReceivers = results;
-    renderReceivers(filteredReceivers);
+    filteredProfiles = results;
+    totalPages = Math.ceil(filteredProfiles.length / itemsPerPage);
+    currentPage = 1; // Reset to first page when filtering
+    renderProfilesWithPagination();
   }
 
   /**
-   * Handle save receiver
+   * Get selected value from custom select (returns text/name)
    */
-  async function handleSaveReceiver() {
-    const form = document.getElementById("addSenderForm");
+  function getSelectedValue(selectId) {
+    const selectElement = document.getElementById(selectId);
+    if (!selectElement) return "";
+
+    const selectedOption = selectElement.querySelector(
+      ".dropdown-option.selected"
+    );
+    if (selectedOption) {
+      // Prioritize text content (name) over data-value (code)
+      return (
+        selectedOption.textContent.trim() ||
+        selectedOption.getAttribute("data-value") ||
+        ""
+      );
+    }
+
+    return "";
+  }
+
+  /**
+   * Get selected code from custom select (returns data-value/code)
+   */
+  function getSelectedCode(selectId) {
+    const selectElement = document.getElementById(selectId);
+    if (!selectElement) return "";
+
+    const selectedOption = selectElement.querySelector(
+      ".dropdown-option.selected"
+    );
+    if (selectedOption) {
+      // Return data-value (code) or fallback to text content
+      return (
+        selectedOption.getAttribute("data-value") ||
+        selectedOption.textContent.trim() ||
+        ""
+      );
+    }
+
+    return "";
+  }
+  async function handleSaveProfile() {
+    const form = document.getElementById("addProfileForm");
     if (!form || !form.checkValidity()) {
       form.reportValidity();
       return;
     }
 
-    const addressSelected = window.getSelectedAddress
-      ? window.getSelectedAddress()
-      : {};
-    const receiverData = {
-      name: document.getElementById("senderName").value.trim(),
-      phone: document.getElementById("senderPhone").value.trim(),
-      province: addressSelected.provinceName || "",
-      district: addressSelected.districtName || "",
-      ward: addressSelected.wardName || "",
-      detail: document.getElementById("senderFullAddress").value.trim(),
-      isActive: true,
+    const profileData = {
+      name: document.getElementById("profileName").value.trim(),
+      phone_number: document.getElementById("profilePhone").value.trim(),
+      address: {
+        province: getSelectedValue("provinceSelect"),
+        district: getSelectedValue("districtSelect"),
+        ward: getSelectedValue("wardSelect"),
+        other: document.getElementById("profileFullAddress").value.trim(),
+      },
+      is_default: false,
     };
 
-    // Build full address
-    receiverData.address = [
-      receiverData.detail,
-      receiverData.ward,
-      receiverData.district,
-      receiverData.province,
-    ]
-      .filter((x) => x)
-      .join(", ");
+    // Check for duplicate profile (same name and phone number)
+    if (!isEditing) {
+      const isDuplicate = currentProfiles.some(
+        (profile) =>
+          profile.name === profileData.name &&
+          profile.phone_number === profileData.phone_number
+      );
+
+      if (isDuplicate) {
+        showError("Profile với tên và số điện thoại này đã tồn tại!");
+        return;
+      }
+    }
 
     try {
-      await window.ReceiverData.createReceiver(receiverData);
+      // Add or update profile using PATCH API
+      const profileDataWithIndex = isEditing
+        ? {
+            ...profileData,
+            index: editingProfileIndex,
+          }
+        : profileData;
 
-      // Refresh list
-      currentReceivers = window.ReceiverData.getAllReceivers();
+      await window.UserData.updateProfile(currentUser.id, profileDataWithIndex);
+
+      if (isEditing) {
+        showSuccess("Cập nhật profile thành công!");
+      } else {
+        showSuccess("Thêm profile thành công!");
+      }
+
+      // Refresh data
+      currentUser = await window.UserData.fetchUserById(currentUser.id);
+      currentProfiles = currentUser.profiles;
       applyFilters();
 
-      // Close modal
-      const modal = bootstrap.Modal.getInstance(
-        document.getElementById("addSenderModal")
-      );
-      modal.hide();
-
-      // Reset form
+      // Reset form and state
       form.reset();
-
-      showSuccess("Thêm người nhận thành công!");
+      resetFormState();
     } catch (error) {
-      showError("Lỗi khi thêm người nhận: " + error.message);
+      showError("Lỗi khi lưu profile: " + error.message);
     }
   }
 
   /**
-   * Edit receiver (to be implemented)
+   * Reset form state after save
    */
-  window.editReceiver = function (id) {
-    console.log("Edit receiver:", id);
-    // TODO: Implement edit functionality
-    alert("Chức năng sửa đang được phát triển");
+  function resetFormState() {
+    isEditing = false;
+    editingProfileIndex = -1;
+    const saveBtn = document.getElementById("saveProfileBtn");
+    saveBtn.textContent = "Thêm profile";
+
+    // Reset address selects
+    resetAddressSelects();
+  }
+
+  /**
+   * Edit profile - DISABLED: API chỉ hỗ trợ thêm profile mới
+   */
+  window.editProfile = async function (index) {
+    showError(
+      "Chức năng chỉnh sửa profile hiện không khả dụng. API chỉ hỗ trợ thêm profile mới."
+    );
+    return;
   };
 
   /**
-   * Delete receiver
+   * Set address selects for editing
    */
-  window.deleteReceiver = async function (id) {
-    if (!id) {
-      showError("ID người nhận không hợp lệ.");
+  async function setAddressSelects(address) {
+    if (!address) return;
+
+    // Wait for AddressData to be initialized and data loaded
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    while (attempts < maxAttempts) {
+      if (window.AddressData) {
+        const provinces = window.AddressData.getProvinces63();
+        if (provinces && provinces.length > 0) {
+          break; // Data is ready
+        }
+      }
+
+      console.log(
+        `[setAddressSelects] Waiting for AddressData... attempt ${attempts + 1}`
+      );
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      attempts++;
+    }
+
+    if (attempts >= maxAttempts) {
+      console.error(
+        "[setAddressSelects] AddressData not available after waiting"
+      );
       return;
     }
-    if (!confirm("Bạn có chắc muốn xóa người nhận này?")) {
+
+    const provinceSelect = document.getElementById("provinceSelect");
+    const districtSelect = document.getElementById("districtSelect");
+    const wardSelect = document.getElementById("wardSelect");
+
+    if (!provinceSelect || !districtSelect || !wardSelect) return;
+
+    // Reset all selects first
+    resetAddressSelects();
+
+    // Find and set province
+    if (address.province) {
+      const provinces = window.AddressData.getProvinces63();
+      if (!provinces || provinces.length === 0) {
+        console.warn("[setAddressSelects] No provinces data available");
+        return;
+      }
+
+      const province = provinces.find(
+        (p) => p.name.trim() === address.province.trim()
+      );
+      if (province) {
+        // Populate provinces and select the one
+        window.AddressData.populateSelectOptions(
+          provinceSelect,
+          provinces,
+          "Tỉnh/Thành phố"
+        );
+        const provinceOption = provinceSelect.querySelector(
+          `.dropdown-option[data-value="${province.code}"]`
+        );
+        if (provinceOption) {
+          provinceOption.classList.add("selected");
+          provinceSelect.querySelector(".select-display span").textContent =
+            province.name;
+          provinceSelect
+            .querySelector(".select-display")
+            .classList.add("has-value");
+
+          // Load and set districts
+          const districts = window.AddressData.getDistricts63(province.code);
+          if (districts && districts.length > 0) {
+            window.AddressData.populateSelectOptions(
+              districtSelect,
+              districts,
+              "Huyện/Quận"
+            );
+
+            if (address.district) {
+              const district = districts.find(
+                (d) => d.name.trim() === address.district.trim()
+              );
+              if (district) {
+                const districtOption = districtSelect.querySelector(
+                  `.dropdown-option[data-value="${district.code}"]`
+                );
+                if (districtOption) {
+                  districtOption.classList.add("selected");
+                  districtSelect.querySelector(
+                    ".select-display span"
+                  ).textContent = district.name;
+                  districtSelect
+                    .querySelector(".select-display")
+                    .classList.add("has-value");
+
+                  // Load and set wards
+                  const wards = window.AddressData.getWards63(
+                    province.code,
+                    district.code
+                  );
+                  if (wards && wards.length > 0) {
+                    window.AddressData.populateSelectOptions(
+                      wardSelect,
+                      wards,
+                      "Xã/Phường"
+                    );
+
+                    if (address.ward) {
+                      const ward = wards.find(
+                        (w) => w.name.trim() === address.ward.trim()
+                      );
+                      if (ward) {
+                        const wardOption = wardSelect.querySelector(
+                          `.dropdown-option[data-value="${ward.code}"]`
+                        );
+                        if (wardOption) {
+                          wardOption.classList.add("selected");
+                          wardSelect.querySelector(
+                            ".select-display span"
+                          ).textContent = ward.name;
+                          wardSelect
+                            .querySelector(".select-display")
+                            .classList.add("has-value");
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Reset address selects
+   */
+  function resetAddressSelects() {
+    const provinceSelect = document.getElementById("provinceSelect");
+    const districtSelect = document.getElementById("districtSelect");
+    const wardSelect = document.getElementById("wardSelect");
+
+    if (provinceSelect) {
+      provinceSelect.querySelector(".select-display span").textContent =
+        "Tỉnh/Thành phố";
+      provinceSelect
+        .querySelector(".select-display")
+        .classList.remove("has-value");
+      provinceSelect
+        .querySelectorAll(".dropdown-option")
+        .forEach((opt) => opt.classList.remove("selected"));
+    }
+
+    if (districtSelect) {
+      districtSelect.querySelector(".select-display span").textContent =
+        "Huyện/Quận";
+      districtSelect
+        .querySelector(".select-display")
+        .classList.remove("has-value");
+      districtSelect
+        .querySelectorAll(".dropdown-option")
+        .forEach((opt) => opt.classList.remove("selected"));
+      districtSelect.querySelector(".options-container").innerHTML =
+        '<div class="no-results">Vui lòng chọn Tỉnh/Thành phố trước</div>';
+    }
+
+    if (wardSelect) {
+      wardSelect.querySelector(".select-display span").textContent =
+        "Xã/Phường";
+      wardSelect.querySelector(".select-display").classList.remove("has-value");
+      wardSelect
+        .querySelectorAll(".dropdown-option")
+        .forEach((opt) => opt.classList.remove("selected"));
+      wardSelect.querySelector(".options-container").innerHTML =
+        '<div class="no-results">Vui lòng chọn Huyện/Quận trước</div>';
+    }
+  }
+
+  /**
+   * Delete profile
+   */
+  window.deleteProfile = async function (index) {
+    if (index < 0 || index >= currentProfiles.length) {
+      showError("Index profile không hợp lệ.");
+      return;
+    }
+    if (!confirm("Bạn có chắc muốn xóa profile này?")) {
       return;
     }
     try {
       if (
-        !window.ReceiverData ||
-        typeof window.ReceiverData.deleteReceiver !== "function"
+        !window.UserData ||
+        typeof window.UserData.deleteProfile !== "function"
       ) {
-        throw new Error("ReceiverData.deleteReceiver không khả dụng");
+        throw new Error("UserData.deleteProfile không khả dụng");
       }
-      await window.ReceiverData.deleteReceiver(id);
 
-      // Refresh list
-      currentReceivers = window.ReceiverData.getAllReceivers();
+      await window.UserData.deleteProfile(currentUser.id, index);
+
+      // Refresh data
+      currentUser = await window.UserData.fetchUserById(currentUser.id);
+      currentProfiles = currentUser.profiles;
       applyFilters();
 
-      showSuccess("Xóa người nhận thành công");
+      showSuccess("Xóa profile thành công");
     } catch (err) {
       showError(
-        "Lỗi khi xóa người nhận: " + (err && err.message ? err.message : err)
+        "Lỗi khi xóa profile: " + (err && err.message ? err.message : err)
       );
     }
   };
@@ -375,79 +820,6 @@
   }
 
   /**
-   * Load districts
-   */
-  async function loadDistricts(provinceCode) {
-    if (!window.AddressData || !provinceCode) return;
-    const districts = window.AddressData.getDistricts63(provinceCode);
-    console.log("[DEBUG] Load districts for province", provinceCode, districts);
-    const select = document.getElementById("senderDistrict");
-    if (select) {
-      select.innerHTML =
-        '<option value="">Huyện/Quận</option>' +
-        districts
-          .map((d) => `<option value="${d.code}">${d.name}</option>`)
-          .join("");
-    }
-    // Reset wards
-    const wardSelect = document.getElementById("senderWard");
-    if (wardSelect) {
-      wardSelect.innerHTML = '<option value="">Xã/Phường</option>';
-    }
-  }
-
-  /**
-   * Load wards
-   */
-  async function loadWards(provinceCode, districtCode) {
-    if (!window.AddressData) {
-      console.warn("[DEBUG] window.AddressData chưa tồn tại");
-      return;
-    }
-    if (!provinceCode) {
-      console.warn("[DEBUG] provinceCode rỗng");
-      return;
-    }
-    if (!districtCode) {
-      console.warn("[DEBUG] districtCode rỗng");
-      return;
-    }
-    const wards = window.AddressData.getWards63(provinceCode, districtCode);
-    console.log(
-      "[DEBUG] Load wards for province:",
-      provinceCode,
-      "| district:",
-      districtCode,
-      "| wards:",
-      wards
-    );
-    const select = document.getElementById("senderWard");
-    if (select) {
-      if (Array.isArray(wards) && wards.length > 0) {
-        select.innerHTML =
-          '<option value="">Xã/Phường</option>' +
-          wards
-            .map((w) => `<option value="${w.code}">${w.name}</option>`)
-            .join("");
-        console.log(
-          "[DEBUG] Đã render dropdown xã/phường, số lượng:",
-          wards.length
-        );
-      } else {
-        select.innerHTML =
-          '<option value="">Không có dữ liệu xã/phường</option>';
-        console.warn(
-          "[DEBUG] Không có dữ liệu xã/phường cho",
-          provinceCode,
-          districtCode
-        );
-      }
-    } else {
-      console.warn("[DEBUG] Không tìm thấy select senderWard");
-    }
-  }
-
-  /**
    * Utility: Escape HTML
    */
   function escapeHtml(text) {
@@ -479,6 +851,47 @@
     alert("❌ " + message);
   }
 
+  /**
+   * Edit profile
+   */
+  window.editProfile = async function (index) {
+    console.log("Edit profile at index:", index);
+    isEditing = true;
+    editingProfileIndex = index;
+
+    const profileToEdit = currentProfiles[index];
+    if (!profileToEdit) {
+      showError("Không tìm thấy profile để sửa");
+      return;
+    }
+
+    // Populate form with existing data
+    document.getElementById("profileName").value = profileToEdit.name || "";
+    document.getElementById("profilePhone").value =
+      profileToEdit.phone_number || "";
+    document.getElementById("profileFullAddress").value =
+      profileToEdit.address?.other || "";
+
+    // Ensure AddressData is ready before setting address selects
+    if (!window.AddressData) {
+      console.warn("[editProfile] AddressData not available, initializing...");
+      // Try to initialize if not already done
+      if (window.AddressData) {
+        await window.AddressData.init();
+      } else {
+        showError("AddressData không khả dụng");
+        return;
+      }
+    }
+
+    // Set address selects with existing data (async)
+    await setAddressSelects(profileToEdit.address);
+
+    // Change button text
+    const saveBtn = document.getElementById("saveProfileBtn");
+    saveBtn.textContent = "Cập nhật profile";
+  };
+
   // Initialize when DOM is ready
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
@@ -488,17 +901,18 @@
 
   // Also load provinces when modal opens
   window.addEventListener("DOMContentLoaded", function () {
-    const modalEl = document.getElementById("addSenderModal");
+    const modalEl = document.getElementById("addProfileModal");
     if (modalEl) {
       modalEl.addEventListener("shown.bs.modal", function () {
         console.log("[DEBUG] Sự kiện shown.bs.modal được kích hoạt");
-        loadProvinces();
+        // Reset form when modal opens
+        resetFormState();
       });
       console.log(
-        "[DEBUG] Đã gán sự kiện shown.bs.modal cho modal addSenderModal"
+        "[DEBUG] Đã gán sự kiện shown.bs.modal cho modal addProfileModal"
       );
     } else {
-      console.log("[DEBUG] Không tìm thấy modal với id addSenderModal");
+      console.log("[DEBUG] Không tìm thấy modal với id addProfileModal");
     }
   });
 })();

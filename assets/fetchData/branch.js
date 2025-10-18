@@ -15,7 +15,7 @@ window.BranchData = (function () {
     await loadBranchData();
   }
 
-  // Load branch data from JSON file
+  // Load branch data from embedded data
   async function loadBranchData() {
     if (branchData) {
       console.log("Branch data already loaded");
@@ -28,24 +28,15 @@ window.BranchData = (function () {
     }
 
     isLoading = true;
-    console.log("Loading branch data from JSON...");
+    console.log("Loading branch data from embedded data...");
 
     try {
-      // Try multiple possible paths
-      let response = await fetch("../assets/data/branch.json");
-      
-      if (!response.ok) {
-        // Try alternative path from root
-        response = await fetch("assets/data/branch.json");
-      }
-      
-      console.log("Branch data response status:", response.status);
-
-      if (response.ok) {
-        branchData = await response.json();
+      // Check if data is available
+      if (typeof branchDataRaw !== "undefined") {
+        branchData = branchDataRaw;
         console.log("Branch data loaded:", branchData.length, "branches");
       } else {
-        console.error("Failed to load branch data, status:", response.status);
+        console.error("Branch data not available");
       }
     } catch (error) {
       console.error("Error loading branch data:", error);
@@ -69,7 +60,9 @@ window.BranchData = (function () {
         branch.is_active &&
         branch.address &&
         branch.address.province &&
-        branch.address.province.toLowerCase().includes(provinceName.toLowerCase())
+        branch.address.province
+          .toLowerCase()
+          .includes(provinceName.toLowerCase())
     );
   }
 
@@ -116,10 +109,11 @@ window.BranchData = (function () {
 
     return searchData.filter((branch) => {
       const name = branch.name?.toLowerCase() || "";
-      const address =
-        `${branch.address?.street || ""} ${branch.address?.ward || ""} ${
-          branch.address?.district || ""
-        } ${branch.address?.province || ""}`.toLowerCase();
+      const address = `${branch.address?.street || ""} ${
+        branch.address?.ward || ""
+      } ${branch.address?.district || ""} ${
+        branch.address?.province || ""
+      }`.toLowerCase();
 
       return name.includes(lowerKeyword) || address.includes(lowerKeyword);
     });
@@ -132,9 +126,9 @@ window.BranchData = (function () {
       branch.address?.street,
       branch.address?.ward,
       branch.address?.district,
-      branch.address?.province
-    ].filter(part => part && part.trim() !== "");
-    
+      branch.address?.province,
+    ].filter((part) => part && part.trim() !== "");
+
     const address = addressParts.join(", ");
 
     return {

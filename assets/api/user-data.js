@@ -95,8 +95,8 @@ window.UserData = (function () {
     try {
       const url = `${API_BASE_URL}/users/find?id=${id}`;
       const token = getAccessToken();
-      const headers = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const res = await fetch(url, { headers });
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -115,18 +115,18 @@ window.UserData = (function () {
         active: result.active ?? result.is_active,
         address: result.address || {},
         profiles: Array.isArray(result.profiles)
-          ? result.profiles.map(p => ({
+          ? result.profiles.map((p) => ({
               name: p.name,
               phone_number: p.phone_number || p.phoneNumber,
               address: p.address || {},
-              is_default: p.is_default ?? p.default ?? false
+              is_default: p.is_default ?? p.default ?? false,
             }))
-          : []
+          : [],
       };
 
       return normalized;
     } catch (error) {
-      console.error('❌ Lỗi fetchUserById:', error);
+      console.error("❌ Lỗi fetchUserById:", error);
       throw error;
     }
   }
@@ -195,28 +195,116 @@ window.UserData = (function () {
   }
 
   // add and update profile
-async function updateProfile(userId, profileData) {
-  try {
-    const url = `${API_BASE_URL}/users/update/${userId}/profiles`;
-    const token = getAccessToken();
-    const headers = { "Content-Type": "application/json" };
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+  async function updateProfile(userId, profileData) {
+    try {
+      // Prepare profile data for PATCH API
+      const patchData = {
+        name: profileData.name,
+        phoneNumber: profileData.phone_number, // API expects phoneNumber
+        address: profileData.address,
+        isDefault: profileData.is_default ?? profileData.default ?? false, // API expects isDefault
+      };
 
-    const res = await fetch(url, {
-      method: "PATCH",
-      headers,
-      body: JSON.stringify(profileData),
-    });
+      // If editing, add index to identify which profile to update
+      if (typeof profileData.index === "number") {
+        patchData.index = profileData.index;
+      }
 
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      // Use PATCH API for profiles
+      const url = `${API_BASE_URL}/users/update/${userId}/profiles`;
+      const token = getAccessToken();
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
-    const updated = await res.json();
-    return updated;
-  } catch (error) {
-    console.error("❌ updateProfile error:", error);
-    throw error;
+      const res = await fetch(url, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify(patchData),
+      });
+
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+      const response = await res.json();
+
+      // Update local users cache
+      if (response.result) {
+        const updatedUser = response.result;
+        const userIndex = users.findIndex(
+          (u) => u.id === userId || u._id === userId
+        );
+        if (userIndex >= 0) {
+          users[userIndex] = {
+            id: updatedUser.id || updatedUser._id,
+            username: updatedUser.username,
+            name: updatedUser.name,
+            phone_number: updatedUser.phoneNumber || updatedUser.phone_number,
+            email: updatedUser.email,
+            roles: updatedUser.roles || [],
+            active: updatedUser.active ?? updatedUser.is_active,
+            address: updatedUser.address || {},
+            profiles: Array.isArray(updatedUser.profiles)
+              ? updatedUser.profiles.map((p) => ({
+                  name: p.name,
+                  phone_number: p.phoneNumber || p.phone_number,
+                  address: p.address || {},
+                  is_default: p.default ?? p.isDefault ?? false,
+                }))
+              : [],
+          };
+        }
+      }
+
+      return response;
+    } catch (error) {
+      console.error("❌ updateProfile error:", error);
+      throw error;
+    }
   }
-}
+
+  async function deleteProfile(userId, profileIndex) {
+    try {
+      // First fetch current user data to get existing profiles
+      const currentUser = await fetchUserById(userId);
+      let profiles = Array.isArray(currentUser.profiles)
+        ? [...currentUser.profiles]
+        : [];
+
+      // Remove profile at specified index
+      if (profileIndex >= 0 && profileIndex < profiles.length) {
+        profiles.splice(profileIndex, 1);
+
+        // If we deleted the default profile and there are other profiles, make the first one default
+        const hasDefault = profiles.some((p) => p.is_default || p.default);
+        if (!hasDefault && profiles.length > 0) {
+          profiles[0].default = true;
+        }
+      } else {
+        throw new Error(`Profile index ${profileIndex} is out of bounds`);
+      }
+
+      // Update user with new profiles array
+      const url = `${API_BASE_URL}/users/update/${userId}`;
+      const token = getAccessToken();
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const updatedUser = { ...currentUser, profiles };
+
+      const res = await fetch(url, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(updatedUser),
+      });
+
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+      await loadUsersFromAPI();
+      return true;
+    } catch (error) {
+      console.error("❌ deleteProfile error:", error);
+      throw error;
+    }
+  }
 
   /**
    * -----------------------------------------------------
@@ -246,10 +334,10 @@ async function updateProfile(userId, profileData) {
 
   function getDefaultProfile(user) {
     if (!user || !Array.isArray(user.profiles)) return null;
-    const found = user.profiles.find(p => p.is_default) || user.profiles[0] || null;
+    const found =
+      user.profiles.find((p) => p.is_default) || user.profiles[0] || null;
     return found;
   }
-
 
   return {
     init,
@@ -263,7 +351,8 @@ async function updateProfile(userId, profileData) {
     updateUser,
     deleteUser,
     updateProfile,
+    deleteProfile,
     formatUserOption,
-    getDefaultProfile
+    getDefaultProfile,
   };
 })();

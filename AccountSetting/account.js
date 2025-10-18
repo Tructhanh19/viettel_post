@@ -378,7 +378,7 @@ async function handleAddStaff() {
   const emailOrPhoneInput = modal.querySelector("#staffEmailPhone");
   const staffId = emailOrPhoneInput.value.trim();
 
-  const leaderId = localStorage.getItem("userId") || "60d21b4667d0d8992e610a02"; // User đang đăng nhập
+  const leaderId = localStorage.getItem("userId") || "60d21b4667d0d8992e610a01"; // User đang đăng nhập
 
   if (!staffId) {
     return alert("Vui lòng nhập ID của nhân viên.");
@@ -396,7 +396,7 @@ async function handleAddStaff() {
     }
 
     // Gọi API update leader
-    const updateUrl = `http://localhost:8585/api/v1/users/update/${leaderId}/leader/${staffId}`;
+    const updateUrl = `http://localhost:8585/api/v1/users/update/${staffId}/leader/${leaderId}`;
     const updateResponse = await callApi(updateUrl, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

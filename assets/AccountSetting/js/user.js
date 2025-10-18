@@ -8,6 +8,10 @@
 
   let currentUsers = [];
   let filteredUsers = [];
+  let currentUser = null;
+  let isEditing = false;
+  let editingUserId = null;
+  let editingProfileIndex = -1;
 
   /**
    * Initialize the user info page
@@ -65,12 +69,13 @@
 
     // Gom tất cả profile của tất cả user thành 1 mảng
     let allProfiles = [];
-    users.forEach(user => {
+    users.forEach((user) => {
       if (Array.isArray(user.profiles)) {
-        user.profiles.forEach(profile => {
+        user.profiles.forEach((profile, index) => {
           allProfiles.push({
             ...profile,
-            userId: user._id || user.id
+            userId: user._id || user.id,
+            profileIndex: index,
           });
         });
       }
@@ -86,28 +91,43 @@
       return;
     }
 
-    container.innerHTML = allProfiles.map(profile => {
-      const addressText = [
-        profile.address?.other,
-        profile.address?.ward,
-        profile.address?.district,
-        profile.address?.province,
-      ].filter(Boolean).join(", ");
-      return `
+    container.innerHTML = allProfiles
+      .map((profile) => {
+        const addressText = [
+          profile.address?.other,
+          profile.address?.ward,
+          profile.address?.district,
+          profile.address?.province,
+        ]
+          .filter(Boolean)
+          .join(", ");
+        return `
         <div class="col-md-6 mb-3">
-          <div class="card sender-card h-100 ${profile.is_default ? 'bg-light border-danger' : ''}">
+          <div class="card sender-card h-100 ${
+            profile.is_default ? "bg-light border-danger" : ""
+          }">
             <div class="card-body">
               <div><strong>${escapeHtml(profile.name || "N/A")}</strong></div>
-              <small class="text-muted">${escapeHtml(profile.phone_number || "")}</small>
+              <small class="text-muted">${escapeHtml(
+                profile.phone_number || ""
+              )}</small>
               <div class="mt-2">
                 <small class="text-muted"><i class="bi bi-geo-alt text-danger"></i> ${addressText}</small>
-                ${profile.is_default ? '<span class="badge bg-danger ms-2">Mặc định</span>' : ''}
+                ${
+                  profile.is_default
+                    ? '<span class="badge bg-danger ms-2">Mặc định</span>'
+                    : ""
+                }
               </div>
               <div class="d-flex gap-2 mt-3">
-                <button class="btn btn-sm btn-outline-primary flex-fill" onclick="editUser('${profile.userId}')">
+                <button class="btn btn-sm btn-outline-primary flex-fill" onclick="editUser('${
+                  profile.userId
+                }', ${profile.profileIndex})">
                   <i class="bi bi-pencil"></i> Sửa
                 </button>
-                <button class="btn btn-sm btn-outline-danger flex-fill" onclick="deleteUser('${profile.userId}')">
+                <button class="btn btn-sm btn-outline-danger flex-fill" onclick="deleteUser('${
+                  profile.userId
+                }', ${profile.profileIndex})">
                   <i class="bi bi-trash"></i> Xóa
                 </button>
               </div>
@@ -115,7 +135,8 @@
           </div>
         </div>
       `;
-    }).join("");
+      })
+      .join("");
   }
 
   /**
@@ -183,95 +204,204 @@
       return;
     }
 
-    const addressSelected = window.getSelectedAddress
-      ? window.getSelectedAddress()
-      : {};
     const userData = {
       name: document.getElementById("profileName").value.trim(),
       phone_number: document.getElementById("profilePhoneNumber").value.trim(),
-      province: addressSelected.provinceName || "",
-      district: addressSelected.districtName || "",
-      ward: addressSelected.wardName || "",
-      other: document.getElementById("userFullAddress").value.trim(),
-      isActive: true,
+      address: {
+        province: getSelectedValue("provinceSelect"),
+        district: getSelectedValue("districtSelect"),
+        ward: getSelectedValue("wardSelect"),
+        other: document.getElementById("userFullAddress").value.trim(),
+      },
+      is_default: false,
     };
 
-    // Build full address
-    userData.address = [
-      userData.other,
-      userData.ward,
-      userData.district,
-      userData.province,
-    ]
-      .filter((x) => x)
-      .join(", ");
+    // Check for duplicate profile (same name and phone number)
+    if (!isEditing) {
+      const isDuplicate = currentUsers.some(
+        (user) =>
+          user.profiles &&
+          user.profiles.some(
+            (profile) =>
+              profile.name === userData.name &&
+              profile.phone_number === userData.phone_number
+          )
+      );
+
+      if (isDuplicate) {
+        showError("Địa chỉ với tên và số điện thoại này đã tồn tại!");
+        return;
+      }
+    }
 
     try {
-      await window.UserData.createUser(userData);
+      if (isEditing) {
+        // Update existing profile
+        const profileDataWithIndex = {
+          ...userData,
+          index: editingProfileIndex,
+        };
+        await window.UserData.updateProfile(
+          editingUserId,
+          profileDataWithIndex
+        );
+        showSuccess("Cập nhật địa chỉ thành công!");
+      } else {
+        // Add new profile
+        await window.UserData.updateProfile(editingUserId, userData);
+        showSuccess("Thêm địa chỉ thành công!");
+      }
 
-      // Refresh list
-      currentUsers = window.UserData.getAllUsers();
+      // Refresh data
+      const userId = window.API_CONFIG.getUserId();
+      const user = await window.UserData.fetchUserById(userId);
+      currentUsers = [user];
       applyFilters();
 
-      // Close modal
-      const modal = bootstrap.Modal.getInstance(
-        document.getElementById("addUserModal")
-      );
-      modal.hide();
-
-      // Reset form
+      // Reset form and state
       form.reset();
-
-      showSuccess("Thêm người nhận thành công!");
+      resetFormState();
     } catch (error) {
-      showError("Lỗi khi thêm người nhận: " + error.message);
+      showError("Lỗi khi lưu địa chỉ: " + error.message);
     }
   }
 
   /**
-   * Edit User (to be implemented)
+   * Reset form state after save
    */
-  window.editUser = function (id) {
-    console.log("Edit user:", id);
-    // TODO: Implement edit functionality
-    alert("Chức năng sửa đang được phát triển");
+  function resetFormState() {
+    isEditing = false;
+    editingUserId = null;
+    editingProfileIndex = -1;
+    const saveBtn = document.getElementById("saveProfileBtn");
+    saveBtn.textContent = "Thêm địa chỉ";
+  }
+
+  /**
+   * Edit User Profile
+   */
+  window.editUser = function (userId, profileIndex) {
+    console.log("Edit user profile:", userId, "index:", profileIndex);
+    isEditing = true;
+    editingUserId = userId;
+    editingProfileIndex = profileIndex;
+
+    // Find the user
+    const user = currentUsers.find((u) => u.id === userId || u._id === userId);
+    if (!user || !user.profiles || user.profiles.length <= profileIndex) {
+      showError("Không tìm thấy thông tin người dùng hoặc profile");
+      return;
+    }
+
+    const profileToEdit = user.profiles[profileIndex];
+
+    // Populate form with existing data
+    document.getElementById("profileName").value = profileToEdit.name || "";
+    document.getElementById("profilePhoneNumber").value =
+      profileToEdit.phone_number || "";
+    document.getElementById("userFullAddress").value =
+      profileToEdit.address?.other || "";
+
+    // Set address selects
+    if (window.AddressData && profileToEdit.address) {
+      // This would need to be implemented based on how AddressData works
+      // For now, we'll assume the selects are set manually or via a function
+    }
+
+    // Change button text
+    const saveBtn = document.getElementById("saveProfileBtn");
+    saveBtn.textContent = "Cập nhật địa chỉ";
   };
 
   /**
-   * Delete User
+   * Delete User Profile
    */
-  window.deleteUser = async function (id) {
-    if (!id) {
+  window.deleteUser = async function (userId, profileIndex) {
+    if (!userId) {
       showError("ID không hợp lệ.");
       return;
     }
-    if (!confirm("Bạn có chắc muốn xóa người này?")) {
+    if (!confirm("Bạn có chắc muốn xóa địa chỉ này?")) {
       return;
     }
     try {
       if (
         !window.UserData ||
-        typeof window.UserData.deleteUser !== "function"
+        typeof window.UserData.deleteProfile !== "function"
       ) {
-        throw new Error("UserData.deleteUser không khả dụng");
+        throw new Error("UserData.deleteProfile không khả dụng");
       }
-      await window.UserData.deleteUser(id);
 
-      // Refresh list
-      currentUsers = window.UserData.getAllUsers();
+      // Find the user
+      const user = currentUsers.find(
+        (u) => u.id === userId || u._id === userId
+      );
+      if (!user || !user.profiles || user.profiles.length <= profileIndex) {
+        showError("Không tìm thấy thông tin người dùng hoặc profile");
+        return;
+      }
+
+      await window.UserData.deleteProfile(userId, profileIndex);
+
+      // Refresh data
+      const refreshedUserId = window.API_CONFIG.getUserId();
+      const refreshedUser = await window.UserData.fetchUserById(
+        refreshedUserId
+      );
+      currentUsers = [refreshedUser];
       applyFilters();
 
-      showSuccess("Xóa người nhận thành công");
+      showSuccess("Xóa địa chỉ thành công");
     } catch (err) {
       showError(
-        "Lỗi khi xóa người nhận: " + (err && err.message ? err.message : err)
+        "Lỗi khi xóa địa chỉ: " + (err && err.message ? err.message : err)
       );
     }
   };
 
   /**
-   * Khởi tạo custom-select-search: tìm kiếm, chọn, đóng/mở, sự kiện change
+   * Get selected value from custom select (returns text/name)
    */
+  function getSelectedValue(selectId) {
+    const selectElement = document.getElementById(selectId);
+    if (!selectElement) return "";
+
+    const selectedOption = selectElement.querySelector(
+      ".dropdown-option.selected"
+    );
+    if (selectedOption) {
+      // Prioritize text content (name) over data-value (code)
+      return (
+        selectedOption.textContent.trim() ||
+        selectedOption.getAttribute("data-value") ||
+        ""
+      );
+    }
+
+    return "";
+  }
+
+  /**
+   * Get selected code from custom select (returns data-value/code)
+   */
+  function getSelectedCode(selectId) {
+    const selectElement = document.getElementById(selectId);
+    if (!selectElement) return "";
+
+    const selectedOption = selectElement.querySelector(
+      ".dropdown-option.selected"
+    );
+    if (selectedOption) {
+      // Return data-value (code) or fallback to text content
+      return (
+        selectedOption.getAttribute("data-value") ||
+        selectedOption.textContent.trim() ||
+        ""
+      );
+    }
+
+    return "";
+  }
   function initSearchableSelects() {
     const searchableSelects = document.querySelectorAll(
       ".custom-select-search"

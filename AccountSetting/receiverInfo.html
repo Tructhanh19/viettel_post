@@ -168,16 +168,16 @@
     </div>
   </div>
 
-  <!-- Form thêm người gửi trực tiếp -->
+  <!-- Form thêm profile trực tiếp -->
   <div class="card mb-4">
     <div class="card-body">
-      <form id="addSenderForm" class="row g-3">
+      <form id="addProfileForm" class="row g-3">
         <!-- Hàng 1 -->
         <div class="col-md-6">
           <input
             type="text"
             class="form-control"
-            id="senderName"
+            id="profileName"
             placeholder="Tên"
             required
           />
@@ -186,7 +186,7 @@
           <input
             type="tel"
             class="form-control"
-            id="senderPhone"
+            id="profilePhone"
             placeholder="Số điện thoại"
             required
           />
@@ -261,16 +261,15 @@
           <input
             type="text"
             class="form-control"
-            id="senderFullAddress"
+            id="profileFullAddress"
             placeholder="Địa chỉ chi tiết"
             required
           />
         </div>
 
-        <!-- Nút submit -->
         <div class="col-12 text-end">
-          <button type="submit" class="btn btn-danger" id="saveSenderBtn">
-            Thêm người gửi
+          <button type="submit" class="btn btn-danger" id="saveProfileBtn">
+            Thêm profile
           </button>
         </div>
       </form>

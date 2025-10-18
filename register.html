@@ -55,7 +55,7 @@
                 document.getElementById('fullnameError').style.display = 'block';
                 return;
             }
-            if (!validateEmail(email) && !validatePhone(email)) {
+            if (!validateEmail(email) && !validatephone_number(email)) {
                 document.getElementById('emailError').textContent = 'Email hoặc số điện thoại không hợp lệ';
                 document.getElementById('emailError').style.display = 'block';
                 return;

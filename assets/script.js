@@ -394,19 +394,16 @@ function initReceiverManagementHandler() {
 
             // Active thẻ li "Thông tin người gửi"
             const senderLink = document.querySelector(
-              '.account-menu .menu-link[href="receiverInfo.html"]'
+              '.account-menu .menu-link[href="user-info.html"]'
             );
             if (senderLink) {
               senderLink.parentElement.classList.add("active");
             }
 
-            // Tải trang receiverInfo.html
+            // Tải trang user-info.html
             const accountContent = document.getElementById("accountContent");
             if (accountContent) {
-              loadAccountPage(
-                accountContent,
-                "./AccountSetting/receiverInfo.html"
-              );
+              loadAccountPage(accountContent, "./AccountSetting/receiverInfo.html");
             }
           })
           .catch((err) => {

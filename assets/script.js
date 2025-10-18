@@ -524,10 +524,11 @@ async function loadAccountPage(container, url) {
       await new Promise((resolve) => setTimeout(resolve, 10));
     }
 
-    // Sau khi load script xong, nếu là accountDetail.html hoặc changePassword.html thì gọi initAccountPage
+    // Sau khi load script xong, nếu là accountDetail.html, changePassword.html hoặc staffManager.html thì gọi initAccountPage
     if (
       (url.includes("accountDetail.html") ||
-        url.includes("changePassword.html")) &&
+        url.includes("changePassword.html") ||
+        url.includes("staffManager.html")) &&
       window.initAccountPage
     ) {
       await window.initAccountPage();

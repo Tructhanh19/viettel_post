@@ -6,5 +6,17 @@ window.API_CONFIG = {
       sessionStorage.getItem('accessToken') ||
       ''
     );
+  },
+
+  getUserId: function () {
+    const token = this.getAccessToken();
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.userId || payload.id || payload.sub || null;
+    } catch (e) {
+      console.error("Token invalid:", e);
+      return null;
+    }
   }
 };

@@ -97,19 +97,43 @@
 <script src="../assets/api/order-data.js"></script>
 <script src="../assets/order/js/create-order.js"></script>
 <script>
+  // Toast notification
+  function showToast(message, type = 'error') {
+    let toast = document.createElement('div');
+    toast.className = 'custom-toast custom-toast-' + type;
+    toast.innerHTML = `<span>${message.replace(/\n/g, '<br>')}</span>`;
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.classList.add('show'); }, 10);
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 400);
+    }, 3500);
+  }
   document.getElementById("detailedSummary").style.display = "flex";
 
+  // Load status map from JSON file (order_status.json)
+  let statusMap = {};
+  let statusList = [];
+  function loadStatusMap() {
+    // Only load once
+    if (Object.keys(statusMap).length > 0) return Promise.resolve();
+    return fetch('../assets/data/order_status.json')
+      .then(res => res.json())
+      .then(list => {
+        statusList = list;
+        statusMap = {};
+        list.forEach(item => {
+          statusMap[item.code] = { code: item.code, name: item.name };
+        });
+      });
+  }
+
   // Helper: Lấy dữ liệu đơn hàng từ window.CreateOrderData và chuyển đổi trường cho đúng backend
-  function getOrderPayload(statusCode) {
+  async function getOrderPayload(statusCode) {
+    await loadStatusMap();
     const data = window.CreateOrderData ? JSON.parse(JSON.stringify(window.CreateOrderData)) : {};
 
-    // 1. Status: object { code, name }
-    const statusMap = {
-      'PENDING': { code: 'PENDING', name: 'Chờ xử lý' },
-      'DRAFT': { code: 'DRAFT', name: 'Đơn nháp' },
-      'IN_TRANSIT': { code: 'IN_TRANSIT', name: 'Đang vận chuyển' },
-      // ...bổ sung nếu cần
-    };
+    // 1. Status: object { code, name } lấy từ statusMap
     data.status = statusMap[statusCode] || { code: statusCode, name: statusCode };
 
     // 2. receiver: phoneNumber, không có phone
@@ -149,10 +173,35 @@
   }
 
 
+  // Kiểm tra các trường bắt buộc trước khi tạo đơn
+  function validateOrderRequiredFields(payload) {
+    const errors = [];
+    // Ví dụ các trường bắt buộc, có thể bổ sung thêm nếu cần
+    if (!payload.sender || !payload.sender.name || !payload.sender.phoneNumber) {
+      errors.push('Thông tin người gửi chưa đầy đủ.');
+    }
+    if (!payload.receiver || !payload.receiver.name || !payload.receiver.phoneNumber || !payload.receiver.address) {
+      errors.push('Thông tin người nhận chưa đầy đủ.');
+    }
+    if (!payload.shippingService || !payload.shippingService.serviceCode) {
+      errors.push('Bạn chưa chọn dịch vụ vận chuyển.');
+    }
+    if (!payload.packages || !Array.isArray(payload.packages) || payload.packages.length === 0) {
+      errors.push('Bạn chưa nhập thông tin kiện hàng.');
+    }
+    // Có thể bổ sung kiểm tra các trường khác nếu cần
+    return errors;
+  }
+
   // Xử lý nút "Gửi ngay"
   document.querySelector('.btn.btn-outline-light.px-4.me-2').addEventListener('click', function() {
     waitForOrderData(async function() {
-      const payload = getOrderPayload('PENDING'); // "Chờ xử lý"
+      const payload = await getOrderPayload('RECEIVED'); // "Đã tiếp nhận"
+      const errors = validateOrderRequiredFields(payload);
+      if (errors.length > 0) {
+        showToast('Vui lòng điền đầy đủ thông tin bắt buộc:<br>' + errors.map(e => '- ' + e).join('<br>'), 'error');
+        return;
+      }
       console.log('[DEBUG][ORDER PAYLOAD gửi ngay]', payload);
       try {
         const res = await window.OrderData.createOrder(payload);
@@ -167,7 +216,7 @@
   // Xử lý nút "Lưu nhập"
   document.querySelectorAll('.btn.btn-secondary.px-3')[0].addEventListener('click', function() {
     waitForOrderData(async function() {
-      const payload = getOrderPayload('DRAFT'); // "Đơn nháp"
+      const payload = await getOrderPayload('DRAFT'); // "Đơn nháp"
       console.log('[DEBUG][ORDER PAYLOAD lưu nháp]', payload);
       try {
         const res = await window.OrderData.createOrder(payload);

@@ -1,10 +1,10 @@
 <div class="create-order-content">
     <div class="order-form-container">
         <div class="row">
-            <!-- Left Column: Sender, Receiver, Service -->
+            <!-- Left Column: receiver, Receiver, Service -->
             <div class="col-md-6">
-                <div id="receiver-info"></div>
                 <div id="sender-info"></div>
+                <div id="receiver-info"></div>
                 <div id="service-selection"></div>
             </div>
             
@@ -24,7 +24,7 @@
       <!-- Left side - Summary info -->
       <div class="d-flex align-items-center gap-4">
         <!-- Detailed Summary (Hidden by default) -->
-        <div class="detailed-summary-items d-flex gap-4" id="detailedSummary" style="display: none;">
+        <div class="detailed-summary-items d-flex gap-4" id="detailedSummary">
           <div class="summary-item">
             <div class="summary-label">
               <i class="fas fa-info-circle me-1"></i>
@@ -67,24 +67,26 @@
 
 <!-- ① API CONFIG + DATA LAYER -->
 <script src="../assets/api/config.js"></script>
+<script src="../assets/api/user-data.js"></script>
 <script src="../assets/api/receiver-data.js"></script>
 
 <!-- ② FETCH DATA LAYER (dùng API để lấy dữ liệu, render UI) -->
 <script src="../assets/fetchData/address.js"></script>
 <script src="../assets/fetchData/branch.js"></script>
+<script src="../assets/fetchData/receiver.js"></script>
 <script src="../assets/fetchData/package.js"></script>
 <script src="../assets/fetchData/product.js"></script>
 <script src="../assets/fetchData/service.js"></script>
 <script src="../assets/fetchData/tag.js"></script>
 <script src="../assets/fetchData/scope.js"></script>
-<script src="../assets/fetchData/receiver.js"></script>
+<script src="../assets/fetchData/user.js"></script>
 
 <!-- ③ ORDER MODULES (logic trang đặt hàng, event DOM, validation, pricing...) -->
 <script src="../assets/order/js/utils.js"></script>
 <script src="../assets/order/js/validation.js"></script>
 <script src="../assets/order/js/pricing.js"></script>
+<script src="../assets/order/js/user.js"></script>
 <script src="../assets/order/js/receiver.js"></script>
-<script src="../assets/order/js/sender.js"></script>
 <script src="../assets/order/js/service.js"></script>
 <script src="../assets/order/js/package.js"></script>
 <script src="../assets/order/js/pickup.js"></script>
@@ -92,21 +94,97 @@
 <script src="../assets/order/js/cod.js"></script>
 
 <!-- ④ MAIN CONTROLLER -->
+<script src="../assets/api/order-data.js"></script>
 <script src="../assets/order/js/create-order.js"></script>
 <script>
-// Hiển thị tổng cước phí động ở thanh tổng kết
-document.addEventListener('DOMContentLoaded', function() {
-  function updateTotalFee() {
-    if (window.PricingCalculator && typeof window.PricingCalculator.getCurrentPricing === 'function') {
-      const pricing = window.PricingCalculator.getCurrentPricing();
-      const fee = pricing && pricing.totalFee ? pricing.totalFee : 0;
-      const feeDisplay = document.getElementById('totalFeeDisplay');
-      if (feeDisplay) feeDisplay.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fee);
+  document.getElementById("detailedSummary").style.display = "flex";
+
+  // Helper: Lấy dữ liệu đơn hàng từ window.CreateOrderData và chuyển đổi trường cho đúng backend
+  function getOrderPayload(statusCode) {
+    const data = window.CreateOrderData ? JSON.parse(JSON.stringify(window.CreateOrderData)) : {};
+
+    // 1. Status: object { code, name }
+    const statusMap = {
+      'PENDING': { code: 'PENDING', name: 'Chờ xử lý' },
+      'DRAFT': { code: 'DRAFT', name: 'Đơn nháp' },
+      'IN_TRANSIT': { code: 'IN_TRANSIT', name: 'Đang vận chuyển' },
+      // ...bổ sung nếu cần
+    };
+    data.status = statusMap[statusCode] || { code: statusCode, name: statusCode };
+
+    // 2. receiver: phoneNumber, không có phone
+    if (data.receiver) {
+      if (data.receiver.phone) {
+        data.receiver.phoneNumber = data.receiver.phone;
+        delete data.receiver.phone;
+      }
+    }
+
+    // 3. shippingService: estimateTimeHours, totalPrice
+    if (data.shippingService) {
+      // Đổi estimate_time_hours -> estimateTimeHours
+      if (data.shippingService.estimate_time_hours) {
+        data.shippingService.estimateTimeHours = data.shippingService.estimate_time_hours;
+        delete data.shippingService.estimate_time_hours;
+      }
+      // Đảm bảo có totalPrice
+      if (typeof data.shippingService.totalPrice === 'undefined' && typeof data.shippingService.price !== 'undefined') {
+        data.shippingService.totalPrice = data.shippingService.price;
+      }
+    }
+
+    // 7. Xóa các trường không cần thiết nếu có
+    delete data.debug;
+
+    return data;
+  }
+
+  // Đảm bảo OrderData đã load
+  function waitForOrderData(cb) {
+    if (window.OrderData && typeof window.OrderData.createOrder === 'function') {
+      cb();
+    } else {
+      setTimeout(() => waitForOrderData(cb), 100);
     }
   }
-  // Cập nhật khi có sự kiện thay đổi dữ liệu
-  document.addEventListener('orderDataChanged', updateTotalFee);
-  // Cập nhật lần đầu
-  updateTotalFee();
-});
+
+
+  // Xử lý nút "Gửi ngay"
+  document.querySelector('.btn.btn-outline-light.px-4.me-2').addEventListener('click', function() {
+    waitForOrderData(async function() {
+      const payload = getOrderPayload('PENDING'); // "Chờ xử lý"
+      console.log('[DEBUG][ORDER PAYLOAD gửi ngay]', payload);
+      try {
+        const res = await window.OrderData.createOrder(payload);
+        alert('Tạo đơn hàng thành công!');
+        // Có thể redirect hoặc reset form ở đây nếu muốn
+      } catch (err) {
+        alert('Lỗi khi tạo đơn hàng: ' + (err?.message || err));
+      }
+    });
+  });
+
+  // Xử lý nút "Lưu nhập"
+  document.querySelectorAll('.btn.btn-secondary.px-3')[0].addEventListener('click', function() {
+    waitForOrderData(async function() {
+      const payload = getOrderPayload('DRAFT'); // "Đơn nháp"
+      console.log('[DEBUG][ORDER PAYLOAD lưu nháp]', payload);
+      try {
+        const res = await window.OrderData.createOrder(payload);
+        alert('Đã lưu đơn nháp!');
+      } catch (err) {
+        alert('Lỗi khi lưu đơn nháp: ' + (err?.message || err));
+      }
+    });
+  });
+
+  // Xử lý nút "Làm mới"
+  document.querySelectorAll('.btn.btn-secondary.px-3')[1].addEventListener('click', function() {
+    if (confirm('Bạn có chắc muốn làm mới toàn bộ form?')) {
+      // Xóa sạch dữ liệu CreateOrderData và reload lại trang
+      window.CreateOrderData = {};
+      location.reload();
+    }
+  });
 </script>
+

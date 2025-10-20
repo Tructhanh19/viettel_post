@@ -7,8 +7,8 @@
     <!-- Loại hàng hóa -->
     <div class="mb-3">
       <label class="form-label fw-bold text-dark">LOẠI HÀNG HÓA</label>
-      <div class="d-flex gap-3">
-        <!-- Package types will be dynamically loaded from JSON -->
+      <div class="d-flex gap-3" id="packageTypeContainer">
+        <!-- JS sẽ render radio: <input type="radio" name="packageType" value="CODE" data-code="CODE"> Tên -->
       </div>
     </div>
 
@@ -81,30 +81,27 @@
       
       <!-- Mail characteristics -->
       <div id="mailCharacteristics" class="characteristics-container">
-        <!-- Package characteristics will be dynamically loaded from JSON -->
+        <!-- JS sẽ render checkbox: <input type="checkbox" value="CODE" data-code="CODE"> Tên -->
       </div>
 
       <!-- Document characteristics -->
       <div id="documentCharacteristics" class="characteristics-container" style="display: none;">
-        <!-- Document characteristics will be dynamically loaded from JSON -->
+        <!-- JS sẽ render checkbox: <input type="checkbox" value="CODE" data-code="CODE"> Tên -->
       </div>
     </div>
 
     <!-- Kích thước section -->
     <div class="dimensions-section mt-4">
-      <h6 class="mb-3">Kích thước <span class="text-danger">*</span></h6>
+      <h6 class="mb-3">Kích thước</h6>
       <div class="row mb-3">
         <div class="col-md-4">
-          <input type="number" class="form-control dimension-length" placeholder="Dài(cm)" min="0" step="0.1" required>
-          <div class="dimension-length-error text-danger small mt-1" style="display: none;">Chiều dài không được để trống</div>
+          <input type="number" class="form-control dimension-length" placeholder="Dài(cm)" min="0" step="0.1">
         </div>
         <div class="col-md-4">
-          <input type="number" class="form-control dimension-width" placeholder="Rộng(cm)" min="0" step="0.1" required>
-          <div class="dimension-width-error text-danger small mt-1" style="display: none;">Chiều rộng không được để trống</div>
+          <input type="number" class="form-control dimension-width" placeholder="Rộng(cm)" min="0" step="0.1">
         </div>
         <div class="col-md-4">
-          <input type="number" class="form-control dimension-height" placeholder="Cao(cm)" min="0" step="0.1" required>
-          <div class="dimension-height-error text-danger small mt-1" style="display: none;">Chiều cao không được để trống</div>
+          <input type="number" class="form-control dimension-height" placeholder="Cao(cm)" min="0" step="0.1">
         </div>
       </div>
       <div class="small text-muted mb-3">
@@ -124,7 +121,7 @@
         </div>
         <div class="col-md-6">
           <label class="form-label">Mã đơn hàng</label>
-          <input type="text" class="form-control" placeholder="Nhập mã đơn hàng tự tạo">
+          <input type="text" class="form-control" name="customOrderCode" placeholder="Nhập mã đơn hàng tự tạo">
         </div>
       </div>
     </div>

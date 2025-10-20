@@ -20,6 +20,11 @@
     "cost": 5500
   },
   {
+    "code": "GIA_CO_HANG_HOA",
+    "name": "Gia cố hàng hóa",
+    "cost": 5500
+  },
+  {
     "code": "GIAO_HANG_DAC_THU",
     "name": "Giao hàng đặc thù",
     "cost": 0
@@ -42,7 +47,7 @@
   {
     "code": "PHAT_TAI_DIEM_GIAO_DICH",
     "name": "Phát tại điểm giao dịch",
-    "cost": -5000
+    "cost": 5500
   },
   {
     "code": "ZALO_THONG_BAO",

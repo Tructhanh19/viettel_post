@@ -1,14 +1,3 @@
-/**
- * =====================================================
- * RECEIVER DATA MODULE (API LAYER)
- * -----------------------------------------------------
- * - Gọi API lấy danh sách người gửi user (MongoDB)
- * - CRUD (create/update/delete)
- * - Quản lý cache tạm thời trong front-end
- * =====================================================
- */
-console.log("[DEBUG] UserData module loaded");
-
 window.UserData = (function () {
   "use strict";
 

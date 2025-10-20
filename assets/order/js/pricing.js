@@ -1,385 +1,453 @@
-/**
- * PRICING CALCULATOR
- * Calculate shipping fees based on order information
- */
-window.PricingCalculator = (function () {
-  "use strict";
+// /**
+//  * PRICING CALCULATOR
+//  * Calculate shipping fees based on order information
+//  */
+// window.PricingCalculator = (function () {
+//   "use strict";
 
-  let currentOrderData = {
-    senderProvince: null,
-    senderDistrict: null,
-    receiverProvince: null,
-    receiverDistrict: null,
-    weight: 0,
-    packageValue: 0,
-    featuresCost: 0, // Phụ phí từ package features (đã tính sẵn)
-    serviceCode: "SCN",
-    additionalServicesCost: 0, // phí dịch vụ cộng thêm
-    promotionDiscount: 0, // giảm giá khuyến mãi
-  };
+//   let currentOrderData = {
+//     senderProvince: null,
+//     senderDistrict: null,
+//     receiverProvince: null,
+//     receiverDistrict: null,
+//     weight: 0,
+//     packageValue: 0,
+//     featuresCost: 0, // Phụ phí từ package features (đã tính sẵn)
+//     serviceCode: "SCN",
+//     additionalServicesCost: 0, // phí dịch vụ cộng thêm
+//     promotionDiscount: 0, // giảm giá khuyến mãi
+//   };
 
-  /**
-   * Update order data
-   */
-  function updateOrderData(data) {
-    currentOrderData = { ...currentOrderData, ...data };
-    console.log("💰 Order data updated:", currentOrderData);
+//   /**
+//    * Update order data
+//    */
+//   function updateOrderData(data) {
+//     currentOrderData = { ...currentOrderData, ...data };
+//     // ...
 
-    // Log kiểm tra selectedServices
-    if (Array.isArray(currentOrderData.selectedServices)) {
-      console.log(
-        "[OrderData] selectedServices:",
-        currentOrderData.selectedServices
-      );
-    } else {
-      console.log(
-        "[OrderData] selectedServices is missing or not an array:",
-        currentOrderData.selectedServices
-      );
-    }
+//     calculateAndDisplay();
 
-    calculateAndDisplay();
+//     // Phát sự kiện để các UI khác cập nhật
+//     setTimeout(() => {
+//       document.dispatchEvent(
+//         new CustomEvent("orderDataChanged", { detail: currentOrderData })
+//       );
+//     }, 0);
+//   }
 
-    // Phát sự kiện để các UI khác cập nhật
-    setTimeout(() => {
-      document.dispatchEvent(
-        new CustomEvent("orderDataChanged", { detail: currentOrderData })
-      );
-    }, 0);
-  }
+//   /**
+//    * Calculate base shipping fee
+//    */
+//   function calculateShippingFee() {
+//     const {
+//       senderProvince,
+//       senderDistrict,
+//       receiverProvince,
+//       receiverDistrict,
+//       weight,
+//     } = currentOrderData;
 
-  /**
-   * Calculate base shipping fee
-   */
-  function calculateShippingFee() {
-    const {
-      senderProvince,
-      senderDistrict,
-      receiverProvince,
-      receiverDistrict,
-      weight,
-    } = currentOrderData;
+//     // ...
 
-    console.group("📦 [Kiểm tra dữ liệu tính phí]");
-    console.table({
-      senderProvince,
-      senderDistrict,
-      receiverProvince,
-      receiverDistrict,
-      weight,
-      packageValue: currentOrderData.packageValue,
-      featuresCost: currentOrderData.featuresCost,
-      serviceCode: currentOrderData.serviceCode,
-      additionalServicesCost: currentOrderData.additionalServicesCost,
-      promotionDiscount: currentOrderData.promotionDiscount,
-    });
-    console.groupEnd();
+//     // Kiểm tra đủ dữ liệu
+//     if (
+//       !receiverProvince ||
+//       !senderProvince ||
+//       !receiverDistrict ||
+//       !senderDistrict ||
+//       !weight ||
+//       weight <= 0 ||
+//       !currentOrderData.packageValue
+//     ) {
+//       // ...
+//       return null;
+//     }
 
-    // Kiểm tra đủ dữ liệu
-    if (
-      !receiverProvince ||
-      !senderProvince ||
-      !receiverDistrict ||
-      !senderDistrict ||
-      !weight ||
-      weight <= 0 ||
-      !currentOrderData.packageValue
-    ) {
-      console.warn("⚠️ Chưa đủ thông tin để tính phí!", {
-        receiverProvince,
-        receiverDistrict,
-        senderProvince,
-        senderDistrict,
-        weight,
-        packageValue: currentOrderData.packageValue,
-      });
-      return null;
-    }
+//     if (!window.ScopeData) {
+//   // ...
+//       return null;
+//     }
 
-    if (!window.ScopeData) {
-      console.error("❌ ScopeData not available");
-      return null;
-    }
+//     const scopeCode = window.ScopeData.determineScope(
+//       senderProvince,
+//       senderDistrict || "",
+//       receiverProvince,
+//       receiverDistrict || ""
+//     );
+//     const baseFee = window.ScopeData.calculateShippingFee(scopeCode, weight);
+//     // ====== TỰ ĐỘNG TÍNH PHÍ & CẬP NHẬT SAU MỌI THAY ĐỔI ======
+// const recalculationEvents = [
+//   "userChanged", 
+//   "receiverChanged", 
+//   "postOfficeSelected", 
+//   "packageItemsChanged", 
+//   "codChanged", 
+//   "serviceChanged"
+// ];
 
-    const scopeCode = window.ScopeData.determineScope(
-      senderProvince,
-      senderDistrict || "",
-      receiverProvince,
-      receiverDistrict || ""
-    );
-    const baseFee = window.ScopeData.calculateShippingFee(scopeCode, weight);
+// recalculationEvents.forEach(eventName => {
+//   document.addEventListener(eventName, async () => {
+//     if (!window.PricingCalculator?.calculateTotalFee) return;
 
-    if (baseFee === null) return null;
+//     const pricingResult = window.PricingCalculator.calculateTotalFee();
 
-    return { baseFee, scopeCode };
-  }
+//     if (pricingResult) {
+//       // Cập nhật vào CreateOrderData
+//       window.CreateOrderData.totalPrice = pricingResult.totalFee;
+//       window.CreateOrderData.deliveryTime = pricingResult.estimateTime;
+//       window.CreateOrderData.codCost = pricingResult.codFee || 0;
 
-  /**
-   * Get special product fees (already calculated by Package module)
-   */
-  function getSpecialProductFees() {
-    return currentOrderData.featuresCost || 0;
-  }
+//       // Nếu có khoảng cách, cập nhật luôn
+//       if (pricingResult.distance) {
+//         window.CreateOrderData.distance = pricingResult.distance;
+//       } else if (window.ScopeData?.calculateDistance) {
+//         const d = window.ScopeData.calculateDistance(
+//           window.CreateOrderData.sender?.address?.province,
+//           window.CreateOrderData.sender?.address?.district,
+//           window.CreateOrderData.receiver?.address?.province,
+//           window.CreateOrderData.receiver?.address?.district
+//         );
+//         if (d) window.CreateOrderData.distance = d;
+//       }
 
-  /**
-   * Calculate total fee
-   */
-  function calculateTotalFee() {
-    const shippingResult = calculateShippingFee();
-    if (!shippingResult) return null;
+//       logOrderDataSummary && logOrderDataSummary();
+//     }
+//   });
+// });
 
-    const promotionDiscount = currentOrderData.promotionDiscount || 0;
-    const codFee = currentOrderData.codFee || 0;
-    const featuresCost = currentOrderData.featuresCost || 0;
+//     if (baseFee === null) return null;
 
-    // ✅ Tính phí dịch vụ cộng thêm
-    let additionalServicesCost = currentOrderData.additionalServicesCost || 0;
-    if (
-      Array.isArray(currentOrderData.selectedServices) &&
-      additionalServicesCost === 0
-    ) {
-      additionalServicesCost = currentOrderData.selectedServices.reduce(
-        (sum, code) => {
-          return sum + (window.ServiceData?.getServiceCost(code) || 0);
-        },
-        0
-      );
-    }
+//     return { baseFee, scopeCode };
+//   }
 
-    const totalFee =
-      shippingResult.baseFee +
-      featuresCost +
-      codFee +
-      additionalServicesCost -
-      promotionDiscount;
+//   /**
+//    * Get special product fees (already calculated by Package module)
+//    */
+//   function getSpecialProductFees() {
+//     return currentOrderData.featuresCost || 0;
+//   }
 
-    const estimateTime =
-      window.ScopeData && typeof window.ScopeData.getEstimateTime === "function"
-        ? window.ScopeData.getEstimateTime(shippingResult.scopeCode)
-        : 1;
+//   /**
+//    * Calculate total fee
+//    */
+//   function calculateTotalFee() {
+//     // Log đầu vào để kiểm tra hàm có được gọi không
+//     console.log('[PRICING DEBUG] calculateTotalFee called', JSON.parse(JSON.stringify(currentOrderData)));
+//     const shippingResult = calculateShippingFee();
+//     if (!shippingResult) {
+//       console.warn('[PRICING DEBUG] shippingResult is null, not enough data to calculate fee', JSON.parse(JSON.stringify(currentOrderData)));
+//       return null;
+//     }
+//     if (!shippingResult) return null;
 
-    return {
-      baseFee: shippingResult.baseFee,
-      additionalServicesCost,
-      codFee,
-      featuresCost,
-      promotionDiscount,
-      totalFee,
-      estimateTime,
-      scopeCode: shippingResult.scopeCode,
-    };
-  }
+//     const promotionDiscount = currentOrderData.promotionDiscount || 0;
+//     const codFee = currentOrderData.codFee || 0;
+//     const featuresCost = currentOrderData.featuresCost || 0;
 
-  /**
-   * Calculate and display pricing
-   */
-  function calculateAndDisplay() {
-    console.group("🧮 [DEBUG] QUY TRÌNH TÍNH PHÍ");
-    console.table({
-      senderProvince: currentOrderData.senderProvince,
-      senderDistrict: currentOrderData.senderDistrict,
-      receiverProvince: currentOrderData.receiverProvince,
-      receiverDistrict: currentOrderData.receiverDistrict,
-      weight: currentOrderData.weight,
-      value: currentOrderData.packageValue,
-    });
+//     // ✅ Tính phí dịch vụ cộng thêm
+//     let additionalServicesCost = currentOrderData.additionalServicesCost || 0;
+//     if (
+//       Array.isArray(currentOrderData.selectedServices) &&
+//       additionalServicesCost === 0
+//     ) {
+//       additionalServicesCost = currentOrderData.selectedServices.reduce(
+//         (sum, code) => {
+//           return sum + (window.ServiceData?.getServiceCost(code) || 0);
+//         },
+//         0
+//       );
+//     }
 
-    const result = calculateTotalFee();
+//     // Tổng phí
+//     var totalPrice =
+//       shippingResult.baseFee +
+//       featuresCost +
+//       codFee +
+//       additionalServicesCost -
+//       promotionDiscount;
 
-    if (!result) {
-      console.warn(
-        "⚠️ Không tính được phí vì thiếu dữ liệu hoặc baseFee null!"
-      );
-    } else {
-      console.log("✅ Kết quả tính phí:", result);
-    }
+//     // Tính deliveryTime (ISODate)
+//     var deliveryTime = null;
+//     try {
+//       var senderPickup = window.CreateOrderData && window.CreateOrderData.sender ? window.CreateOrderData.sender.pickupTime : null;
+//       var pickupDate = senderPickup ? new Date(senderPickup) : new Date();
+//       var estimateDays = 1;
+//       if (window.ScopeData && typeof window.ScopeData.getEstimateTime === "function") {
+//         estimateDays = window.ScopeData.getEstimateTime(shippingResult.scopeCode) || 1;
+//       }
+//       // Nếu có shippingService thì lấy estimate_time_hours
+//       var shippingServiceObj = window.CreateOrderData && window.CreateOrderData.shippingService ? window.CreateOrderData.shippingService : null;
+//       var estimateHours = null;
+//       if (shippingServiceObj && shippingServiceObj.estimate_time_hours) {
+//         estimateHours = shippingServiceObj.estimate_time_hours;
+//       }
+//       if (estimateHours) {
+//         pickupDate.setHours(pickupDate.getHours() + estimateHours);
+//       } else {
+//         pickupDate.setDate(pickupDate.getDate() + estimateDays);
+//       }
+//       deliveryTime = pickupDate.toISOString();
+//     } catch (err) {
+//       deliveryTime = null;
+//     }
 
-    console.groupEnd();
-    displayPricing(result);
-  }
+//     // Tính distance (giả lập, dùng địa chỉ người gửi/nhận)
+//     var distance = null;
+//     try {
+//       var senderAddr = window.CreateOrderData && window.CreateOrderData.sender ? window.CreateOrderData.sender.address : null;
+//       var receiverAddr = window.CreateOrderData && window.CreateOrderData.receiver ? window.CreateOrderData.receiver.address : null;
+//       if (senderAddr && receiverAddr) {
+//         if (senderAddr.province && receiverAddr.province) {
+//           if (senderAddr.province === receiverAddr.province) {
+//             distance = 5.0;
+//           } else {
+//             distance = 1650.0;
+//           }
+//         }
+//       }
+//     } catch (err) {
+//       distance = null;
+//     }
 
-  /**
-   * Display pricing in the UI
-   */
-  function displayPricing(result) {
-    const pricingSummaryBar = document.getElementById("pricingSummaryBar");
-    if (!pricingSummaryBar) return;
+//     // Chỉ dùng dịch vụ Chuyển phát nhanh
+//     var shippingService = null;
+//     if (window.CreateOrderData && window.CreateOrderData.shippingService) {
+//       shippingService = window.CreateOrderData.shippingService;
+//     } else {
+//       if (window.ServiceData && window.ServiceData.getShippingServiceByCode) {
+//         shippingService = window.ServiceData.getShippingServiceByCode('EXPRESS_SOUTH') || null;
+//       }
+//     }
 
-    const basicSummary = pricingSummaryBar.querySelector(
-      "#basicSummary .summary-value"
-    );
-    if (basicSummary)
-      basicSummary.textContent = result
-        ? formatCurrency(result.totalFee)
-        : "0 đ";
+//     // estimateTime (ngày) vẫn giữ cho UI
+//     var estimateTime = window.ScopeData && typeof window.ScopeData.getEstimateTime === "function"
+//       ? window.ScopeData.getEstimateTime(shippingResult.scopeCode)
+//       : 1;
 
-    if (!result) return;
+//     // Log các giá trị cần kiểm tra
+//     console.log('[PRICING DEBUG]', {
+//       baseFee: shippingResult.baseFee,
+//       additionalServicesCost: additionalServicesCost,
+//       codFee: codFee,
+//       featuresCost: featuresCost,
+//       promotionDiscount: promotionDiscount,
+//       totalFee: totalPrice,
+//       totalPrice: totalPrice
+//     });
+//     return {
+//       baseFee: shippingResult.baseFee,
+//       additionalServicesCost: additionalServicesCost,
+//       codFee: codFee,
+//       featuresCost: featuresCost,
+//       promotionDiscount: promotionDiscount,
+//       totalFee: totalPrice,
+//       totalPrice: totalPrice,
+//       deliveryTime: deliveryTime,
+//       distance: distance,
+//       estimateTime: estimateTime,
+//       scopeCode: shippingResult.scopeCode,
+//       shippingService: shippingService
+//     };
+//   }
 
-    // Cập nhật chi tiết
-    const detailedSummary = pricingSummaryBar.querySelector("#detailedSummary");
-    if (detailedSummary) {
-      const summaryItems = detailedSummary.querySelectorAll(".summary-item");
+//   /**
+//    * Calculate and display pricing
+//    */
+//   function calculateAndDisplay() {
+//     const result = calculateTotalFee();
+//     displayPricing(result);
+//     // ✅ Cập nhật CreateOrderData mỗi lần tính phí
+//   if (result && window.CreateOrderData) {
+//     window.CreateOrderData.totalPrice = result.totalFee || 0;
+//     window.CreateOrderData.deliveryTime = result.estimateTime || null;
+//     window.CreateOrderData.distance = result.distance || null;
 
-      if (summaryItems[0])
-        summaryItems[0].querySelector(".summary-value").textContent =
-          formatCurrency(result.totalFee);
+//     console.log("[DEBUG][ORDER DATA SUMMARY]", {
+//       totalPrice: window.CreateOrderData.totalPrice,
+//       deliveryTime: window.CreateOrderData.deliveryTime,
+//       distance: window.CreateOrderData.distance,
+//       codCost: window.CreateOrderData.codInfo?.codCost || 0
+//     });
+//   }
 
-      if (summaryItems[3])
-        summaryItems[3].querySelector(
-          ".summary-value"
-        ).textContent = `${result.estimateTime} ngày`;
-    }
+//   // 🔔 Gửi event để UI update
+//   document.dispatchEvent(new CustomEvent("orderPricingCalculated", {
+//     detail: result
+//   }));
+//   }
 
-    // Log breakdown (fix lỗi specialFees undefined)
-    const selectedServices = Array.isArray(currentOrderData.selectedServices)
-      ? currentOrderData.selectedServices
-      : [];
+//   /**
+//    * Display pricing in the UI
+//    */
+//   function displayPricing(result) {
+//     const pricingSummaryBar = document.getElementById("pricingSummaryBar");
+//     if (!pricingSummaryBar) return;
 
-    const serviceCosts = selectedServices.map((code) => ({
-      code,
-      cost: window.ServiceData?.getServiceCost(code) || 0,
-    }));
+//     const basicSummary = pricingSummaryBar.querySelector(
+//       "#basicSummary .summary-value"
+//     );
+//     if (basicSummary)
+//       basicSummary.textContent = result
+//         ? formatCurrency(result.totalFee)
+//         : "0 đ";
 
-    console.log("📊 Pricing breakdown:", {
-      baseFee: formatCurrency(result.baseFee),
-      featuresCost: formatCurrency(result.featuresCost),
-      additionalServicesCost: formatCurrency(result.additionalServicesCost),
-      codFee: formatCurrency(result.codFee),
-      totalFee: formatCurrency(result.totalFee),
-      estimateTime: result.estimateTime + " ngày",
-      scopeCode: result.scopeCode,
-      selectedServices,
-      serviceCosts,
-    });
+//     if (!result) return;
 
-    // 🔔 NEW: Gửi event để module COD cập nhật tiền trả người gửi
-    document.dispatchEvent(
-      new CustomEvent("orderDataChanged", {
-        detail: { totalFee: result.totalFee },
-      })
-    );
-  }
+//     // Cập nhật chi tiết
+//     const detailedSummary = pricingSummaryBar.querySelector("#detailedSummary");
+//     if (detailedSummary) {
+//       const summaryItems = detailedSummary.querySelectorAll(".summary-item");
 
-  /**
-   * Format currency VND
-   */
-  function formatCurrency(amount) {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(amount || 0);
-  }
+//       if (summaryItems[0])
+//         summaryItems[0].querySelector(".summary-value").textContent =
+//           formatCurrency(result.totalFee);
 
-  /**
-   * Get current pricing
-   */
-  function getCurrentPricing() {
-    return calculateTotalFee();
-  }
+//       if (summaryItems[3])
+//         summaryItems[3].querySelector(
+//           ".summary-value"
+//         ).textContent = `${result.estimateTime} ngày`;
+//     }
 
-  /**
-   * Reset calculator
-   */
-  function reset() {
-    currentOrderData = {
-      receiverProvince: null,
-      receiverDistrict: null,
-      senderProvince: null,
-      senderDistrict: null,
-      weight: 0,
-      packageValue: 0,
-      featuresCost: 0,
-      serviceCode: "SCN",
-      additionalServicesCost: 0,
-      promotionDiscount: 0,
-    };
-    displayPricing(null);
-  }
+//     // Log breakdown (fix lỗi specialFees undefined)
+//     const selectedServices = Array.isArray(currentOrderData.selectedServices)
+//       ? currentOrderData.selectedServices
+//       : [];
 
-  /**
-   * Initialize pricing calculator listeners
-   */
-  function init() {
-    setupAddressListeners();
-    setupWeightListeners();
-    setupSpecialProductListeners();
-    console.log("💰 Pricing Calculator initialized");
-    document.addEventListener("codChanged", (e) => {
-      console.log("💬 COD changed:", e.detail);
-      // Nếu có phí thu hộ trong tương lai, thêm xử lý tại đây
-      calculateAndDisplay();
-    });
-  }
+//     const serviceCosts = selectedServices.map((code) => ({
+//       code,
+//       cost: window.ServiceData?.getServiceCost(code) || 0,
+//     }));
 
-  /**
-   * Setup address change listeners
-   */
-  function setupAddressListeners() {
-    // Người gửi là receiver (dropdown người gửi)
-    document.addEventListener("receiverChanged", (e) => {
-      console.log("📍 Người gửi changed:", e.detail);
-      if (!e.detail || !e.detail.address) {
-        console.warn("Dữ liệu người gửi thiếu thông tin address:", e.detail);
-        return;
-      }
-      const addr = e.detail.address;
-      updateOrderData({
-        receiverProvince: addr.province,
-        receiverDistrict: addr.district,
-        receiverWard: addr.ward,
-      });
-    });
+//     // ...
 
-    // Người nhận là sender
-    const senderProvinceSelect = document.getElementById("provinceSelect");
-    const senderDistrictSelect = document.getElementById("districtSelect");
+//     // 🔔 Gửi event mới với toàn bộ kết quả tính phí
+//     document.dispatchEvent(
+//       new CustomEvent("orderPricingCalculated", {
+//         detail: result
+//       })
+//     );
+//   }
 
-    if (senderProvinceSelect) {
-      senderProvinceSelect.addEventListener("locationChange", (e) => {
-        console.log("📍 Người nhận (sender) province changed:", e.detail);
-        let value =
-          typeof e.detail.text === "string" ? e.detail.text.trim() : "";
-        updateOrderData({ senderProvince: value, senderDistrict: null });
-      });
-    }
+//   /**
+//    * Format currency VND
+//    */
+//   function formatCurrency(amount) {
+//     return new Intl.NumberFormat("vi-VN", {
+//       style: "currency",
+//       currency: "VND",
+//     }).format(amount || 0);
+//   }
 
-    if (senderDistrictSelect) {
-      senderDistrictSelect.addEventListener("locationChange", (e) => {
-        console.log("📍 Người nhận (sender) district changed:", e.detail);
-        let value =
-          typeof e.detail.text === "string" ? e.detail.text.trim() : "";
-        updateOrderData({ senderDistrict: value });
-      });
-    }
-  }
+//   /**
+//    * Get current pricing
+//    */
+//   function getCurrentPricing() {
+//     return calculateTotalFee();
+//   }
 
-  /**
-   * Setup weight change listeners
-   */
-  function setupWeightListeners() {
-    document.addEventListener("packageItemsChanged", (e) => {
-      updateOrderData({
-        weight: e.detail.totalWeight || 0,
-        packageValue: e.detail.totalValue || 0,
-        featuresCost: e.detail.featuresCost || 0,
-      });
-    });
-  }
+//   /**
+//    * Reset calculator
+//    */
+//   function reset() {
+//     currentOrderData = {
+//       receiverProvince: null,
+//       receiverDistrict: null,
+//       senderProvince: null,
+//       senderDistrict: null,
+//       weight: 0,
+//       packageValue: 0,
+//       featuresCost: 0,
+//       serviceCode: "SCN",
+//       additionalServicesCost: 0,
+//       promotionDiscount: 0,
+//     };
+//     displayPricing(null);
+//   }
 
-  /**
-   * Setup special product type listeners
-   */
-  function setupSpecialProductListeners() {
-    // featuresCost đã được tính trong packageItemsChanged event
-  }
+//   /**
+//    * Initialize pricing calculator listeners
+//    */
+//   function init() {
+//     setupAddressListeners();
+//     setupWeightListeners();
+//     setupSpecialProductListeners();
+//   // ...
+//     document.addEventListener("codChanged", (e) => {
+//       // Nếu có phí thu hộ trong tương lai, thêm xử lý tại đây
+//       calculateAndDisplay();
+//     });
+//   }
 
-  // Public API
-  return {
-    init,
-    updateOrderData,
-    calculateTotalFee,
-    getCurrentPricing,
-    displayPricing,
-    reset,
-  };
-})();
+//   /**
+//    * Setup address change listeners
+//    */
+//   function setupAddressListeners() {
+//     // Người gửi là receiver (dropdown người gửi)
+//     document.addEventListener("receiverChanged", (e) => {
+//       if (!e.detail || !e.detail.address) {
+//         return;
+//       }
+//       const addr = e.detail.address;
+//       updateOrderData({
+//         receiverProvince: addr.province,
+//         receiverDistrict: addr.district,
+//         receiverWard: addr.ward,
+//       });
+//     });
+
+//     // Người nhận là sender
+//     const senderProvinceSelect = document.getElementById("provinceSelect");
+//     const senderDistrictSelect = document.getElementById("districtSelect");
+
+//     if (senderProvinceSelect) {
+//       senderProvinceSelect.addEventListener("locationChange", (e) => {
+//   // ...
+//         let value =
+//           typeof e.detail.text === "string" ? e.detail.text.trim() : "";
+//         updateOrderData({ senderProvince: value, senderDistrict: null });
+//       });
+//     }
+
+//     if (senderDistrictSelect) {
+//       senderDistrictSelect.addEventListener("locationChange", (e) => {
+//   // ...
+//         let value =
+//           typeof e.detail.text === "string" ? e.detail.text.trim() : "";
+//         updateOrderData({ senderDistrict: value });
+//       });
+//     }
+//   }
+
+//   /**
+//    * Setup weight change listeners
+//    */
+//   function setupWeightListeners() {
+//     document.addEventListener("packageItemsChanged", (e) => {
+//       updateOrderData({
+//         weight: e.detail.totalWeight || 0,
+//         packageValue: e.detail.totalValue || 0,
+//         featuresCost: e.detail.featuresCost || 0,
+//       });
+//     });
+//   }
+
+//   /**
+//    * Setup special product type listeners
+//    */
+//   function setupSpecialProductListeners() {
+//     // featuresCost đã được tính trong packageItemsChanged event
+//   }
+
+//   // Public API
+//   return {
+//     init,
+//     updateOrderData,
+//     calculateTotalFee,
+//     getCurrentPricing,
+//     displayPricing,
+//     reset,
+//   };
+// })();
+// document.dispatchEvent(new CustomEvent("orderPricingCalculated", {
+//   detail: result
+// }));

@@ -14,23 +14,18 @@ window.TagData = (function () {
    */
   async function init() {
     if (isInitialized) {
-      console.log("TagData already initialized");
       return;
     }
 
-    console.log("Initializing TagData...");
 
     try {
-      console.log("Loading tag data from JSON...");
       const response = await fetch("../assets/data/tag.json");
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      console.log("Tag data response status:", response.status);
       tags = await response.json();
-      console.log("Tag data loaded:", tags.length, "tags");
 
       isInitialized = true;
     } catch (error) {

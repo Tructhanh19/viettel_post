@@ -1094,7 +1094,7 @@ input[name="paymentPerson"]:focus {
 }
 
 /* COD Payment Notifications */
-#senderPaymentAlert {
+#receiverPaymentAlert {
     background-color: #fff3cd;
     border-color: #ffecb5;
     color: #856404;
@@ -1489,6 +1489,7 @@ body.has-floating-bar {
 }
 
 /* Product Autocomplete Dropdown Styles */
+/* ✅ FIX: Product Autocomplete Dropdown z-index & stacking */
 .product-dropdown {
   position: absolute;
   top: 100%;
@@ -1501,8 +1502,9 @@ body.has-floating-bar {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   max-height: 300px;
   overflow-y: auto;
-  z-index: 1000;
   margin-top: -1px;
+  z-index: 99999 !important; 
+  pointer-events: auto; 
 }
 
 .product-dropdown-list {
@@ -1515,6 +1517,7 @@ body.has-floating-bar {
   cursor: pointer;
   border-bottom: 1px solid #f0f0f0;
   transition: all 0.2s ease;
+  background-color: #fff;
 }
 
 .product-dropdown-item:hover {

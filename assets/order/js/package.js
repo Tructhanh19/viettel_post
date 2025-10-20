@@ -1,4 +1,7 @@
 window.Package = (function () {
+  // Biến quản lý số thứ tự các package-item
+  let availableNumbers = [];
+  let packageItemCounter = 1;
   "use strict";
 
   async function init() {
@@ -31,6 +34,67 @@ window.Package = (function () {
     }
 
     // Clear existing content
+
+      // ===== Lưu thông tin hàng hóa vào CreateOrderData để phục vụ tạo đơn =====
+      function savePackageInfoToOrder() {
+        // Loại hàng hóa
+        const selectedTypeInput = document.querySelector('input[name="packageType"]:checked');
+        let packageType = null;
+        if (selectedTypeInput) {
+          const code = selectedTypeInput.value.toUpperCase();
+          const typeObj = window.PackageData.getPackageTypes().find(t => t.code === code);
+          packageType = {
+            code,
+            name: typeObj?.name || "",
+            features: [],
+            totalPrice: 0
+          };
+
+          // Đặc tính hàng hóa đặc biệt
+          const features = [];
+          document.querySelectorAll('.special-characteristics-section input[type="checkbox"]:checked').forEach(cb => {
+            const fcode = cb.getAttribute('data-code');
+            const featureObj = window.PackageData.getPackageFeatures().find(f => f.code === fcode);
+            if (featureObj) {
+              features.push({
+                code: featureObj.code,
+                name: featureObj.name,
+                cost: featureObj.cost,
+                totalPrice: featureObj.cost
+              });
+            }
+          });
+          packageType.features = features;
+          packageType.totalPrice = features.reduce((sum, f) => sum + (f.totalPrice || 0), 0);
+        }
+
+        // Danh sách hàng hóa
+        const packages = [];
+        document.querySelectorAll('.package-item').forEach(item => {
+          const name = item.querySelector('.package-name')?.value?.trim() || "";
+          const quantity = Number(item.querySelector('.package-quantity')?.value || 1);
+          const weight = Number(item.querySelector('.package-weight')?.value || 0);
+          const value = Number(item.querySelector('.package-value')?.value || 0);
+          const totalPrice = value;
+          if (name) {
+            packages.push({ name, quantity, weight, value, totalPrice });
+          }
+        });
+
+        window.CreateOrderData.packageType = packageType;
+        window.CreateOrderData.packages = packages;
+        // Phát event để các module khác cập nhật
+        document.dispatchEvent(new CustomEvent('packageItemsChanged', { detail: { packageType, packages } }));
+      }
+
+      // Gọi hàm này mỗi khi có thay đổi thông tin hàng hóa
+      document.addEventListener('input', savePackageInfoToOrder);
+      document.addEventListener('change', savePackageInfoToOrder);
+      document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-item-btn') || e.target.id === 'addPackageItemBtn') {
+          setTimeout(savePackageInfoToOrder, 100);
+        }
+      });
     container.innerHTML = "";
 
     // Render package types from JSON
@@ -40,12 +104,8 @@ window.Package = (function () {
 
       const typeHTML = `
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="packageType" value="${typeId}" id="package${
-        type.code
-      }" ${isChecked ? "checked" : ""}>
-          <label class="form-check-label" for="package${type.code}">${
-        type.name
-      }</label>
+          <input class="form-check-input" type="radio" name="packageType" value="${typeId}" id="package${type.code}" ${isChecked ? "checked" : ""}>
+          <label class="form-check-label" for="package${type.code}">${type.name}</label>
         </div>
       `;
       container.insertAdjacentHTML("beforeend", typeHTML);
@@ -124,10 +184,10 @@ window.Package = (function () {
 
     packageTypeInputs.forEach((input) => {
       input.addEventListener("change", function () {
-        if (this.value === "mail") {
+        if (this.value === "package" || this.value === "PACKAGE") {
           mailCharacteristics.style.display = "block";
           documentCharacteristics.style.display = "none";
-        } else if (this.value === "document") {
+        } else if (this.value === "document" || this.value === "DOCUMENT") {
           mailCharacteristics.style.display = "none";
           documentCharacteristics.style.display = "block";
         }
@@ -267,9 +327,34 @@ window.Package = (function () {
       `;
 
       // Handle product selection
-      item.addEventListener("click", function (e) {
-        e.stopPropagation();
-        selectProduct(input, product);
+      item.addEventListener("mousedown", function (e) {
+        e.preventDefault();
+        // Fill product name
+        input.value = product.name;
+        // Find parent package item
+        const packageItem = input.closest('.package-item');
+        if (packageItem) {
+          // Auto-fill weight and value
+          const weightInput = packageItem.querySelector('.package-weight');
+          const valueInput = packageItem.querySelector('.package-value');
+          if (weightInput && product.weight) weightInput.value = product.weight;
+          if (valueInput && product.value) valueInput.value = product.value;
+          // Auto-fill dimensions if available
+          if (product.dimensions) {
+            const { length, width, height } = product.dimensions;
+            const lInput = packageItem.querySelector('.dimension-length');
+            const wInput = packageItem.querySelector('.dimension-width');
+            const hInput = packageItem.querySelector('.dimension-height');
+            if (lInput && length) lInput.value = length;
+            if (wInput && width) wInput.value = width;
+            if (hInput && height) hInput.value = height;
+          }
+        }
+        // Hide dropdown
+        dropdown.style.display = 'none';
+        // Trigger input event to update data
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        updatePackageSummary();
       });
 
       list.appendChild(item);
@@ -555,7 +640,6 @@ window.Package = (function () {
     const totals = calculateTotals();
     const event = new CustomEvent("packageItemsChanged", { detail: totals });
     document.dispatchEvent(event);
-    console.log("📦 Package items changed:", totals);
   }
 
   return {

@@ -1,14 +1,3 @@
-/**
- * =====================================================
- * RECEIVER DATA MODULE (API LAYER)
- * -----------------------------------------------------
- * - Gọi API lấy danh sách người nhận (MongoDB)
- * - CRUD (create/update/delete)
- * - Quản lý cache tạm thời trong front-end
- * =====================================================
- */
-console.log('[DEBUG] ReceiverData module loaded');
-
 window.ReceiverData = (function () {
   'use strict';
 
@@ -100,17 +89,33 @@ window.ReceiverData = (function () {
     }
   }
 
-  async function createReceiver(data) {
+  /**
+   * Create receiver with correct payload format
+   * @param {Object} receiverInfo - { name, phone, address, branchId, tags }
+   * address: { province, district, ward, other/detail }
+   * branchId: string (if "Nhận tại bưu cục")
+   * tags: array
+   */
+  async function createReceiver(receiverInfo) {
     try {
       const url = `${API_BASE_URL}/receivers/insert`;
       const token = getAccessToken();
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
+      // Build payload according to API spec
+      const payload = {
+        name: receiverInfo.name,
+        phone: receiverInfo.phone,
+        address: receiverInfo.address || null,
+        branchId: receiverInfo.branchId || null,
+        tags: receiverInfo.tags || []
+      };
+
       const res = await fetch(url, {
         method: 'POST',
         headers,
-        body: JSON.stringify(data)
+        body: JSON.stringify(payload)
       });
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);

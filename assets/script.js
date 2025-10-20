@@ -191,17 +191,19 @@ async function loadContent(url) {
       "BranchData",
       "PackageData",
       "ProductData",
-      "SenderData",
+      "ReceiverData",
       "ServiceData",
       "TagData",
       "Sender",
+      "SenderData",
+      "SenderInfo",
       "Receiver",
       "Service",
       "Package",
       "Pickup",
       "Tags",
       "OrderController",
-      "SenderInfo",
+      "ReceiverInfo",
       "PostageCalculator",
     ];
 
@@ -328,7 +330,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initSearch();
   initCharts();
   initAccountSettingsMenu();
-  initReceiverManagementHandler();
+  initSenderManagementHandler();
 });
 //
 //
@@ -375,12 +377,12 @@ function initAccountSettingsMenu() {
 /**
  * Initialize handler for sender management links
  */
-function initReceiverManagementHandler() {
+function initSenderManagementHandler() {
   const mainContent = document.getElementById("mainContent");
 
   if (mainContent) {
     mainContent.addEventListener("click", function (e) {
-      if (e.target.matches('a[data-action="load-receiver-management"]')) {
+      if (e.target.matches('a[data-action="load-sender-management"]')) {
         e.preventDefault();
 
         // Tải sidebar.html
@@ -403,7 +405,7 @@ function initReceiverManagementHandler() {
             // Tải trang user-info.html
             const accountContent = document.getElementById("accountContent");
             if (accountContent) {
-              loadAccountPage(accountContent, "./AccountSetting/receiverInfo.html");
+              loadAccountPage(accountContent, "./AccountSetting/user-info.html");
             }
           })
           .catch((err) => {

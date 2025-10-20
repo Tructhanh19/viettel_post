@@ -1,6 +1,3 @@
-/**
- * COD MODULE – Quản lý tiền thu hộ & tiền trả người gửi
- */
 window.CODModule = (function () {
   "use strict";
 
@@ -8,35 +5,56 @@ window.CODModule = (function () {
   let payer = "sender"; // sender | receiver
 
   // Elements
-  const codCheckbox = document.getElementById("codByGoods");
-  const codAmountInput = document.getElementById("codAmount");
-  const senderPaysRadio = document.getElementById("senderPays");
-  const receiverPaysRadio = document.getElementById("receiverPays");
-  const senderPaymentBox = document.getElementById("senderPaymentBox");
-  const senderPaymentValue = senderPaymentBox?.querySelector(".payment-value");
+  let codCheckbox, codAmountInput, senderPaysRadio, receiverPaysRadio;
 
+  /** 🧩 Lưu thông tin COD vào CreateOrderData */
+  function saveCODInfoToOrder() {
+    window.CreateOrderData = window.CreateOrderData || {};
+    window.CreateOrderData.codInfo = {
+      codCost: codEnabled ? (parseFloat(codAmountInput?.value) || 0) : 0,
+      payer,
+      codEnabled,
+    };
+    console.log("[DEBUG][CreateOrderData] codInfo:", window.CreateOrderData.codInfo);
+  }
+
+  /** 🚀 Khởi tạo module */
   function init() {
+    // Lấy lại các phần tử DOM mỗi lần init
+    codCheckbox = document.getElementById("codByGoods");
+    codAmountInput = document.getElementById("codAmount");
+    senderPaysRadio = document.getElementById("senderPays");
+    receiverPaysRadio = document.getElementById("receiverPays");
+
     if (!codCheckbox || !codAmountInput) {
       console.error("❌ COD elements missing in DOM");
       return;
     }
 
-    // COD checkbox toggle
+    // Xóa event cũ tránh nhân đôi
+    codCheckbox.replaceWith(codCheckbox.cloneNode(true));
+    codCheckbox = document.getElementById("codByGoods");
     codCheckbox.addEventListener("change", () => {
       codEnabled = codCheckbox.checked;
       handleCODToggle();
       updateUI();
+      saveCODInfoToOrder();
     });
 
-    // Người trả phí toggle
     if (senderPaysRadio && receiverPaysRadio) {
+      senderPaysRadio.replaceWith(senderPaysRadio.cloneNode(true));
+      receiverPaysRadio.replaceWith(receiverPaysRadio.cloneNode(true));
+      senderPaysRadio = document.getElementById("senderPays");
+      receiverPaysRadio = document.getElementById("receiverPays");
+
       senderPaysRadio.addEventListener("change", () => {
         if (senderPaysRadio.checked) payer = "sender";
         updateUI();
+        saveCODInfoToOrder();
       });
+
       receiverPaysRadio.addEventListener("change", () => {
         if (!codEnabled) {
-          // Hiển thị cảnh báo modal
           const modal = new bootstrap.Modal(
             document.getElementById("receiverPaymentModal")
           );
@@ -47,39 +65,49 @@ window.CODModule = (function () {
         }
         payer = "receiver";
         updateUI();
+        saveCODInfoToOrder();
       });
     }
 
-    // Nghe các sự kiện từ module khác
-    document.addEventListener("packageItemsChanged", updateUI);
-    document.addEventListener("orderDataChanged", updateUI);
+    // Lắng nghe sự kiện liên quan đến package & pricing (chỉ 1 lần)
+    if (!window._codModuleEventAdded) {
+      document.addEventListener("packageItemsChanged", updateUI);
+      document.addEventListener("orderDataChanged", updateUI);
+      window._codModuleEventAdded = true;
+    }
 
     // Cập nhật lần đầu
     updateUI();
-
-    console.log("💵 COD Module initialized");
+    saveCODInfoToOrder();
   }
 
+  /** ⚙️ Xử lý bật/tắt COD */
   function handleCODToggle() {
+    if (!codCheckbox || !codAmountInput || !senderPaysRadio || !receiverPaysRadio) return;
+
     if (!codEnabled) {
-      // Khi bỏ tick COD → disable input + reset về 0
+      console.log("[COD] Bỏ tick COD, reset input");
       codAmountInput.value = 0;
+      codAmountInput.readOnly = true;
       codAmountInput.disabled = true;
       receiverPaysRadio.checked = false;
       senderPaysRadio.checked = true;
-      receiverPaysRadio.disabled = true; // không chọn được người nhận
+      receiverPaysRadio.disabled = true;
       payer = "sender";
     } else {
-      // Khi tick COD → enable input và gán giá trị hàng làm COD
       const packageTotals = window.Package?.calculateTotals?.();
       const totalValue = packageTotals?.totalValue || 0;
       codAmountInput.value = totalValue;
+      codAmountInput.readOnly = true;
       codAmountInput.disabled = false;
       receiverPaysRadio.disabled = false;
     }
   }
 
+  /** 🧾 Cập nhật hiển thị */
   function updateUI() {
+    if (!codCheckbox || !codAmountInput) return;
+
     const pricing = window.PricingCalculator?.getCurrentPricing?.();
     const packageTotals = window.Package?.calculateTotals?.();
 
@@ -89,47 +117,14 @@ window.CODModule = (function () {
     const totalValue = packageTotals?.totalValue || 0;
     const codAmount = parseFloat(codAmountInput.value) || 0;
 
-    let senderPays = 0;
-    let paymentLabelText = "";
-    let paymentValueText = "";
-
     if (!codEnabled) {
       // ❌ Không COD
-      senderPays = totalFee;
-      paymentLabelText = "Người gửi thanh toán:";
-      paymentValueText = `${formatCurrency(senderPays)} (không thu hộ)`;
-      senderPaymentBox.classList.remove("d-none");
       receiverPaysRadio.disabled = true;
       receiverPaysRadio.checked = false;
       senderPaysRadio.checked = true;
     } else {
       // ✅ COD bật
       receiverPaysRadio.disabled = false;
-
-      if (payer === "sender") {
-        // Người gửi trả phí
-        senderPays = totalFee;
-        paymentLabelText = "Người gửi thanh toán:";
-        paymentValueText = `${formatCurrency(
-          senderPays
-        )} (COD: ${formatCurrency(codAmount)})`;
-        senderPaymentBox.classList.remove("d-none");
-      } else {
-        // Người nhận trả phí
-        senderPays = 0;
-        paymentLabelText = "Người nhận thanh toán:";
-        paymentValueText = `${formatCurrency(
-          totalValue
-        )} (COD: ${formatCurrency(codAmount)})`;
-        senderPaymentBox.classList.add("d-none");
-      }
-    }
-
-    // Cập nhật UI
-    if (senderPaymentValue) senderPaymentValue.textContent = paymentValueText;
-    if (senderPaymentBox) {
-      const label = senderPaymentBox.querySelector(".payment-label");
-      if (label) label.textContent = paymentLabelText;
     }
 
     console.log("💰 [COD UI Updated]", {
@@ -141,15 +136,31 @@ window.CODModule = (function () {
     });
   }
 
+  /** 💰 Format tiền tệ VND */
   function formatCurrency(amount) {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
     }).format(amount || 0);
   }
+/** 📦 Hàm public cho Data Summary lấy dữ liệu COD */
+function getCODSummaryData() {
+  const codInfo = window.CreateOrderData?.codInfo || {};
+  return {
+    codEnabled: codInfo.codEnabled || false,
+    codCost: codInfo.codCost || 0,
+    payer: codInfo.payer || "sender",
+  };
+}
 
   return {
     init,
     updateUI,
+    getCODSummaryData,
   };
 })();
+window.CODModule.getCurrentCOD = function() {
+  return {
+    codCost: window.CreateOrderData?.codInfo?.codCost || 0,
+  };
+};

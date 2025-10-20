@@ -63,20 +63,43 @@ window.Service = (function () {
   }
 
   function updateSelectedServices() {
-    const selectedServices = Array.from(
+    // Build otherServices array with code, name, totalPrice
+    const otherServices = Array.from(
       document.querySelectorAll(".additional-service-checkbox:checked")
-    ).map((cb) => cb.dataset.code);
+    ).map((cb) => {
+      const code = cb.dataset.code;
+      const name = cb.nextElementSibling?.textContent?.trim() || code;
+      const totalPrice = Number(cb.dataset.cost) || 0;
+      return { code, name, totalPrice };
+    });
 
-    const totalCost = selectedServices.reduce((sum, code) => {
-      return sum + (ServiceData.getServiceCost(code) || 0);
-    }, 0);
+    // Main shipping service (from radio)
+    let shippingService = null;
+    const mainServiceRadio = document.querySelector("input[name='mainService']:checked");
+    if (mainServiceRadio) {
+      const code = mainServiceRadio.value;
+      const label = document.querySelector(`label[for='${mainServiceRadio.id}']`);
+      const name = label?.textContent?.trim() || code;
+      // Estimate time: demo value, should get from ServiceData if available
+      let estimate_time_hours = 24;
+      if (window.ServiceData && typeof window.ServiceData.getEstimateTime === "function") {
+        estimate_time_hours = window.ServiceData.getEstimateTime(code) || 24;
+      }
+      shippingService = { code, name, estimate_time_hours };
+    }
 
-    console.log("✅ Selected additional services:", selectedServices, "→ Tổng phí:", totalCost);
+    // Save to CreateOrderData
+    window.CreateOrderData = window.CreateOrderData || {};
+    window.CreateOrderData.otherServices = otherServices;
+    window.CreateOrderData.shippingService = shippingService;
+
+    console.log("✅ [CreateOrderData] otherServices:", otherServices);
+    console.log("✅ [CreateOrderData] shippingService:", shippingService);
 
     if (window.PricingCalculator && typeof window.PricingCalculator.updateOrderData === "function") {
       window.PricingCalculator.updateOrderData({
-        selectedServices: selectedServices,
-        additionalServicesCost: totalCost, // ✅ fix đúng biến
+        selectedServices: otherServices.map(s => s.code),
+        additionalServicesCost: otherServices.reduce((sum, s) => sum + s.totalPrice, 0),
       });
     }
 
@@ -94,3 +117,10 @@ window.Service = (function () {
 
   return { init };
 })();
+window.Service.getSelectedService = function() {
+  return {
+    shipping: window.CreateOrderData?.shippingService || {},
+    additional: window.CreateOrderData?.otherServices || [],
+  };
+};
+

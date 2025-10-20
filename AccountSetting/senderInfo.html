@@ -12,7 +12,7 @@
     background-color: #f8f9fa;
   }
 
-  .sender-card {
+  .receiver-card {
     border-radius: 10px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     transition: transform 0.15s ease;
@@ -53,17 +53,17 @@
     <button
       class="btn btn-outline-danger"
       data-bs-toggle="modal"
-      data-bs-target="#addSenderModal"
+      data-bs-target="#addReceiverModal"
     >
       <i class="bi bi-plus-circle"></i> Thêm người gửi
     </button>
   </div>
 
   <!-- Danh sách người gửi -->
-  <div class="row" id="sender-list">
+  <div class="row" id="receiver-list">
     <!-- Card 1 -->
     <div class="col-sm-12 col-md-6 mb-4">
-      <div class="card sender-card h-100">
+      <div class="card receiver-card h-100">
         <div
           class="card-header bg-light d-flex justify-content-between align-items-center"
         >
@@ -97,7 +97,7 @@
 
     <!-- Card 2 -->
     <div class="col-sm-12 col-md-6 mb-4">
-      <div class="card sender-card h-100">
+      <div class="card receiver-card h-100">
         <div
           class="card-header bg-light d-flex justify-content-between align-items-center"
         >
@@ -157,15 +157,15 @@
   <!-- Modal Thêm Người Gửi -->
   <div
     class="modal fade"
-    id="addSenderModal"
+    id="addReceiverModal"
     tabindex="-1"
-    aria-labelledby="addSenderLabel"
+    aria-labelledby="addReceiverLabel"
     aria-hidden="true"
   >
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addSenderLabel">Thêm địa chỉ lấy hàng</h5>
+          <h5 class="modal-title" id="addReceiverLabel">Thêm địa chỉ lấy hàng</h5>
           <button
             type="button"
             class="btn-close"
@@ -176,31 +176,31 @@
         <div class="modal-body">
           <form>
             <div class="mb-3">
-              <label for="senderName" class="form-label">Tên*</label>
+              <label for="receiverName" class="form-label">Tên*</label>
               <input
                 type="text"
                 class="form-control"
-                id="senderName"
+                id="receiverName"
                 placeholder="Nhập tên người gửi"
                 required
               />
             </div>
             <div class="mb-3">
-              <label for="senderPhone" class="form-label">Số điện thoại*</label>
+              <label for="receiverPhone" class="form-label">Số điện thoại*</label>
               <input
                 type="tel"
                 class="form-control"
-                id="senderPhone"
+                id="receiverPhone"
                 placeholder="Nhập số điện thoại"
                 required
               />
             </div>
             <div class="mb-3">
-              <label for="senderAddress" class="form-label">Địa chỉ*</label>
+              <label for="receiverAddress" class="form-label">Địa chỉ*</label>
               <input
                 type="text"
                 class="form-control"
-                id="senderAddress"
+                id="receiverAddress"
                 placeholder="Số nhà, tên đường, phường, quận, thành phố"
                 required
               />

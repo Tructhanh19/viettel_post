@@ -11,24 +11,20 @@ window.BranchData = (function () {
 
   // Public methods
   async function init() {
-    console.log("Initializing BranchData...");
     await loadBranchData();
   }
 
   // Load branch data from JSON file
   async function loadBranchData() {
     if (branchData) {
-      console.log("Branch data already loaded");
       return;
     }
 
     if (isLoading) {
-      console.log("Already loading branch data...");
       return;
     }
 
     isLoading = true;
-    console.log("Loading branch data from JSON...");
 
     try {
       // Try multiple possible paths
@@ -39,11 +35,8 @@ window.BranchData = (function () {
         response = await fetch("assets/data/branch.json");
       }
       
-      console.log("Branch data response status:", response.status);
-
       if (response.ok) {
         branchData = await response.json();
-        console.log("Branch data loaded:", branchData.length, "branches");
       } else {
         console.error("Failed to load branch data, status:", response.status);
       }
@@ -73,17 +66,13 @@ window.BranchData = (function () {
     );
   }
 
-  // Calculate distance between two addresses (mock implementation)
-  // In real app, you would use geocoding API
   function calculateDistance(address1, address2) {
-    // Mock calculation - returns random distance for demo
-    // In production, use Google Maps Distance Matrix API or similar
     return (Math.random() * 3 + 0.3).toFixed(3);
   }
 
-  // Get nearest branches based on sender address
-  function getNearestBranches(senderAddress, limit = 10) {
-    if (!branchData || !senderAddress) return [];
+  // Get nearest branches based on receiver address
+  function getNearestBranches(receiverAddress, limit = 10) {
+    if (!branchData || !receiverAddress) return [];
 
     const activeBranches = branchData.filter((branch) => branch.is_active);
 
@@ -97,7 +86,7 @@ window.BranchData = (function () {
 
       return {
         ...branch,
-        distance: calculateDistance(senderAddress, branchAddress),
+        distance: calculateDistance(receiverAddress, branchAddress),
       };
     });
 

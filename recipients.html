@@ -26,12 +26,9 @@
                         <div class="dropdown-container">
                             <select class="custom-select">
                                 <option>Danh sách người nhận</option>
-                                <option>Danh sách người gửi</option>
-                            </select>
+                                <option>Danh sách người gửi</option> </select>
                         </div>
-                        <input type="text" class="search-input" placeholder="Nhập tên/số điện thoại">
-                        <button class="btn btn-search">Tìm kiếm</button>
-                    </div>
+                        <input type="text" class="search-input" id="recipientSearchInput" placeholder="Nhập tên/số điện thoại"> <button class="btn btn-search" id="recipientSearchBtn">Tìm kiếm</button> </div>
 
                     <div class="table-responsive">
                         <table>
@@ -47,30 +44,29 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="6" class="no-data">Không có bản ghi nào</td>
+                                    <td colspan="6" class="no-data">Đang tải dữ liệu...</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <div class="pagination">
-                        <div class="records-per-page">
+                    <div class="pagination"> <div class="records-per-page">
                             <span>Bản Ghi Mỗi Trang</span>
                              <div class="dropdown-container small">
-                                <select class="custom-select">
-                                    <option>10</option>
-                                    <option>20</option>
-                                    <option>50</option>
+                                <select class="custom-select" id="itemsPerPageSelect">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
                                 </select>
                             </div>
                         </div>
                         <div class="page-info">
-                            <span>0 of 0</span>
+                            <span id="paginationInfo">0 of 0</span>
                             <div class="nav-arrows">
-                                <span>&lt;&lt;</span>
-                                <span>&lt;</span>
-                                <span>&gt;</span>
-                                <span>&gt;&gt;</span>
+                                <span id="firstPageBtn">&lt;&lt;</span>
+                                <span id="prevPageBtn">&lt;</span>
+                                <span id="nextPageBtn">&gt;</span>
+                                <span id="lastPageBtn">&gt;&gt;</span>
                             </div>
                         </div>
                     </div>
@@ -82,59 +78,271 @@
     <div id="addRecipientModal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Thêm mới thông tin khách hàng</h2>
-                <button class="close-btn" id="closeModalBtn">&times;</button>
+                <h2 id="modalTitle">Thêm mới thông tin khách hàng</h2> <button class="close-btn" id="closeModalBtn">&times;</button>
             </div>
             <div class="modal-body">
-                <form>
-                    <div class="form-group">
+                 <input type="hidden" id="editRecipientId" value="">
+                <form id="recipientForm"> <div class="form-group">
                         <label for="fullName" class="required">Họ tên</label>
-                        <input type="text" id="fullName" name="fullName">
-                    </div>
+                        <input type="text" id="fullName" name="fullName" required> </div>
                     <div class="form-group">
                         <label for="phoneNumber" class="required">Số điện thoại</label>
-                        <input type="text" id="phoneNumber" name="phoneNumber">
-                    </div>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" required pattern="^(0[3|5|7|8|9])[0-9]{8}$" title="Nhập SĐT Việt Nam gồm 10 chữ số (vd: 0912345678)"> </div>
                     <div class="form-group">
-                        <label for="address" class="required">Địa chỉ</label>
-                        <input type="text" id="address" name="address" placeholder="Nhập địa chỉ chi tiết (số nhà/tên đường, phường/xã, quận/huyện, tỉnh/thành...)">
-                        <small class="form-helper">Nếu bạn không tìm thấy địa chỉ gợi ý, <a href="#">nhấn vào đây</a> để tự nhập</small>
+                        <label for="address" class="required">Địa chỉ chi tiết</label> <input type="text" id="address" name="address" placeholder="Nhập số nhà, tên đường..." required>
+                        <small class="form-helper">Chỉ nhập số nhà/tên đường. Tỉnh/Huyện/Xã sẽ chọn bên dưới.</small>
                     </div>
-                </form>
+                     <div class="form-group">
+                         <label for="provinceSelect">Tỉnh/Thành phố</label>
+                         <select id="provinceSelect" required><option value="">-- Chọn Tỉnh/TP --</option></select>
+                     </div>
+                      <div class="form-group">
+                         <label for="districtSelect">Quận/Huyện</label>
+                         <select id="districtSelect" required><option value="">-- Chọn Quận/Huyện --</option></select>
+                     </div>
+                      <div class="form-group">
+                         <label for="wardSelect">Phường/Xã</label>
+                         <select id="wardSelect" required><option value="">-- Chọn Phường/Xã --</option></select>
+                     </div>
+                     </form>
             </div>
             <div class="modal-footer">
-    <button class="btn btn-secondary" id="cancelBtn">Thoát</button>
-    <button class="btn btn-danger" id="submitRecipientBtn">Thêm mới</button>
-</div>
-
+                <button class="btn btn-secondary" id="cancelBtn">Thoát</button>
+                <button type="submit" form="recipientForm" class="btn btn-danger" id="submitRecipientBtn">Thêm mới</button> </div>
         </div>
     </div>
 
     <script>
-        const addNewBtn = document.getElementById('addNewBtn');
-        const modal = document.getElementById('addRecipientModal');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
+        // --- BỌC TẤT CẢ VÀO HÀM INIT ---
+        function initRecipientsPage() {
+            console.log("🚀 Initializing Recipients Page UI..."); // Thêm log
 
-        function showModal() {
-            modal.classList.remove('hidden');
-        }
+            // --- Get Elements (safer inside init) ---
+            const addNewBtn = document.getElementById('addNewBtn');
+            const modal = document.getElementById('addRecipientModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const submitBtn = document.getElementById('submitRecipientBtn');
+            const recipientForm = document.getElementById('recipientForm'); // Get form
+            const modalTitle = document.getElementById('modalTitle');
+            const editRecipientIdInput = document.getElementById('editRecipientId');
 
-        function hideModal() {
-            modal.classList.add('hidden');
-        }
+            // Form fields
+            const fullNameInput = document.getElementById("fullName");
+            const phoneInput = document.getElementById("phoneNumber");
+            const addressInput = document.getElementById("address");
+             // Address selectors (Add these later when implementing address logic)
+            // const provinceSelect = document.getElementById('provinceSelect');
+            // const districtSelect = document.getElementById('districtSelect');
+            // const wardSelect = document.getElementById('wardSelect');
 
-        addNewBtn.addEventListener('click', showModal);
-        closeModalBtn.addEventListener('click', hideModal);
-        cancelBtn.addEventListener('click', hideModal);
+            // Search elements
+            const searchInput = document.getElementById('recipientSearchInput');
+            const searchBtn = document.getElementById('recipientSearchBtn');
 
-        modal.addEventListener('click', function(event) {
-            if (event.target === this) {
-                hideModal();
+            // Pagination elements (Add later if implementing pagination)
+            // const itemsPerPageSelect = document.getElementById('itemsPerPageSelect');
+            // const paginationInfo = document.getElementById('paginationInfo');
+            // const firstPageBtn = document.getElementById('firstPageBtn');
+            // const prevPageBtn = document.getElementById('prevPageBtn');
+            // const nextPageBtn = document.getElementById('nextPageBtn');
+            // const lastPageBtn = document.getElementById('lastPageBtn');
+
+
+            // --- Modal Logic ---
+            function showModal(isEdit = false, recipientData = null) {
+                if (!modal || !modalTitle || !submitBtn || !editRecipientIdInput) return; // Guard clause
+
+                editRecipientIdInput.value = isEdit && recipientData ? recipientData.id : ''; // Set ID for editing
+                modalTitle.textContent = isEdit ? 'Cập nhật thông tin người nhận' : 'Thêm mới thông tin người nhận';
+                submitBtn.textContent = isEdit ? 'Cập nhật' : 'Thêm mới';
+
+                if (isEdit && recipientData) {
+                    // Pre-fill form for editing
+                    if(fullNameInput) fullNameInput.value = recipientData.name || '';
+                    if(phoneInput) phoneInput.value = recipientData.phone || '';
+                    if(addressInput) addressInput.value = recipientData.address?.detail || '';
+                    // TODO: Pre-select Province/District/Ward based on recipientData.address
+                    console.log("TODO: Pre-select address dropdowns for editing");
+                } else {
+                    // Reset form for adding new
+                    if (recipientForm) recipientForm.reset(); // Reset the form itself
+                     editRecipientIdInput.value = ''; // Ensure ID is clear
+                    // TODO: Reset address dropdowns
+                     console.log("TODO: Reset address dropdowns for adding");
+                }
+                modal.classList.remove('hidden');
             }
-        });
+
+            function hideModal() {
+                if (modal) {
+                     modal.classList.add('hidden');
+                     if (recipientForm) recipientForm.reset(); // Reset form on hide
+                     if (editRecipientIdInput) editRecipientIdInput.value = ''; // Clear edit ID
+                }
+            }
+
+            // --- Attach Modal Listeners ---
+            if (addNewBtn) {
+                 addNewBtn.removeEventListener('click', handleAddNewClick); // Prevent duplicates
+                 addNewBtn.addEventListener('click', handleAddNewClick);
+            }
+             function handleAddNewClick() { showModal(false); } // Wrapper to call showModal for adding
+
+            if (closeModalBtn) {
+                 closeModalBtn.removeEventListener('click', hideModal);
+                 closeModalBtn.addEventListener('click', hideModal);
+            }
+            if (cancelBtn) {
+                 cancelBtn.removeEventListener('click', hideModal);
+                 cancelBtn.addEventListener('click', hideModal);
+            }
+            if (modal) {
+                // Close modal on overlay click
+                 modal.removeEventListener('click', handleOverlayClick);
+                 modal.addEventListener('click', handleOverlayClick);
+            }
+             function handleOverlayClick(event) {
+                 if (event.target === modal) {
+                     hideModal();
+                 }
+             }
+
+            // --- Attach Form Submit Listener ---
+            if (recipientForm) {
+                recipientForm.removeEventListener('submit', handleFormSubmit); // Prevent duplicates
+                recipientForm.addEventListener('submit', handleFormSubmit);
+            }
+
+            async function handleFormSubmit(event) {
+                event.preventDefault(); // Prevent default form submission
+                 console.log("Form submitted...");
+                const isEdit = !!editRecipientIdInput.value; // Check if it's an edit operation
+                const recipientId = editRecipientIdInput.value;
+
+                // --- Basic Validation (HTML5 required should handle most) ---
+                if (!fullNameInput?.value || !phoneInput?.value || !addressInput?.value /*|| !provinceSelect?.value || !districtSelect?.value || !wardSelect?.value */) {
+                     alert("⚠️ Vui lòng điền đầy đủ các trường bắt buộc.");
+                     return;
+                }
+                 // Additional JS validation if needed (e.g., phone format again)
+                 const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
+                 if (!phoneRegex.test(phoneInput.value)) {
+                     alert("⚠️ Số điện thoại không hợp lệ.");
+                     return;
+                 }
+                // --- End Validation ---
+
+
+                const recipientData = {
+                    name: fullNameInput.value.trim(),
+                    phone: phoneInput.value.trim(),
+                    address: {
+                        detail: addressInput.value.trim(),
+                        // --- TODO: Get actual values from address dropdowns ---
+                        province: "TP. Hồ Chí Minh", // Placeholder provinceSelect.value,
+                        district: "Quận 1", // Placeholder districtSelect.value,
+                        ward: "Phường Bến Nghé" // Placeholder wardSelect.value
+                        // --- End TODO ---
+                    },
+                    tags: [] // Default empty tags for now
+                };
+
+                 console.log("Data to send:", recipientData, "Is Edit:", isEdit, "ID:", recipientId);
+
+
+                 // --- Call API function from RecipientsData module ---
+                 if (window.RecipientsData) {
+                     try {
+                         if (isEdit) {
+                             // --- Call Update Function (Needs to be added to RecipientsData module) ---
+                             if (typeof window.RecipientsData.updateRecipient === 'function') {
+                                 console.log(`🚀 Calling RecipientsData.updateRecipient(${recipientId})...`);
+                                 await window.RecipientsData.updateRecipient(recipientId, recipientData);
+                                 hideModal(); // Close modal on success
+                             } else {
+                                 console.error("❌ RecipientsData.updateRecipient function not available!");
+                                 alert("Lỗi: Chức năng cập nhật chưa sẵn sàng.");
+                             }
+                             // --- End Call Update ---
+                         } else {
+                              // --- Call Create Function ---
+                             if (typeof window.RecipientsData.createRecipient === 'function') {
+                                 console.log("🚀 Calling RecipientsData.createRecipient()...");
+                                 await window.RecipientsData.createRecipient(recipientData); // Pass data object
+                                 hideModal(); // Close modal on success
+                             } else {
+                                 console.error("❌ RecipientsData.createRecipient function not available!");
+                                 alert("Lỗi: Chức năng thêm mới chưa sẵn sàng.");
+                             }
+                              // --- End Call Create ---
+                         }
+                     } catch (error) {
+                         // Error handling is likely done within the module's functions,
+                         // but you could add specific UI feedback here if needed.
+                         console.error("Error during form submission:", error);
+                     }
+                 } else {
+                     console.error("❌ RecipientsData module not available for form submission!");
+                     alert("Lỗi: Không thể gửi dữ liệu.");
+                 }
+            }
+
+
+             // --- Attach Search Listeners ---
+             if (searchBtn) {
+                 searchBtn.removeEventListener('click', handleSearch);
+                 searchBtn.addEventListener('click', handleSearch);
+             }
+             if (searchInput) {
+                 searchInput.removeEventListener('keypress', handleSearchEnter);
+                 searchInput.addEventListener('keypress', handleSearchEnter);
+             }
+
+             function handleSearch() {
+                 const searchTerm = searchInput ? searchInput.value.trim() : '';
+                 console.log(`🔍 Searching for: "${searchTerm}"`);
+                 // --- TODO: Call filter/search function in RecipientsData and re-render table ---
+                 if (window.RecipientsData && typeof window.RecipientsData.searchAndRender === 'function') {
+                    // window.RecipientsData.searchAndRender(searchTerm);
+                     console.log("TODO: Implement searchAndRender in RecipientsData module");
+                     alert(`Chức năng tìm kiếm "${searchTerm}" chưa được cài đặt.`);
+                 } else {
+                      console.error("❌ RecipientsData.searchAndRender function not available!");
+                 }
+             }
+             function handleSearchEnter(event) {
+                 if (event.key === 'Enter') {
+                     handleSearch();
+                 }
+             }
+
+            // --- TODO: Attach Pagination Listeners ---
+            console.log("TODO: Add event listeners for pagination controls.");
+
+            // --- Call function to load initial data ---
+            if (window.RecipientsData && typeof window.RecipientsData.loadRecipients === 'function') {
+                console.log("🚀 Calling RecipientsData.loadRecipients() from recipients.html");
+                window.RecipientsData.loadRecipients(); // Load data when page initializes
+            } else {
+                console.error("❌ RecipientsData or RecipientsData.loadRecipients not available!");
+                const tbody = document.querySelector(".main-content tbody");
+                if(tbody) tbody.innerHTML = `<tr><td colspan="6" class="no-data">Lỗi tải mô-đun dữ liệu người nhận.</td></tr>`;
+            }
+
+            console.log("✅ Recipients page UI Initialized"); // Thêm log cuối
+        } // --- End initRecipientsPage ---
+
+
+        // --- LOGIC KIỂM TRA ĐỂ GỌI HÀM INIT ---
+        if (document.readyState === "loading") {
+            // Chạy độc lập: Đợi DOM load xong
+            document.addEventListener("DOMContentLoaded", initRecipientsPage);
+        } else {
+            // Chạy qua index.html (DOM đã load): Chạy ngay!
+            initRecipientsPage();
+        }
     </script>
     <script src="assets/api/config.js"></script>
-<script src="assets/api/recipients-data.js"></script>
-</body>
+    <script src="assets/api/recipients-data.js"></script> </body>
 </html>

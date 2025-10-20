@@ -155,89 +155,184 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    // --- BỌC TẤT CẢ VÀO HÀM INIT ---
+    function initCargoValuePage() {
+        console.log("🚀 Initializing Cargo Value Page UI..."); // Thêm log
         // --- Tab Switching ---
         const tabLinks = document.querySelectorAll('.tab-link');
         const tabContents = document.querySelectorAll('.tab-content');
         tabLinks.forEach(link => {
-            link.addEventListener('click', e => {
-                e.preventDefault();
-                const targetTab = link.dataset.tab;
-                tabLinks.forEach(l => l.classList.remove('active'));
-                tabContents.forEach(c => c.classList.remove('active'));
-                link.classList.add('active');
-                document.getElementById(targetTab).classList.add('active');
-            });
+            // Xóa listener cũ trước khi thêm mới (đề phòng gọi init nhiều lần)
+            link.removeEventListener('click', handleTabClick);
+            link.addEventListener('click', handleTabClick);
         });
+
+        function handleTabClick(e) {
+             e.preventDefault();
+             const targetTab = e.currentTarget.dataset.tab;
+             console.log(` Mở tab: ${targetTab}`);
+             tabLinks.forEach(l => l.classList.remove('active'));
+             tabContents.forEach(c => c.classList.remove('active'));
+             e.currentTarget.classList.add('active');
+             const targetContent = document.getElementById(targetTab);
+             if (targetContent) targetContent.classList.add('active');
+        }
+
 
         // --- Date Picker cho tab Thống kê (phức tạp) ---
-        flatpickr("#statsDatePicker", {
-            mode: "range", dateFormat: "d/m/Y", locale: "vn",
-            defaultDate: ["25/09/2025", "08/10/2025"], showMonths: 2,
-            onReady: function(selectedDates, dateStr, instance) {
-                const shortcuts = document.createElement('div');
-                shortcuts.className = 'flatpickr-shortcuts';
-                const options = ['Hôm nay', 'Hôm qua', '7 ngày trước', '14 ngày trước', '30 ngày trước', 'Tháng này', 'Tháng trước'];
-                
-                options.forEach(optionText => {
-                    const btn = document.createElement('button');
-                    btn.className = 'shortcut-button';
-                    if (optionText === '14 ngày trước') btn.classList.add('active');
-                    btn.textContent = optionText;
-                    btn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const now = new Date();
-                        let start = new Date(now), end = new Date(now);
-                        switch(optionText) {
-                            case 'Hôm nay': break;
-                            case 'Hôm qua':
-                                start.setDate(now.getDate() - 1);
-                                end.setDate(now.getDate() - 1);
-                                break;
-                            case '7 ngày trước': start.setDate(now.getDate() - 6); break;
-                            case '14 ngày trước': start.setDate(now.getDate() - 13); break;
-                            case '30 ngày trước': start.setDate(now.getDate() - 29); break;
-                            case 'Tháng này':
-                                start = new Date(now.getFullYear(), now.getMonth(), 1);
-                                end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-                                break;
-                            case 'Tháng trước':
-                                start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                                end = new Date(now.getFullYear(), now.getMonth(), 0);
-                                break;
-                        }
-                        document.querySelectorAll('.shortcut-button').forEach(b => b.classList.remove('active'));
-                        e.target.classList.add('active');
-                        instance.setDate([start, end]);
-                    });
-                    shortcuts.appendChild(btn);
-                });
-                instance.calendarContainer.prepend(shortcuts);
-            }
-        });
+         // Thêm kiểm tra nếu flatpickr tồn tại
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr("#statsDatePicker", {
+                mode: "range", dateFormat: "d/m/Y", locale: "vn",
+                defaultDate: ["25/09/2025", "08/10/2025"], showMonths: 2,
+                onReady: function(selectedDates, dateStr, instance) {
+                    console.log("📅 Flatpickr #statsDatePicker sẵn sàng.");
+                    const shortcuts = document.createElement('div');
+                    shortcuts.className = 'flatpickr-shortcuts';
+                    const options = ['Hôm nay', 'Hôm qua', '7 ngày trước', '14 ngày trước', '30 ngày trước', 'Tháng này', 'Tháng trước'];
 
-        // --- Date Picker cho tab Dòng tiền (đơn giản) ---
-        document.querySelectorAll('.date-range-picker-simple').forEach(picker => {
-            flatpickr(picker, { 
-                mode: "range", 
-                dateFormat: "d/m/Y", 
-                locale: "vn",
-                defaultDate: ["01/10/2025", "08/10/2025"]
+                    options.forEach(optionText => {
+                        const btn = document.createElement('button');
+                        btn.className = 'shortcut-button';
+                        // Đặt active dựa trên defaultDate (14 ngày trước)
+                        const fourteenDaysAgo = new Date();
+                        fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 13);
+                        const defaultStart = new Date("2025-09-25"); // Lấy từ defaultDate
+                         // So sánh ngày thay vì toàn bộ Date object
+                        if (optionText === '14 ngày trước' &&
+                            fourteenDaysAgo.toDateString() === defaultStart.toDateString() ) {
+                               btn.classList.add('active');
+                        }
+
+                        btn.textContent = optionText;
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const now = new Date();
+                            let start = new Date(now), end = new Date(now);
+                            // ... (switch case giữ nguyên) ...
+                             switch(optionText) {
+                                case 'Hôm nay': break;
+                                case 'Hôm qua': start.setDate(now.getDate() - 1); end.setDate(now.getDate() - 1); break;
+                                case '7 ngày trước': start.setDate(now.getDate() - 6); break;
+                                case '14 ngày trước': start.setDate(now.getDate() - 13); break;
+                                case '30 ngày trước': start.setDate(now.getDate() - 29); break;
+                                case 'Tháng này': start = new Date(now.getFullYear(), now.getMonth(), 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); break;
+                                case 'Tháng trước': start = new Date(now.getFullYear(), now.getMonth() - 1, 1); end = new Date(now.getFullYear(), now.getMonth(), 0); break;
+                            }
+                            // Bỏ active tất cả nút shortcut khác
+                            shortcuts.querySelectorAll('.shortcut-button').forEach(b => b.classList.remove('active'));
+                            e.target.classList.add('active'); // Đặt active cho nút được click
+                            instance.setDate([start, end], true); // Cập nhật lịch và trigger onChange
+                        });
+                        shortcuts.appendChild(btn);
+                    });
+                     // Chèn shortcuts vào đầu calendarContainer
+                    if (instance.calendarContainer) {
+                        instance.calendarContainer.prepend(shortcuts);
+                    } else {
+                        console.warn("⚠️ calendarContainer không tìm thấy để chèn shortcuts.");
+                    }
+                },
+                // --- THÊM onChange ĐỂ GỌI LẠI API ---
+                onChange: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length === 2) {
+                        console.log("🗓️ Date range #statsDatePicker thay đổi, tải lại CargoData...");
+                         // Bỏ active tất cả nút shortcut khi chọn ngày thủ công
+                         instance.calendarContainer.querySelectorAll('.shortcut-button').forEach(b => b.classList.remove('active'));
+
+                        if (window.CargoData && typeof window.CargoData.init === 'function') {
+                             // Gọi lại init để load lại dữ liệu với ngày mới
+                             window.CargoData.init();
+                        } else {
+                            console.error("❌ CargoData.init không khả dụng khi date range thay đổi!");
+                        }
+                    }
+                }
+                 // --- KẾT THÚC onChange ---
             });
-        });
+
+             // --- Date Picker cho tab Dòng tiền (đơn giản) ---
+             document.querySelectorAll('.date-range-picker-simple').forEach(picker => {
+                 flatpickr(picker, {
+                     mode: "range",
+                     dateFormat: "d/m/Y",
+                     locale: "vn",
+                     defaultDate: ["01/10/2025", "08/10/2025"],
+                     // --- THÊM onChange (nếu cần load lại phần biểu đồ dòng tiền) ---
+                     onChange: function(selectedDates, dateStr, instance) {
+                         if (selectedDates.length === 2) {
+                             const from = selectedDates[0].toISOString();
+                             const to = selectedDates[1].toISOString();
+                             console.log(`🗓️ Date range simple picker thay đổi: ${from} to ${to}. TODO: Tải lại dữ liệu biểu đồ nếu cần.`);
+                             // Ví dụ: if (window.SomeChartModule) { window.SomeChartModule.loadChartData(from, to); }
+                         }
+                     }
+                     // --- KẾT THÚC onChange ---
+                 });
+             });
+
+        } else {
+            console.error("❌ Thư viện Flatpickr chưa được tải!");
+             // Có thể hiển thị thông báo lỗi cho người dùng
+             const datePickers = document.querySelectorAll('#statsDatePicker, .date-range-picker-simple');
+             datePickers.forEach(dp => dp.placeholder = "Lỗi tải lịch");
+        }
+
 
         // --- Clickable Table Rows ---
         const allTableRows = document.querySelectorAll('.table-card tbody tr');
         allTableRows.forEach(row => {
-            row.addEventListener('click', function() {
-                allTableRows.forEach(r => r.classList.remove('active-row'));
-                this.classList.add('active-row');
-            });
+             row.removeEventListener('click', handleTableRowClick); // Xóa listener cũ
+             row.addEventListener('click', handleTableRowClick); // Thêm listener mới
         });
-    });
+
+         function handleTableRowClick(event) {
+             console.log("🖱️ Clicked table row");
+             // Bỏ active tất cả các dòng trong cùng bảng hoặc tất cả các bảng
+             const parentTable = event.currentTarget.closest('table');
+             parentTable.querySelectorAll('tbody tr').forEach(r => r.classList.remove('active-row'));
+             // Đặt active cho dòng được click
+             event.currentTarget.classList.add('active-row');
+         }
+
+        // --- GỌI HÀM TẢI DỮ LIỆU TỪ cargo-data.js ---
+        if (window.CargoData && typeof window.CargoData.init === 'function') {
+            console.log("🚀 Calling CargoData.init() from cargo-value.html");
+            window.CargoData.init(); // Tải dữ liệu ban đầu
+        } else {
+            console.error("❌ CargoData or CargoData.init not available!");
+             // Hiển thị lỗi trên UI
+             showGenericErrorUI("Lỗi: Không thể tải module dữ liệu dòng tiền.");
+        }
+        // --- KẾT THÚC GỌI HÀM TẢI DỮ LIỆU ---
+
+        console.log("✅ Cargo Value Page UI Initialized"); // Thêm log cuối
+    } // --- End initCargoValuePage ---
+
+    // --- Helper function to show generic errors ---
+     function showGenericErrorUI(message) {
+         const mainContainer = document.querySelector('main');
+         if (!mainContainer) return;
+         let errorDiv = mainContainer.querySelector('.generic-error-ui');
+         if (!errorDiv) {
+             errorDiv = document.createElement('div');
+             errorDiv.className = 'generic-error-ui';
+             errorDiv.style.cssText = "background:#f8d7da; color:#721c24; padding:10px 15px; margin:15px 0; text-align:center; border:1px solid #f5c6cb; border-radius: 6px; font-size:14px;";
+             mainContainer.prepend(errorDiv); // Thêm vào đầu thẻ main
+         }
+         errorDiv.textContent = message;
+     }
+
+
+    // --- LOGIC KIỂM TRA ĐỂ GỌI HÀM INIT ---
+    if (document.readyState === "loading") {
+        // Chạy độc lập: Đợi DOM load xong
+        document.addEventListener("DOMContentLoaded", initCargoValuePage);
+    } else {
+        // Chạy qua index.html (DOM đã load): Chạy ngay!
+        initCargoValuePage();
+    }
     </script>
     <script src="assets/api/config.js"></script>
-<script src="assets/api/cargo-data.js"></script>
-
-</body>
+    <script src="assets/api/cargo-data.js"></script> </body>
 </html>

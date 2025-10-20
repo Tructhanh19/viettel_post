@@ -10,9 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="assets/api/config.js"></script>
-<script src="assets/api/revenue-data.js"></script>
-</head>
+    </head>
 <body>
     <div class="container">
         <div class="header">
@@ -49,8 +47,7 @@
 
         <div class="report-content">
             <div class="chart-container">
-                <div class="chart-placeholder"></div>
-            </div>
+                <div class="chart-placeholder"></div> </div>
             <div class="table-container">
                 <div class="note">* Thông tin này chỉ mang tính chất tham khảo.</div>
                 <table>
@@ -65,12 +62,11 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td colspan="5" class="empty-row">Không có bản ghi nào</td>
+                            <td colspan="5" class="empty-row">Đang tải dữ liệu...</td>
                         </tr>
                     </tbody>
                 </table>
-                <div class="pagination">
-                    <span>Bản Ghi Mỗi Trang</span>
+                <div class="pagination"> <span>Bản Ghi Mỗi Trang</span>
                     <select class="page-size-select"><option>10</option><option>20</option></select>
                     <span>0 of 0</span>
                     <div class="nav-arrows">
@@ -88,75 +84,144 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
     <script>
-        flatpickr("#date-range-picker", {
-            mode: "range",
-            dateFormat: "d/m/Y",
-            locale: "vn",
-            defaultDate: ["25/09/2025", "08/10/2025"],
-            monthSelectorType: 'static', 
-            showMonths: 2,
-            onReady: function(selectedDates, dateStr, instance) {
-                const shortcuts = document.createElement('div');
-                shortcuts.className = 'flatpickr-shortcuts';
-                const options = ['Hôm nay', 'Hôm qua', '7 ngày trước', '14 ngày trước', '30 ngày trước', 'Tháng này', 'Tháng trước'];
-                
-                options.forEach(optionText => {
-                    const btn = document.createElement('button');
-                    btn.className = 'shortcut-button';
-                    btn.textContent = optionText;
-                    if(optionText === '14 ngày trước') btn.classList.add('active');
-                    
-                    btn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        
-                        const now = new Date();
-                        let start, end;
-                        
-                        switch(optionText) {
-                            case 'Hôm nay':
-                                start = new Date(now);
-                                end = new Date(now);
-                                break;
-                            case 'Hôm qua':
-                                start = new Date(now);
-                                start.setDate(now.getDate() - 1);
-                                end = new Date(start);
-                                break;
-                            case '7 ngày trước':
-                                end = new Date(now);
-                                start = new Date(now);
-                                start.setDate(now.getDate() - 6);
-                                break;
-                            case '14 ngày trước':
-                                end = new Date(now);
-                                start = new Date(now);
-                                start.setDate(now.getDate() - 13);
-                                break;
-                            case '30 ngày trước':
-                                end = new Date(now);
-                                start = new Date(now);
-                                start.setDate(now.getDate() - 29);
-                                break;
-                            case 'Tháng này':
-                                start = new Date(now.getFullYear(), now.getMonth(), 1);
-                                end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-                                break;
-                            case 'Tháng trước':
-                                start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                                end = new Date(now.getFullYear(), now.getMonth(), 0);
-                                break;
+        // --- BỌC TẤT CẢ VÀO HÀM INIT ---
+        function initRevenuePage() {
+            console.log("🚀 Initializing Revenue Page UI..."); // Thêm log
+
+             // Helper function to show errors within this page context
+             function showRevenuePageError(message) {
+                 const container = document.querySelector('.report-content'); // Target main content area
+                 if (!container) return;
+                 let errorDiv = container.querySelector('.revenue-page-error');
+                 if (!errorDiv) {
+                     errorDiv = document.createElement('div');
+                     errorDiv.className = 'revenue-page-error'; // Specific class
+                     errorDiv.style.cssText = "background:#f8d7da; color:#721c24; padding:10px 15px; margin:15px 0; text-align:center; border:1px solid #f5c6cb; border-radius: 6px; font-size:14px;";
+                     container.prepend(errorDiv); // Add to the top
+                 }
+                 errorDiv.textContent = `❌ ${message}`;
+             }
+
+
+            // --- Initialize Flatpickr ---
+             if (typeof flatpickr !== 'undefined') {
+                flatpickr("#date-range-picker", {
+                    mode: "range",
+                    dateFormat: "d/m/Y",
+                    locale: "vn",
+                    defaultDate: ["25/09/2025", "08/10/2025"], // Default range
+                    monthSelectorType: 'static',
+                    showMonths: 2,
+                    onReady: function(selectedDates, dateStr, instance) {
+                        console.log("📅 Flatpickr #date-range-picker sẵn sàng.");
+                        const shortcuts = document.createElement('div');
+                        shortcuts.className = 'flatpickr-shortcuts';
+                        const options = ['Hôm nay', 'Hôm qua', '7 ngày trước', '14 ngày trước', '30 ngày trước', 'Tháng này', 'Tháng trước'];
+
+                        options.forEach(optionText => {
+                            const btn = document.createElement('button');
+                            btn.className = 'shortcut-button';
+                            btn.textContent = optionText;
+                             // Set initial active based on defaultDate (approx 14 days ago)
+                            if(optionText === '14 ngày trước') btn.classList.add('active');
+
+                            btn.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                const now = new Date();
+                                let start, end;
+                                // ... (switch case for date ranges - keep original logic) ...
+                                switch(optionText) {
+                                    case 'Hôm nay': start = new Date(now); end = new Date(now); break;
+                                    case 'Hôm qua': start = new Date(now); start.setDate(now.getDate() - 1); end = new Date(start); break;
+                                    case '7 ngày trước': end = new Date(now); start = new Date(now); start.setDate(now.getDate() - 6); break;
+                                    case '14 ngày trước': end = new Date(now); start = new Date(now); start.setDate(now.getDate() - 13); break;
+                                    case '30 ngày trước': end = new Date(now); start = new Date(now); start.setDate(now.getDate() - 29); break;
+                                    case 'Tháng này': start = new Date(now.getFullYear(), now.getMonth(), 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); break;
+                                    case 'Tháng trước': start = new Date(now.getFullYear(), now.getMonth() - 1, 1); end = new Date(now.getFullYear(), now.getMonth(), 0); break;
+                                }
+
+                                shortcuts.querySelectorAll('.shortcut-button').forEach(b => b.classList.remove('active')); // Deactivate others
+                                e.target.classList.add('active'); // Activate clicked
+                                instance.setDate([start, end], true); // Set date and trigger onChange
+                            });
+                            shortcuts.appendChild(btn);
+                        });
+
+                         // Prepend shortcuts if container exists
+                        if(instance.calendarContainer) {
+                             instance.calendarContainer.prepend(shortcuts);
+                        } else {
+                             console.warn("⚠️ calendarContainer không tìm thấy để chèn shortcuts.");
                         }
-                        
-                        document.querySelectorAll('.shortcut-button').forEach(b => b.classList.remove('active'));
-                        e.target.classList.add('active');
-                        instance.setDate([start, end]);
-                    });
-                    shortcuts.appendChild(btn);
-                });
-                
-                instance.calendarContainer.prepend(shortcuts);
-            }
-        });
+
+                        // --- CALL DATA MODULE FUNCTIONS ---
+                        if (window.RevenueData) {
+                             console.log("🚀 Calling RevenueData initialization methods from onReady...");
+                             if (typeof window.RevenueData.initializeDatePickerListener === 'function') {
+                                 window.RevenueData.initializeDatePickerListener(); // Setup listener for future changes
+                             } else {
+                                  console.error("❌ RevenueData.initializeDatePickerListener not available!");
+                                  showRevenuePageError("Lỗi: Không thể theo dõi thay đổi ngày.");
+                             }
+                             if (typeof window.RevenueData.initialLoad === 'function') {
+                                 window.RevenueData.initialLoad(); // Load initial data
+                             } else {
+                                  console.error("❌ RevenueData.initialLoad not available!");
+                                   showRevenuePageError("Lỗi: Không thể tải dữ liệu doanh thu ban đầu.");
+                             }
+                        } else {
+                             console.error("❌ RevenueData module not available!");
+                             showRevenuePageError("Lỗi nghiêm trọng: Module dữ liệu doanh thu không tải được.");
+                              // Display error in table as well
+                              const tbody = document.querySelector(".table-container tbody");
+                              if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="empty-row">Lỗi tải module dữ liệu</td></tr>`;
+                        }
+                        // --- END CALL DATA MODULE FUNCTIONS ---
+
+                    }, // end onReady
+                    // Add onChange here as well, in case onReady doesn't fire correctly on dynamic load
+                     onChange: function(selectedDates, dateStr, instance) {
+                         // Check if the listener was already added by initializeDatePickerListener in RevenueData
+                         // This simple check prevents double-loading if both run.
+                         // A more robust solution might involve flags.
+                         const hasRevenueListener = instance.config.onChange.some(fn => fn.name === 'bound loadRevenueStatistics'); // Check if specific listener exists
+                         if (!hasRevenueListener && selectedDates.length === 2) {
+                              console.warn("⚠️ onChange called before RevenueData listener was attached. Calling initialLoad.");
+                              if (window.RevenueData && typeof window.RevenueData.initialLoad === 'function') {
+                                 // Call initialLoad directly as a fallback if the main listener wasn't attached yet
+                                 window.RevenueData.initialLoad();
+                              }
+                         } else if (!hasRevenueListener) {
+                              console.log("onChange called but RevenueData listener not found or date range incomplete.");
+                         }
+                         // Deactivate shortcuts when manually selecting dates
+                         instance.calendarContainer.querySelectorAll('.shortcut-button').forEach(b => b.classList.remove('active'));
+                     }
+                }); // end flatpickr init
+             } else {
+                  console.error("❌ Thư viện Flatpickr chưa được tải!");
+                  showRevenuePageError("Lỗi: Không thể khởi tạo bộ chọn ngày.");
+                  const datePickerInput = document.getElementById('date-range-picker');
+                  if (datePickerInput) datePickerInput.placeholder = "Lỗi tải lịch";
+             }
+
+
+            // --- TODO: Initialize other UI elements like filters or pagination listeners ---
+             console.log("TODO: Initialize filters and pagination listeners for Revenue page.");
+
+
+             console.log("✅ Revenue page UI Initialized"); // Log end of UI init
+        } // --- End initRevenuePage ---
+
+        // --- LOGIC KIỂM TRA ĐỂ GỌI HÀM INIT ---
+        if (document.readyState === "loading") {
+            // Chạy độc lập: Đợi DOM load xong
+            document.addEventListener("DOMContentLoaded", initRevenuePage);
+        } else {
+            // Chạy qua index.html (DOM đã load): Chạy ngay!
+            initRevenuePage();
+        }
     </script>
-</body>
+     <script src="assets/api/config.js"></script>
+    <script src="assets/api/revenue-data.js"></script> </body>
 </html>

@@ -330,11 +330,6 @@
           <div class="service-price">${formatCurrency(price)}</div>
           <div class="service-time">${time} ngày</div>
         </div>
-        <div class="service-action">
-          <button class="create-order-btn" onclick="alert('Chức năng tạo đơn đang được phát triển')">
-            Tạo đơn
-          </button>
-        </div>
       `;
 
       servicesContainer.appendChild(serviceCard);

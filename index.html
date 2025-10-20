@@ -13,6 +13,7 @@
     />
     <link rel="stylesheet" href="assets/style.css" />
     <link rel="stylesheet" href="assets/notifications.css" />
+    <link rel="stylesheet" href="assets/branch-search.css" />
   </head>
   <body>
     <!-- HEADER -->
@@ -44,7 +45,9 @@
                 <a href="#"><i class="fas fa-cog"></i> Cài đặt tài khoản</a>
               </li>
               <li>
-                <a href="#" id="logoutBtn" data-logout><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                <a href="#" id="logoutBtn" data-logout
+                  ><i class="fas fa-sign-out-alt"></i> Đăng xuất</a
+                >
               </li>
             </ul>
           </div>
@@ -121,7 +124,11 @@
               <i class="dropdown-icon fas fa-chevron-down"></i>
             </a>
             <ul class="submenu">
-              <li><a href="#">Tra cứu bưu cục</a></li>
+              <li>
+                <a href="#" data-content="branch-search.html"
+                  >Tra cứu bưu cục</a
+                >
+              </li>
               <li>
                 <a
                   href="#"

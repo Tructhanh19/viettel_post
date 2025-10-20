@@ -68,16 +68,16 @@
           />
         </div>
 
-        <select class="form-select w-auto">
-          <option selected>Tất cả trạng thái</option>
-          <option>Đang hoạt động</option>
-          <option>Ngừng hoạt động</option>
+        <select class="form-select w-auto" id="statusFilter">
+          <option selected value="all">Tất cả trạng thái</option>
+          <option value="active">Đang hoạt động</option>
+          <option value="inactive">Ngừng hoạt động</option>
         </select>
 
         <button
           class="btn btn-danger ms-auto"
           data-bs-toggle="modal"
-          data-bs-target="#addEmployeeModal"
+          data-bs-target="#addStaffModal"
         >
           <i class="bi bi-plus-circle"></i> Thêm nhân viên
         </button>
@@ -97,79 +97,8 @@
               <th>Thao tác</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>Hà Minh Tiến</td>
-              <td>minhtien@gmail.com</td>
-              <td>0888639023</td>
-              <td>Nhân viên bán hàng</td>
-              <td>178 Gò Dầu, P.Tân Sơn Nhì, Q.Tân Phú, TP.Hồ Chí Minh</td>
-              <td>01/10/2025</td>
-              <td>
-                <span class="badge bg-success">Đang hoạt động</span>
-              </td>
-              <td>
-                <i
-                  class="bi bi-pencil-square text-primary me-2"
-                  style="cursor: pointer"
-                ></i>
-                <i class="bi bi-trash text-danger" style="cursor: pointer"></i>
-              </td>
-            </tr>
-            <tr>
-              <td>Nguyễn Văn A</td>
-              <td>vana@example.com</td>
-              <td>0905123456</td>
-              <td>Nhân viên</td>
-              <td>25 Nguyễn Thị Minh Khai, Quận 1, TP.HCM</td>
-              <td>05/09/2025</td>
-              <td>
-                <span class="badge bg-success">Đang hoạt động</span>
-              </td>
-              <td>
-                <i
-                  class="bi bi-pencil-square text-primary me-2"
-                  style="cursor: pointer"
-                ></i>
-                <i class="bi bi-trash text-danger" style="cursor: pointer"></i>
-              </td>
-            </tr>
-            <tr>
-              <td>Trần Thị B</td>
-              <td>tranthib@example.com</td>
-              <td>0987654321</td>
-              <td>Kế toán</td>
-              <td>199 Lý Thường Kiệt, P.15, Q.11, TP.HCM</td>
-              <td>18/08/2025</td>
-              <td>
-                <span class="badge bg-warning text-dark">Tạm ngừng</span>
-              </td>
-              <td>
-                <i
-                  class="bi bi-pencil-square text-primary me-2"
-                  style="cursor: pointer"
-                ></i>
-                <i class="bi bi-trash text-danger" style="cursor: pointer"></i>
-              </td>
-            </tr>
-            <tr>
-              <td>Phạm Văn C</td>
-              <td>phamc@example.com</td>
-              <td>0912345678</td>
-              <td>Nhân viên giao hàng</td>
-              <td>489 Trường Chinh, P.Tân Thới Nhất, Q.12, TP.HCM</td>
-              <td>20/07/2025</td>
-              <td>
-                <span class="badge bg-danger">Ngừng hoạt động</span>
-              </td>
-              <td>
-                <i
-                  class="bi bi-pencil-square text-primary me-2"
-                  style="cursor: pointer"
-                ></i>
-                <i class="bi bi-trash text-danger" style="cursor: pointer"></i>
-              </td>
-            </tr>
+          <tbody id="staffTableBody">
+            <!-- Dữ liệu sẽ được load từ API -->
           </tbody>
         </table>
       </div>
@@ -229,7 +158,7 @@
               <th>Thao tác</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="leaderTableBody">
             <tr>
               <td colspan="5" class="empty-state">
                 <img
@@ -271,15 +200,15 @@
     <!-- Modal Thêm Nhân Viên -->
     <div
       class="modal fade"
-      id="addEmployeeModal"
+      id="addStaffModal"
       tabindex="-1"
-      aria-labelledby="addEmployeeLabel"
+      aria-labelledby="addStaffLabel"
       aria-hidden="true"
     >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="addEmployeeLabel">THÊM NHÂN VIÊN</h5>
+            <h5 class="modal-title" id="addStaffLabel">THÊM NHÂN VIÊN</h5>
             <button
               type="button"
               class="btn-close"
@@ -290,14 +219,14 @@
           <div class="modal-body">
             <form>
               <div class="mb-3">
-                <label for="employeeContact" class="form-label"
-                  >Số điện thoại/Email</label
+                <label for="staffEmailPhone" class="form-label"
+                  >ID nhân viên</label
                 >
                 <input
                   type="text"
                   class="form-control"
-                  id="employeeContact"
-                  placeholder="Nhập số điện thoại hoặc email"
+                  id="staffEmailPhone"
+                  placeholder="Nhập ID của nhân viên"
                 />
               </div>
               <div class="mb-3">

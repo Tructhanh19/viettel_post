@@ -24,12 +24,16 @@ window.AddressData = (function () {
 
     try {
       // Try relative path first, then fallback to root path
-      let data63Response = await fetch("../assets/data/address_63.json").catch(() => null);
+      let data63Response = await fetch("../assets/data/address_63.json").catch(
+        () => null
+      );
       if (!data63Response || !data63Response.ok) {
         data63Response = await fetch("assets/data/address_63.json");
       }
 
-      let data34Response = await fetch("../assets/data/address_34.json").catch(() => null);
+      let data34Response = await fetch("../assets/data/address_34.json").catch(
+        () => null
+      );
       if (!data34Response || !data34Response.ok) {
         data34Response = await fetch("assets/data/address_34.json");
       }
@@ -83,7 +87,7 @@ window.AddressData = (function () {
     // Convert to string for comparison
     const codeStr = String(provinceCode);
     const province = addressData63.find((p) => String(p.code) === codeStr);
-    
+
     if (!province || !province.districts) return [];
 
     return province.districts.map((district) => ({
@@ -118,10 +122,14 @@ window.AddressData = (function () {
     if (!addressData63) return [];
 
     // So sánh bằng chuỗi để tránh lỗi kiểu dữ liệu
-    const province = addressData63.find((p) => String(p.code) === String(provinceCode));
+    const province = addressData63.find(
+      (p) => String(p.code) === String(provinceCode)
+    );
     if (!province || !province.districts) return [];
 
-    const district = province.districts.find((d) => String(d.code) === String(districtCode));
+    const district = province.districts.find(
+      (d) => String(d.code) === String(districtCode)
+    );
     if (!district || !district.wards) return [];
 
     return district.wards.map((ward) => ({
@@ -222,29 +230,47 @@ window.AddressData = (function () {
     const savedDistrict = localStorage.getItem('receiver_district');
     const savedWard = localStorage.getItem('receiver_ward');
     if (savedProvince) {
-      const provinceOption = provinceSelect.querySelector(`.dropdown-option[data-value='${savedProvince}']`);
+      const provinceOption = provinceSelect.querySelector(
+        `.dropdown-option[data-value='${savedProvince}']`
+      );
       if (provinceOption) {
-        provinceOption.classList.add('selected');
-        provinceSelect.querySelector('.select-display span').textContent = provinceOption.textContent;
-        provinceSelect.querySelector('.select-display').classList.add('has-value');
+        provinceOption.classList.add("selected");
+        provinceSelect.querySelector(".select-display span").textContent =
+          provinceOption.textContent;
+        provinceSelect
+          .querySelector(".select-display")
+          .classList.add("has-value");
         // Load districts
         const districts = getDistricts63(parseInt(savedProvince));
         populateSelectOptions(districtSelect, districts, "Quận/Huyện");
         if (savedDistrict) {
-          const districtOption = districtSelect.querySelector(`.dropdown-option[data-value='${savedDistrict}']`);
+          const districtOption = districtSelect.querySelector(
+            `.dropdown-option[data-value='${savedDistrict}']`
+          );
           if (districtOption) {
-            districtOption.classList.add('selected');
-            districtSelect.querySelector('.select-display span').textContent = districtOption.textContent;
-            districtSelect.querySelector('.select-display').classList.add('has-value');
+            districtOption.classList.add("selected");
+            districtSelect.querySelector(".select-display span").textContent =
+              districtOption.textContent;
+            districtSelect
+              .querySelector(".select-display")
+              .classList.add("has-value");
             // Load wards
-            const wards = getWards63(parseInt(savedProvince), parseInt(savedDistrict));
+            const wards = getWards63(
+              parseInt(savedProvince),
+              parseInt(savedDistrict)
+            );
             populateSelectOptions(wardSelect, wards, "Xã/Phường");
             if (savedWard) {
-              const wardOption = wardSelect.querySelector(`.dropdown-option[data-value='${savedWard}']`);
+              const wardOption = wardSelect.querySelector(
+                `.dropdown-option[data-value='${savedWard}']`
+              );
               if (wardOption) {
-                wardOption.classList.add('selected');
-                wardSelect.querySelector('.select-display span').textContent = wardOption.textContent;
-                wardSelect.querySelector('.select-display').classList.add('has-value');
+                wardOption.classList.add("selected");
+                wardSelect.querySelector(".select-display span").textContent =
+                  wardOption.textContent;
+                wardSelect
+                  .querySelector(".select-display")
+                  .classList.add("has-value");
               }
             }
           }
@@ -263,12 +289,19 @@ window.AddressData = (function () {
         populateSelectOptions(districtSelect, districts, "Quận/Huyện");
         resetSelect(wardSelect, "Xã/Phường");
         // Cập nhật trạng thái selected cho option mới
-        provinceSelect.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
-        const selectedOpt = provinceSelect.querySelector(`.dropdown-option[data-value='${provinceCode}']`);
+        provinceSelect
+          .querySelectorAll(".dropdown-option")
+          .forEach((opt) => opt.classList.remove("selected"));
+        const selectedOpt = provinceSelect.querySelector(
+          `.dropdown-option[data-value='${provinceCode}']`
+        );
         if (selectedOpt) {
-          selectedOpt.classList.add('selected');
-          provinceSelect.querySelector('.select-display span').textContent = selectedOpt.textContent;
-          provinceSelect.querySelector('.select-display').classList.add('has-value');
+          selectedOpt.classList.add("selected");
+          provinceSelect.querySelector(".select-display span").textContent =
+            selectedOpt.textContent;
+          provinceSelect
+            .querySelector(".select-display")
+            .classList.add("has-value");
         }
         // Trigger custom event
         provinceSelect.dispatchEvent(
@@ -296,12 +329,19 @@ window.AddressData = (function () {
           const wards = getWards63(provinceCode, districtCode);
           populateSelectOptions(wardSelect, wards, "Xã/Phường");
           // Cập nhật trạng thái selected cho option mới
-          districtSelect.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
-          const selectedOpt = districtSelect.querySelector(`.dropdown-option[data-value='${districtCode}']`);
+          districtSelect
+            .querySelectorAll(".dropdown-option")
+            .forEach((opt) => opt.classList.remove("selected"));
+          const selectedOpt = districtSelect.querySelector(
+            `.dropdown-option[data-value='${districtCode}']`
+          );
           if (selectedOpt) {
-            selectedOpt.classList.add('selected');
-            districtSelect.querySelector('.select-display span').textContent = selectedOpt.textContent;
-            districtSelect.querySelector('.select-display').classList.add('has-value');
+            selectedOpt.classList.add("selected");
+            districtSelect.querySelector(".select-display span").textContent =
+              selectedOpt.textContent;
+            districtSelect
+              .querySelector(".select-display")
+              .classList.add("has-value");
           }
           // Trigger custom event
           districtSelect.dispatchEvent(
@@ -317,12 +357,19 @@ window.AddressData = (function () {
       if (e.detail && e.detail.value) {
         localStorage.setItem('receiver_ward', e.detail.value);
         // Cập nhật trạng thái selected cho option mới
-        wardSelect.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
-        const selectedOpt = wardSelect.querySelector(`.dropdown-option[data-value='${e.detail.value}']`);
+        wardSelect
+          .querySelectorAll(".dropdown-option")
+          .forEach((opt) => opt.classList.remove("selected"));
+        const selectedOpt = wardSelect.querySelector(
+          `.dropdown-option[data-value='${e.detail.value}']`
+        );
         if (selectedOpt) {
-          selectedOpt.classList.add('selected');
-          wardSelect.querySelector('.select-display span').textContent = selectedOpt.textContent;
-          wardSelect.querySelector('.select-display').classList.add('has-value');
+          selectedOpt.classList.add("selected");
+          wardSelect.querySelector(".select-display span").textContent =
+            selectedOpt.textContent;
+          wardSelect
+            .querySelector(".select-display")
+            .classList.add("has-value");
         }
       }
     });
@@ -371,8 +418,12 @@ window.AddressData = (function () {
 
   // Setup both cascading systems
   function setupAddressCascading() {
-    const useNewAddressCheckbox = document.getElementById("useNewAddressToggle");
-    const isNewAddressMode = useNewAddressCheckbox ? useNewAddressCheckbox.checked : false;
+    const useNewAddressCheckbox = document.getElementById(
+      "useNewAddressToggle"
+    );
+    const isNewAddressMode = useNewAddressCheckbox
+      ? useNewAddressCheckbox.checked
+      : false;
 
     // Always setup both systems
     setupNormalAddressCascading();
@@ -392,24 +443,29 @@ window.AddressData = (function () {
 
     // Add toggle event handler
     if (useNewAddressCheckbox) {
-      useNewAddressCheckbox.addEventListener("change", function() {
+      useNewAddressCheckbox.addEventListener("change", function () {
         const normalMode = document.getElementById("normalAddressMode");
         const newMode = document.getElementById("newAddressMode");
 
         if (this.checked) {
           if (normalMode) normalMode.style.display = "none";
           if (newMode) newMode.style.display = "block";
-          
+
           // Re-populate provinces for new mode
-          const newProvinceSelect = document.getElementById("newProvinceSelect");
+          const newProvinceSelect =
+            document.getElementById("newProvinceSelect");
           if (newProvinceSelect) {
             const provinces = getProvinces34();
-            populateSelectOptions(newProvinceSelect, provinces, "Tỉnh/Thành phố");
+            populateSelectOptions(
+              newProvinceSelect,
+              provinces,
+              "Tỉnh/Thành phố"
+            );
           }
         } else {
           if (normalMode) normalMode.style.display = "block";
           if (newMode) newMode.style.display = "none";
-          
+
           // Re-populate provinces for normal mode
           const provinceSelect = document.getElementById("provinceSelect");
           if (provinceSelect) {
@@ -464,5 +520,10 @@ window.AddressData = (function () {
     getProvinces34,
     getDistricts34,
     getWards34,
+    getProvinceByCode,
+    getDistrictByCode,
+    getWardByCode,
+    populateSelectOptions,
+    resetSelect,
   };
 })();

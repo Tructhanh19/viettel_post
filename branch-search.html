@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tra cứu bưu cục - Viettel Post</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/style.css" />
+    <link rel="stylesheet" href="assets/branch-search.css" />
+  </head>
+  <body>
+    <div class="container-fluid p-4">
+      <div class="branch-search-section">
+        <h2><i class="fas fa-map-marker-alt"></i> TRA CỨU BƯU CỤC</h2>
+        <div class="search-container">
+          <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input
+              type="text"
+              id="searchInput"
+              class="form-control"
+              placeholder="Tìm kiếm bưu cục theo tên, địa chỉ, tỉnh/thành phố..."
+            />
+          </div>
+        </div>
+        <div class="filters-container">
+          <div class="filter-group">
+            <label for="provinceFilter">Tỉnh/Thành phố:</label>
+            <select id="provinceFilter" class="form-select">
+              <option value="">Tất cả</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="statusFilter">Trạng thái:</label>
+            <select id="statusFilter" class="form-select">
+              <option value="">Tất cả</option>
+              <option value="true">Hoạt động</option>
+              <option value="false">Tạm ngừng</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="itemsPerPage">Số mục/trang:</label>
+            <select id="itemsPerPage" class="form-select">
+              <option value="12">12</option>
+              <option value="24">24</option>
+              <option value="48">48</option>
+            </select>
+          </div>
+        </div>
+        <div id="loadingSpinner" class="loading-spinner" style="display: none">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>Đang tải danh sách bưu cục...</p>
+        </div>
+        <div id="noResults" class="no-results" style="display: none">
+          <i class="fas fa-search"></i>
+          <p>Không tìm thấy bưu cục nào phù hợp với từ khóa tìm kiếm.</p>
+        </div>
+        <div id="branchList" class="branch-list"></div>
+        <div id="pagination" class="pagination-container" style="display: none">
+          <div class="pagination-info">
+            Hiển thị <span id="startItem">1</span> -
+            <span id="endItem">12</span> của <span id="totalItems">0</span> bưu
+            cục
+          </div>
+          <div class="pagination-controls">
+            <button
+              id="prevPage"
+              class="btn btn-outline-primary btn-sm"
+              disabled
+            >
+              <i class="fas fa-chevron-left"></i> Trước
+            </button>
+            <div id="pageNumbers" class="page-numbers"></div>
+            <button id="nextPage" class="btn btn-outline-primary btn-sm">
+              Sau <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="assets/config.js"></script>
+    <script src="assets/utils.js"></script>
+    <script src="assets/branch-search.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Load branch data
+      fetch("assets/data/branch.json")
+        .then((response) => response.json())
+        .then((data) => {
+          window.branchDataRaw = data;
+          console.log("Branch data loaded:", data.length, "branches");
+          initBranchSearch();
+        })
+        .catch((error) => console.error("Error loading branch data:", error));
+    </script>
+  </body>
+</html>

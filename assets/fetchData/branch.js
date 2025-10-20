@@ -14,7 +14,7 @@ window.BranchData = (function () {
     await loadBranchData();
   }
 
-  // Load branch data from JSON file
+  // Load branch data from embedded data
   async function loadBranchData() {
     if (branchData) {
       return;
@@ -38,7 +38,7 @@ window.BranchData = (function () {
       if (response.ok) {
         branchData = await response.json();
       } else {
-        console.error("Failed to load branch data, status:", response.status);
+        console.error("Branch data not available");
       }
     } catch (error) {
       console.error("Error loading branch data:", error);
@@ -62,7 +62,9 @@ window.BranchData = (function () {
         branch.is_active &&
         branch.address &&
         branch.address.province &&
-        branch.address.province.toLowerCase().includes(provinceName.toLowerCase())
+        branch.address.province
+          .toLowerCase()
+          .includes(provinceName.toLowerCase())
     );
   }
 
@@ -105,10 +107,11 @@ window.BranchData = (function () {
 
     return searchData.filter((branch) => {
       const name = branch.name?.toLowerCase() || "";
-      const address =
-        `${branch.address?.street || ""} ${branch.address?.ward || ""} ${
-          branch.address?.district || ""
-        } ${branch.address?.province || ""}`.toLowerCase();
+      const address = `${branch.address?.street || ""} ${
+        branch.address?.ward || ""
+      } ${branch.address?.district || ""} ${
+        branch.address?.province || ""
+      }`.toLowerCase();
 
       return name.includes(lowerKeyword) || address.includes(lowerKeyword);
     });
@@ -121,9 +124,9 @@ window.BranchData = (function () {
       branch.address?.street,
       branch.address?.ward,
       branch.address?.district,
-      branch.address?.province
-    ].filter(part => part && part.trim() !== "");
-    
+      branch.address?.province,
+    ].filter((part) => part && part.trim() !== "");
+
     const address = addressParts.join(", ");
 
     return {

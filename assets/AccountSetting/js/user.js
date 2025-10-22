@@ -234,7 +234,9 @@
       }
     }
 
+    const userId = window.API_CONFIG.getUserId();
     try {
+      editingUserId = userId;
       if (isEditing) {
         // Update existing profile
         const profileDataWithIndex = {
@@ -253,7 +255,7 @@
       }
 
       // Refresh data
-      const userId = window.API_CONFIG.getUserId();
+      // const userId = window.API_CONFIG.getUserId();
       const user = await window.UserData.fetchUserById(userId);
       currentUsers = [user];
       applyFilters();

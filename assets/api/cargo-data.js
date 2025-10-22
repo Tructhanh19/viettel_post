@@ -98,7 +98,7 @@ window.CargoData = (function () {
       // --- Sửa lỗi Authorization header ---
       if (token) headers["Authorization"] = `Bearer ${token}`; // Luôn thêm "Bearer "
 
-      const url = `${API_BASE_URL}/orders/statistics/cargo-value?from=${from}&to=${to}`;
+      const url = `${API_BASE_URL}/orders/statistics/payment?from=${from}&to=${to}`;
       console.log("🔄 Fetching cargo stats:", url);
 
       const res = await fetch(url, { headers });
@@ -121,46 +121,6 @@ window.CargoData = (function () {
     } catch (err) {
       console.error("❌ Lỗi khi tải thống kê dòng tiền:", err);
       showErrorUI(`Không thể tải dữ liệu thống kê (${err.message}).`); // Hiển thị lỗi
-    }
-  }
-
-  /**
-   * -----------------------------------------------------
-   * 🔹 4️⃣ Lấy thông tin số dư tài khoản
-   * -----------------------------------------------------
-   */
-  async function loadCashBalance() {
-    let token;
-    try {
-      token = await waitForToken(); // Lấy token hợp lệ
-      const headers = { "Content-Type": "application/json" };
-       // --- Sửa lỗi Authorization header ---
-      if (token) headers["Authorization"] = `Bearer ${token}`; // Luôn thêm "Bearer "
-
-      const url = `${API_BASE_URL}/account/balance`; // Giả sử endpoint là /account/balance
-      console.log("🔄 Fetching cash balance:", url);
-
-      const res = await fetch(url, { headers });
-
-      // --- Xử lý lỗi chi tiết hơn ---
-       if (res.status === 401) {
-          console.error("❌ Lỗi 401 khi tải cash balance.");
-          return handle401(); // Gọi hàm xử lý 401
-      }
-      if (!res.ok) {
-           const errorText = await res.text();
-          console.error(`❌ HTTP ${res.status} khi tải cash balance:`, errorText);
-          throw new Error(`HTTP ${res.status}: ${errorText || res.statusText}`);
-      }
-       // --- Kết thúc xử lý lỗi ---
-
-
-      const data = await res.json();
-      console.log("✅ Cash balance:", data);
-      updateCashflowUI(data.result || data); // Xử lý trường hợp data có result wrapper
-    } catch (err) {
-      console.error("❌ Lỗi khi tải thông tin số dư:", err);
-      showErrorUI(`Không thể tải thông tin số dư (${err.message}).`); // Hiển thị lỗi
     }
   }
 

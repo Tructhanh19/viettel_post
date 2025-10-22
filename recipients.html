@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh sách người nhận - Viettel Post</title>
+    <title>Danh sách Khách hàng - Viettel Post</title>
     <link rel="stylesheet" href="assets/recipients.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 </head>
 <body>
 
     <div class="container">
         <div class="main-content">
             <div class="content-header">
-                <h1 class="title">DANH SÁCH NGƯỜI NHẬN</h1>
+                <h1 class="title" id="pageTitle">DANH SÁCH NGƯỜI NHẬN</h1>
                 <button class="btn btn-primary" id="addNewBtn">
                     <span class="plus-icon">+</span> Thêm mới
                 </button>
@@ -24,20 +25,23 @@
                 <div class="card-body">
                     <div class="filters">
                         <div class="dropdown-container">
-                            <select class="custom-select">
-                                <option>Danh sách người nhận</option>
-                                <option>Danh sách người gửi</option> </select>
+                            <select class="custom-select" id="listTypeSelect">
+                                <option value="recipients">Danh sách người nhận</option>
+                                <option value="senders">Danh sách người gửi</option>
+                            </select>
                         </div>
-                        <input type="text" class="search-input" id="recipientSearchInput" placeholder="Nhập tên/số điện thoại"> <button class="btn btn-search" id="recipientSearchBtn">Tìm kiếm</button> </div>
+                        <input type="text" class="search-input" id="customerSearchInput" placeholder="Nhập tên/số điện thoại">
+                        <button class="btn btn-search" id="customerSearchBtn">Tìm kiếm</button>
+                    </div>
 
                     <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
                                     <th>STT</th>
-                                    <th>TÊN NGƯỜI NHẬN</th>
+                                    <th id="nameColumnHeader">TÊN NGƯỜI NHẬN</th>
                                     <th>THẺ TAG</th>
-                                    <th>TỶ LỆ GIAO THÀNH CÔNG</th>
+                                    <th id="successRateColumnHeader">TỶ LỆ GIAO THÀNH CÔNG</th>
                                     <th>ĐỊA CHỈ</th>
                                     <th>THAO TÁC</th>
                                 </tr>
@@ -50,7 +54,8 @@
                         </table>
                     </div>
 
-                    <div class="pagination"> <div class="records-per-page">
+                    <div class="pagination">
+                        <div class="records-per-page">
                             <span>Bản Ghi Mỗi Trang</span>
                              <div class="dropdown-container small">
                                 <select class="custom-select" id="itemsPerPageSelect">
@@ -75,274 +80,659 @@
         </div>
     </div>
 
-    <div id="addRecipientModal" class="modal-overlay hidden">
+    <div id="addCustomerModal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalTitle">Thêm mới thông tin khách hàng</h2> <button class="close-btn" id="closeModalBtn">&times;</button>
+                <h2 id="modalTitle">Thêm mới thông tin khách hàng</h2>
+                <button class="close-btn" id="closeModalBtn">&times;</button>
             </div>
             <div class="modal-body">
-                 <input type="hidden" id="editRecipientId" value="">
-                <form id="recipientForm"> <div class="form-group">
+                <input type="hidden" id="editCustomerId" value="">
+                <form id="customerForm">
+                    <div class="form-group">
                         <label for="fullName" class="required">Họ tên</label>
-                        <input type="text" id="fullName" name="fullName" required> </div>
+                        <input type="text" id="fullName" name="fullName" required>
+                    </div>
                     <div class="form-group">
                         <label for="phoneNumber" class="required">Số điện thoại</label>
-                        <input type="tel" id="phoneNumber" name="phoneNumber" required pattern="^(0[3|5|7|8|9])[0-9]{8}$" title="Nhập SĐT Việt Nam gồm 10 chữ số (vd: 0912345678)"> </div>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" required pattern="^(0[3|5|7|8|9])[0-9]{8}$" title="Nhập SĐT Việt Nam gồm 10 chữ số (vd: 0912345678)">
+                    </div>
                     <div class="form-group">
-                        <label for="address" class="required">Địa chỉ chi tiết</label> <input type="text" id="address" name="address" placeholder="Nhập số nhà, tên đường..." required>
+                        <label for="addressDetail" class="required">Địa chỉ chi tiết</label>
+                        <input type="text" id="addressDetail" name="addressDetail" placeholder="Nhập số nhà, tên đường..." required>
                         <small class="form-helper">Chỉ nhập số nhà/tên đường. Tỉnh/Huyện/Xã sẽ chọn bên dưới.</small>
                     </div>
                      <div class="form-group">
-                         <label for="provinceSelect">Tỉnh/Thành phố</label>
+                         <label for="provinceSelect" class="required">Tỉnh/Thành phố</label>
                          <select id="provinceSelect" required><option value="">-- Chọn Tỉnh/TP --</option></select>
                      </div>
                       <div class="form-group">
-                         <label for="districtSelect">Quận/Huyện</label>
-                         <select id="districtSelect" required><option value="">-- Chọn Quận/Huyện --</option></select>
+                         <label for="districtSelect" class="required">Quận/Huyện</label>
+                         <select id="districtSelect" required disabled><option value="">-- Chọn Quận/Huyện --</option></select>
                      </div>
                       <div class="form-group">
-                         <label for="wardSelect">Phường/Xã</label>
-                         <select id="wardSelect" required><option value="">-- Chọn Phường/Xã --</option></select>
+                         <label for="wardSelect" class="required">Phường/Xã</label>
+                         <select id="wardSelect" required disabled><option value="">-- Chọn Phường/Xã --</option></select>
                      </div>
-                     </form>
+                </form>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="cancelBtn">Thoát</button>
-                <button type="submit" form="recipientForm" class="btn btn-danger" id="submitRecipientBtn">Thêm mới</button> </div>
+                <button type="submit" form="customerForm" class="btn btn-danger" id="submitCustomerBtn">Thêm mới</button>
+            </div>
         </div>
     </div>
 
+    <script src="assets/api/config.js"></script>
     <script>
-        // --- BỌC TẤT CẢ VÀO HÀM INIT ---
-        function initRecipientsPage() {
-            console.log("🚀 Initializing Recipients Page UI..."); // Thêm log
-
-            // --- Get Elements (safer inside init) ---
-            const addNewBtn = document.getElementById('addNewBtn');
-            const modal = document.getElementById('addRecipientModal');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const cancelBtn = document.getElementById('cancelBtn');
-            const submitBtn = document.getElementById('submitRecipientBtn');
-            const recipientForm = document.getElementById('recipientForm'); // Get form
+        // --- Hàm showModal được đưa ra ngoài để logic Sửa gọi được ---
+        function showCustomerModal(isEdit = false, customerData = null) {
+            const modal = document.getElementById('addCustomerModal');
             const modalTitle = document.getElementById('modalTitle');
-            const editRecipientIdInput = document.getElementById('editRecipientId');
+            const submitBtn = document.getElementById('submitCustomerBtn');
+            const editCustomerIdInput = document.getElementById('editCustomerId');
+            const customerForm = document.getElementById('customerForm');
+            const listTypeSelect = document.getElementById('listTypeSelect');
 
-            // Form fields
+             // Form fields
             const fullNameInput = document.getElementById("fullName");
             const phoneInput = document.getElementById("phoneNumber");
-            const addressInput = document.getElementById("address");
-             // Address selectors (Add these later when implementing address logic)
-            // const provinceSelect = document.getElementById('provinceSelect');
-            // const districtSelect = document.getElementById('districtSelect');
-            // const wardSelect = document.getElementById('wardSelect');
+            const addressDetailInput = document.getElementById("addressDetail");
+            const provinceSelect = document.getElementById('provinceSelect');
+            const districtSelect = document.getElementById('districtSelect');
+            const wardSelect = document.getElementById('wardSelect');
 
-            // Search elements
-            const searchInput = document.getElementById('recipientSearchInput');
-            const searchBtn = document.getElementById('recipientSearchBtn');
+            if (!modal || !modalTitle || !submitBtn || !editCustomerIdInput || !customerForm) {
+                console.error("showCustomerModal: Missing modal elements!");
+                return;
+            }
 
-            // Pagination elements (Add later if implementing pagination)
-            // const itemsPerPageSelect = document.getElementById('itemsPerPageSelect');
-            // const paginationInfo = document.getElementById('paginationInfo');
-            // const firstPageBtn = document.getElementById('firstPageBtn');
-            // const prevPageBtn = document.getElementById('prevPageBtn');
-            // const nextPageBtn = document.getElementById('nextPageBtn');
-            // const lastPageBtn = document.getElementById('lastPageBtn');
+            editCustomerIdInput.value = isEdit && customerData ? customerData.id : '';
+            const currentListType = listTypeSelect ? listTypeSelect.value : 'recipients';
+            const actionText = isEdit ? 'Cập nhật' : 'Thêm mới';
+            const personTypeText = currentListType === 'senders' ? 'người gửi' : 'người nhận';
+            modalTitle.textContent = `${actionText} thông tin ${personTypeText}`;
+            submitBtn.textContent = actionText;
+
+            customerForm.reset();
+            if(districtSelect) { districtSelect.innerHTML = '<option value="">-- Chọn Quận/Huyện --</option>'; districtSelect.disabled = true; }
+            if(wardSelect) { wardSelect.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>'; wardSelect.disabled = true; }
+
+            if (isEdit && customerData) {
+                console.log("📝 Populating modal for edit:", customerData);
+                if(fullNameInput) fullNameInput.value = customerData.name || '';
+                if(phoneInput) phoneInput.value = customerData.phone || '';
+                if(addressDetailInput) addressDetailInput.value = customerData.address?.detail || customerData.address?.other || '';
+
+                // --- TODO: Logic điền dropdown địa chỉ khi sửa ---
+                 console.log("TODO: Pre-select address dropdowns for editing");
+                 // Ví dụ cơ bản (cần hàm findProvinceCodeByName, loadDistricts,... như trước):
+                 /*
+                 if (provinceSelect && customerData.address?.province) {
+                     const provinceCode = findProvinceCodeByName(customerData.address.province);
+                     if (provinceCode) {
+                         provinceSelect.value = provinceCode;
+                         loadDistricts(provinceCode).then(() => { // Giả định loadDistricts trả về Promise
+                             const districtCode = findDistrictCodeByName(provinceCode, customerData.address.district);
+                             if (districtCode) {
+                                 districtSelect.value = districtCode;
+                                 loadWards(districtCode).then(() => { // Giả định loadWards trả về Promise
+                                     const wardCode = findWardCodeByName(districtCode, customerData.address.ward);
+                                     if (wardCode) wardSelect.value = wardCode;
+                                 });
+                             }
+                         });
+                     }
+                 }
+                 */
+                // --- Kết thúc TODO ---
+
+            } else {
+                 console.log("✨ Resetting modal for add new.");
+                 editCustomerIdInput.value = '';
+                 // TODO: Load provinces if not already loaded and needed
+                 // if (provinceSelect && provinceSelect.options.length <= 1) loadProvinces();
+            }
+            modal.classList.remove('hidden');
+        }
 
 
-            // --- Modal Logic ---
-            function showModal(isEdit = false, recipientData = null) {
-                if (!modal || !modalTitle || !submitBtn || !editRecipientIdInput) return; // Guard clause
+        // --- BỌC PHẦN CÒN LẠI VÀ LOGIC DATA VÀO HÀM INIT ---
+        function initCustomerListPage() {
+            console.log("🚀 Initializing Customer List Page UI & Data Logic...");
 
-                editRecipientIdInput.value = isEdit && recipientData ? recipientData.id : ''; // Set ID for editing
-                modalTitle.textContent = isEdit ? 'Cập nhật thông tin người nhận' : 'Thêm mới thông tin người nhận';
-                submitBtn.textContent = isEdit ? 'Cập nhật' : 'Thêm mới';
+             // --- Kiểm tra API_CONFIG ---
+             if (!window.API_CONFIG) {
+                 console.error("❌ API_CONFIG chưa load! Ensure config.js is loaded before this script.");
+                 showGenericError("Lỗi cấu hình hệ thống.");
+                 return; // Dừng khởi tạo nếu thiếu config
+             }
+             const API_BASE_URL = window.API_CONFIG.BASE_URL;
+             const getAccessToken = window.API_CONFIG.getAccessToken;
+             // --- Kết thúc kiểm tra ---
 
-                if (isEdit && recipientData) {
-                    // Pre-fill form for editing
-                    if(fullNameInput) fullNameInput.value = recipientData.name || '';
-                    if(phoneInput) phoneInput.value = recipientData.phone || '';
-                    if(addressInput) addressInput.value = recipientData.address?.detail || '';
-                    // TODO: Pre-select Province/District/Ward based on recipientData.address
-                    console.log("TODO: Pre-select address dropdowns for editing");
-                } else {
-                    // Reset form for adding new
-                    if (recipientForm) recipientForm.reset(); // Reset the form itself
-                     editRecipientIdInput.value = ''; // Ensure ID is clear
-                    // TODO: Reset address dropdowns
-                     console.log("TODO: Reset address dropdowns for adding");
+
+            // --- Get Elements ---
+            const addNewBtn = document.getElementById('addNewBtn');
+            const modal = document.getElementById('addCustomerModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const customerForm = document.getElementById('customerForm');
+            const pageTitle = document.getElementById('pageTitle');
+            const nameColumnHeader = document.getElementById('nameColumnHeader');
+            const successRateHeader = document.getElementById('successRateColumnHeader');
+            const listTypeSelect = document.getElementById('listTypeSelect');
+            const searchInput = document.getElementById('customerSearchInput');
+            const searchBtn = document.getElementById('customerSearchBtn');
+            const editCustomerIdInput = document.getElementById('editCustomerId'); // Input ẩn ID
+            const tbody = document.querySelector(".main-content tbody"); // Lấy tbody ở đây
+
+            // Address selectors
+            const provinceSelect = document.getElementById('provinceSelect');
+            const districtSelect = document.getElementById('districtSelect');
+            const wardSelect = document.getElementById('wardSelect');
+
+            let currentData = []; // Store either recipients or senders locally
+            let currentListType = 'recipients'; // Default
+
+
+             // --- Helper: Get Valid Token ---
+            function getValidTokenWithBearer() {
+                let token = getAccessToken ? getAccessToken() : null;
+                if (!token) {
+                     console.warn("⚠️ Token không tồn tại.");
+                     // Có thể hiển thị thông báo lỗi hoặc chuyển hướng đăng nhập ở đây
+                     showAuthWarning(); // Hiển thị cảnh báo xác thực
+                     return null;
                 }
-                modal.classList.remove('hidden');
+                // Luôn đảm bảo có "Bearer "
+                return token.startsWith("Bearer ") ? token : `Bearer ${token}`;
             }
 
-            function hideModal() {
-                if (modal) {
-                     modal.classList.add('hidden');
-                     if (recipientForm) recipientForm.reset(); // Reset form on hide
-                     if (editRecipientIdInput) editRecipientIdInput.value = ''; // Clear edit ID
-                }
+            // --- Helper: Show Error UI ---
+            function showGenericError(message, areaSelector = ".table-responsive") {
+                const area = document.querySelector(areaSelector);
+                if (!area) return;
+                const oldError = area.querySelector('.customer-data-error');
+                if(oldError) oldError.remove();
+                const div = document.createElement("div");
+                div.className = "customer-data-error";
+                div.style.cssText = "background:#f8d7da; color:#721c24; padding:10px 15px; margin:15px; text-align:center; border:1px solid #f5c6cb; border-radius: 6px; font-size:14px;";
+                div.textContent = `❌ ${message}`;
+                area.prepend(div);
             }
-
-            // --- Attach Modal Listeners ---
-            if (addNewBtn) {
-                 addNewBtn.removeEventListener('click', handleAddNewClick); // Prevent duplicates
-                 addNewBtn.addEventListener('click', handleAddNewClick);
-            }
-             function handleAddNewClick() { showModal(false); } // Wrapper to call showModal for adding
-
-            if (closeModalBtn) {
-                 closeModalBtn.removeEventListener('click', hideModal);
-                 closeModalBtn.addEventListener('click', hideModal);
-            }
-            if (cancelBtn) {
-                 cancelBtn.removeEventListener('click', hideModal);
-                 cancelBtn.addEventListener('click', hideModal);
-            }
-            if (modal) {
-                // Close modal on overlay click
-                 modal.removeEventListener('click', handleOverlayClick);
-                 modal.addEventListener('click', handleOverlayClick);
-            }
-             function handleOverlayClick(event) {
-                 if (event.target === modal) {
-                     hideModal();
+             // --- Helper: Show Auth Warning ---
+             function showAuthWarning() {
+                 let warningDiv = document.querySelector(".auth-warning");
+                 if (!warningDiv) {
+                     warningDiv = document.createElement("div");
+                     warningDiv.className = "auth-warning";
+                     warningDiv.style.cssText = "background:#fff3cd; color:#856404; padding:15px; margin: 20px; text-align:center; border:1px solid #ffeeba; border-radius: 8px; font-weight: bold; position: sticky; top: 70px; z-index: 1001;";
+                     warningDiv.textContent = "⚠️ Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.";
+                     const mainContent = document.querySelector('.main-content');
+                     if(mainContent) mainContent.prepend(warningDiv); else document.body.prepend(warningDiv);
                  }
              }
 
+
+            // ==========================
+            // Load Danh sách (Chung)
+            // ==========================
+            async function loadData(listType = 'recipients') {
+                currentListType = listType;
+                console.log(`📦 Đang tải danh sách: ${listType}...`);
+                if (!tbody) { console.error("❌ Không tìm thấy tbody!"); return; }
+
+                const token = getValidTokenWithBearer();
+                 if (!token) { // Dừng nếu không có token
+                     showGenericError("Chưa đăng nhập hoặc phiên hết hạn. Không thể tải dữ liệu.");
+                     tbody.innerHTML = `<tr><td colspan="6" class="no-data">Lỗi xác thực</td></tr>`;
+                     return;
+                 }
+                const headers = { 'Content-Type': 'application/json', "Authorization": token };
+                const endpoint = listType === 'senders' ? '/users/get-all' : '/receivers/get-all';
+                const url = `${API_BASE_URL}${endpoint}`;
+
+                try {
+                    tbody.innerHTML = `<tr><td colspan="6" class="no-data">Đang tải...</td></tr>`;
+                    console.log(`🔄 Fetching ${listType} from:`, url);
+                    const res = await fetch(url, { headers });
+
+                    if (res.status === 401) {
+                        showAuthWarning();
+                        throw new Error("Lỗi 401 - Unauthorized");
+                    }
+                    if (!res.ok) {
+                         const errorText = await res.text();
+                         throw new Error(`HTTP ${res.status}: ${errorText || res.statusText}`);
+                    }
+
+                    const data = await res.json();
+                    const rawData = data.result || data.data || (Array.isArray(data) ? data : []);
+                    console.log(`✅ Loaded raw ${listType} data:`, rawData);
+
+                    // Chuẩn hóa dữ liệu
+                    if (listType === 'senders') {
+                        currentData = rawData.map(u => ({
+                            id: u._id?.$oid || u._id || u.id,
+                            name: u.name || "N/A",
+                            phone: u.phone_number || u.phoneNumber || "N/A",
+                            address: u.address || {},
+                            tags: [], success_rate: null
+                        }));
+                    } else { // recipients
+                        currentData = rawData.map(r => ({
+                            id: r._id?.$oid || r._id || r.id,
+                            name: r.name || "N/A",
+                            phone: r.phone || "N/A",
+                            address: r.address || {},
+                            tags: r.tags || [], success_rate: r.success_rate
+                        }));
+                    }
+                    renderTable(); // Cập nhật UI
+                } catch (err) {
+                    console.error(`❌ Lỗi tải danh sách ${listType}:`, err);
+                    if(tbody) tbody.innerHTML = `<tr><td colspan="6" class="no-data">Không thể tải dữ liệu (${err.message})</td></tr>`;
+                    showGenericError(`Không thể tải danh sách ${listType === 'senders' ? 'người gửi' : 'người nhận'}: ${err.message}`);
+                }
+            }
+
+            // ==========================
+            // Render Bảng (Chung)
+            // ==========================
+            function renderTable() {
+                 if (!tbody || !nameColumnHeader || !successRateHeader) return;
+
+                 nameColumnHeader.textContent = currentListType === 'senders' ? 'TÊN NGƯỜI GỬI' : 'TÊN NGƯỜI NHẬN';
+                 successRateHeader.style.display = currentListType === 'senders' ? 'none' : '';
+
+                tbody.innerHTML = "";
+                if (!currentData.length) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="no-data">Không có bản ghi nào</td></tr>`;
+                    return;
+                }
+
+                currentData.forEach((item, i) => {
+                    const addressParts = [
+                        item.address.detail || item.address.other,
+                        item.address.ward, item.address.district, item.address.province
+                    ].filter(Boolean);
+                    const addressString = addressParts.length > 0 ? addressParts.join(', ') : "—";
+                    const tagHTML = item.tags?.map(t => `<span class="tag">${t.name || 'Tag'}</span>`).join(" ") || "—";
+
+                    const tr = document.createElement("tr");
+                    tr.setAttribute('data-customer-id', item.id);
+                    tr.innerHTML = `
+                        <td>${i + 1}</td>
+                        <td>${item.name}</td>
+                        <td>${tagHTML}</td>
+                        <td style="display: ${currentListType === 'senders' ? 'none' : ''};">
+                           ${item.success_rate !== undefined && item.success_rate !== null ? Number(item.success_rate).toFixed(1) + '%' : 'N/A'}
+                        </td>
+                        <td>${addressString}</td>
+                        <td>
+                            <button class="btn btn-edit btn-sm" data-id="${item.id}"><i class="fas fa-edit"></i> Sửa</button>
+                            <button class="btn btn-danger btn-sm btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i> Xoá</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                 addTableActionListeners();
+                 console.log(` Bảng ${currentListType} đã được render.`);
+            }
+
+            // ==========================
+            // Gắn Listeners cho nút Sửa/Xoá
+            // ==========================
+            function addTableActionListeners() {
+                if (!tbody) return;
+                tbody.querySelectorAll('.btn-delete').forEach(button => {
+                     button.removeEventListener('click', handleDeleteClick);
+                     button.addEventListener('click', handleDeleteClick);
+                });
+                tbody.querySelectorAll('.btn-edit').forEach(button => {
+                    button.removeEventListener('click', handleEditClick);
+                    button.addEventListener('click', handleEditClick);
+                });
+            }
+
+            // Handler Xoá
+            async function handleDeleteClick(event) { /* ... giữ nguyên, gọi deleteCustomer ... */
+                const button = event.currentTarget;
+                const customerId = button.dataset.id;
+                if (!customerId) return;
+                const personTypeText = currentListType === 'senders' ? 'người gửi' : 'người nhận';
+                if (confirm(`Bạn chắc chắn muốn xoá ${personTypeText} này (ID: ${customerId})?`)) {
+                     button.disabled = true; button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; // Loading icon
+                     await deleteCustomer(customerId);
+                     // Nút sẽ tự biến mất khi bảng render lại, không cần bật lại
+                }
+            }
+
+             // Handler Sửa (Mở modal)
+            function handleEditClick(event) { /* ... giữ nguyên, gọi showCustomerModal ... */
+                const customerId = event.currentTarget.dataset.id;
+                const customer = currentData.find(c => c.id === customerId);
+                if (customer) {
+                    console.log(`✏️ Edit ${currentListType}:`, customer);
+                    showCustomerModal(true, customer); // Gọi hàm global đã expose
+                } else {
+                     console.error(`❌ Không tìm thấy ${currentListType} với ID ${customerId} để sửa.`);
+                     alert("Lỗi: Không tìm thấy thông tin khách hàng.");
+                }
+            }
+
+
+            // ==========================
+            // Thêm mới Khách hàng (Chung)
+            // ==========================
+            async function createCustomer(customerData) { /* ... giữ nguyên ... */
+                console.log(`➕ Creating new ${currentListType}...`, customerData);
+                const token = getValidTokenWithBearer();
+                if (!token) return Promise.reject("Chưa đăng nhập");
+
+                let url, payload = { ...customerData };
+                if (currentListType === 'senders') {
+                    url = `${API_BASE_URL}/users/insert`; // CẦN XÁC NHẬN ENDPOINT NÀY
+                    // Cần điều chỉnh payload cho API user
+                    payload.username = customerData.phone; // Giả định
+                    payload.password = "123456"; // Giả định
+                    payload.phone_number = customerData.phone;
+                    delete payload.phone; delete payload.tags;
+                    console.warn("Payload cho /users/insert CẦN ĐƯỢC KIỂM TRA!", payload);
+                } else { url = `${API_BASE_URL}/receivers/insert`; }
+
+                const headers = { "Content-Type": "application/json", "Authorization": token };
+
+                try {
+                    console.log(`📤 Sending create request to: ${url}`);
+                    const res = await fetch(url, { method: "POST", headers, body: JSON.stringify(payload) });
+                    if (!res.ok) { const txt = await res.text(); throw new Error(`HTTP ${res.status}: ${txt || res.statusText}`); }
+                    const result = await res.json();
+                    const createdData = result.result || result.data || result;
+                    console.log(`✅ ${currentListType} created:`, createdData);
+                    await loadData(currentListType); // Tải lại
+                    alert(`✅ Đã thêm ${currentListType === 'senders' ? 'người gửi' : 'người nhận'} mới thành công!`);
+                    return createdData;
+                } catch (err) {
+                    console.error(`❌ Lỗi khi thêm ${currentListType}:`, err);
+                    alert(`⚠️ Thêm ${currentListType === 'senders' ? 'người gửi' : 'người nhận'} thất bại: ${err.message}`);
+                    throw err;
+                }
+            }
+
+            // ==========================
+            // Xoá Khách hàng (Chung)
+            // ==========================
+            async function deleteCustomer(id) { /* ... giữ nguyên ... */
+                console.log(`➖ Deleting ${currentListType} with ID: ${id}`);
+                const token = getValidTokenWithBearer();
+                 if (!token) return Promise.reject("Chưa đăng nhập");
+
+                const endpoint = currentListType === 'senders' ? `/users/delete/${id}` : `/receivers/delete/${id}`; // CẦN XÁC NHẬN ENDPOINT USER
+                const url = `${API_BASE_URL}${endpoint}`;
+                const headers = { "Authorization": token };
+
+                try {
+                    console.log(`📤 Sending delete request to: ${url}`);
+                    const res = await fetch(url, { method: "DELETE", headers });
+                     if (res.status === 401) { showAuthWarning(); throw new Error("Lỗi 401"); }
+                    if (!res.ok) { const txt = await res.text(); throw new Error(`HTTP ${res.status}: ${txt || res.statusText}`); }
+                    console.log(`✅ ${currentListType} deleted successfully:`, id);
+                    await loadData(currentListType); // Tải lại
+                    alert(`✅ Đã xoá ${currentListType === 'senders' ? 'người gửi' : 'người nhận'} (ID: ${id}) thành công!`);
+                    return true;
+                } catch (err) {
+                    console.error(`❌ Lỗi khi xoá ${currentListType}:`, err);
+                    alert(`⚠️ Xoá ${currentListType === 'senders' ? 'người gửi' : 'người nhận'} thất bại: ${err.message}`);
+                    await loadData(currentListType); // Tải lại để đảm bảo UI đúng
+                    throw err;
+                }
+            }
+
+            // ==========================
+            // Cập nhật Khách hàng (Chung)
+            // ==========================
+            async function updateCustomer(id, customerData) { /* ... giữ nguyên ... */
+                 console.log(`🔄 Updating ${currentListType} with ID: ${id}...`, customerData);
+                 const token = getValidTokenWithBearer();
+                 if (!token) return Promise.reject("Chưa đăng nhập");
+
+                 let url, payload = { ...customerData };
+                  if (currentListType === 'senders') {
+                    url = `${API_BASE_URL}/users/update/${id}`; // CẦN XÁC NHẬN ENDPOINT USER
+                    payload.phone_number = customerData.phone;
+                    delete payload.phone; delete payload.tags;
+                     console.warn("Payload cho /users/update CẦN ĐƯỢC KIỂM TRA!", payload);
+                 } else { url = `${API_BASE_URL}/receivers/update/${id}`; }
+
+                 const headers = { "Content-Type": "application/json", "Authorization": token };
+
+                 try {
+                     console.log(`📤 Sending update request to: ${url}`);
+                     const res = await fetch(url, { method: "PUT", headers, body: JSON.stringify(payload) });
+                      if (res.status === 401) { showAuthWarning(); throw new Error("Lỗi 401"); }
+                     if (!res.ok) { const txt = await res.text(); throw new Error(`HTTP ${res.status}: ${txt || res.statusText}`); }
+                     const result = await res.json();
+                     const updatedData = result.result || result.data || result;
+                     console.log(`✅ ${currentListType} updated:`, updatedData);
+                     await loadData(currentListType); // Tải lại
+                     alert(`✅ Đã cập nhật ${currentListType === 'senders' ? 'người gửi' : 'người nhận'} thành công!`);
+                      return updatedData;
+                 } catch (err) {
+                     console.error(`❌ Lỗi khi cập nhật ${currentListType}:`, err);
+                     alert(`⚠️ Cập nhật ${currentListType === 'senders' ? 'người gửi' : 'người nhận'} thất bại: ${err.message}`);
+                      throw err;
+                 }
+            }
+
+            // ==========================
+            // Tìm kiếm (Render lại bảng)
+            // ==========================
+            function searchAndRender(searchTerm) { /* ... giữ nguyên ... */
+                 console.log(`🔍 Searching ${currentListType} for: "${searchTerm}"`);
+                 const lowerCaseTerm = searchTerm.toLowerCase();
+                 const filteredData = currentData.filter(item =>
+                     (item.name && item.name.toLowerCase().includes(lowerCaseTerm)) ||
+                     (item.phone && item.phone.includes(searchTerm))
+                 );
+                 renderFilteredTable(filteredData); // Gọi hàm render riêng cho dữ liệu lọc
+            }
+
+             // Helper render bảng với data lọc (không gọi API)
+             function renderFilteredTable(filteredData) { /* ... giữ nguyên ... */
+                 if (!tbody || !nameColumnHeader || !successRateHeader) return;
+                 nameColumnHeader.textContent = currentListType === 'senders' ? 'TÊN NGƯỜI GỬI' : 'TÊN NGƯỜI NHẬN';
+                 successRateHeader.style.display = currentListType === 'senders' ? 'none' : '';
+                 tbody.innerHTML = "";
+                 if (!filteredData.length) {
+                     tbody.innerHTML = `<tr><td colspan="6" class="no-data">Không tìm thấy kết quả nào</td></tr>`;
+                     return;
+                 }
+                 filteredData.forEach((item, i) => { /* ... tạo HTML dòng giữ nguyên ... */
+                    const addressParts = [ item.address.detail || item.address.other, item.address.ward, item.address.district, item.address.province ].filter(Boolean);
+                    const addressString = addressParts.length > 0 ? addressParts.join(', ') : "—";
+                    const tagHTML = item.tags?.map(t => `<span class="tag">${t.name || 'Tag'}</span>`).join(" ") || "—";
+                    const tr = document.createElement("tr");
+                    tr.setAttribute('data-customer-id', item.id);
+                    tr.innerHTML = `
+                        <td>${i + 1}</td>
+                        <td>${item.name}</td>
+                        <td>${tagHTML}</td>
+                        <td style="display: ${currentListType === 'senders' ? 'none' : ''};">
+                           ${item.success_rate !== undefined && item.success_rate !== null ? Number(item.success_rate).toFixed(1) + '%' : 'N/A'}
+                        </td>
+                        <td>${addressString}</td>
+                        <td>
+                            <button class="btn btn-edit btn-sm" data-id="${item.id}"><i class="fas fa-edit"></i> Sửa</button>
+                            <button class="btn btn-danger btn-sm btn-delete" data-id="${item.id}"><i class="fas fa-trash-alt"></i> Xoá</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                 });
+                 addTableActionListeners(); // Gắn lại listener
+                 console.log(` Bảng ${currentListType} đã được render với ${filteredData.length} kết quả tìm kiếm.`);
+             }
+
+
+            // --- Modal Hide Logic (Giữ nguyên) ---
+            function hideModal() { /* ... đã định nghĩa ở trên ... */
+                 if (modal) {
+                     modal.classList.add('hidden');
+                     if (customerForm) customerForm.reset();
+                     if (editCustomerIdInput) editCustomerIdInput.value = '';
+                }
+            }
+
+            // --- Attach Modal Show/Hide Listeners (Giữ nguyên) ---
+            if (addNewBtn) { addNewBtn.removeEventListener('click', handleAddNewClick); addNewBtn.addEventListener('click', handleAddNewClick); }
+            function handleAddNewClick() { showCustomerModal(false); } // Gọi hàm global
+            if (closeModalBtn) { closeModalBtn.removeEventListener('click', hideModal); closeModalBtn.addEventListener('click', hideModal); }
+            if (cancelBtn) { cancelBtn.removeEventListener('click', hideModal); cancelBtn.addEventListener('click', hideModal); }
+            if (modal) { modal.removeEventListener('click', handleOverlayClick); modal.addEventListener('click', handleOverlayClick); }
+            function handleOverlayClick(event) { if (event.target === modal) hideModal(); }
+
+
             // --- Attach Form Submit Listener ---
-            if (recipientForm) {
-                recipientForm.removeEventListener('submit', handleFormSubmit); // Prevent duplicates
-                recipientForm.addEventListener('submit', handleFormSubmit);
+            if (customerForm) {
+                customerForm.removeEventListener('submit', handleFormSubmit);
+                customerForm.addEventListener('submit', handleFormSubmit);
             }
 
             async function handleFormSubmit(event) {
-                event.preventDefault(); // Prevent default form submission
-                 console.log("Form submitted...");
-                const isEdit = !!editRecipientIdInput.value; // Check if it's an edit operation
-                const recipientId = editRecipientIdInput.value;
+                event.preventDefault();
+                console.log("Form submitted...");
+                const isEdit = !!editCustomerIdInput.value;
+                const customerId = editCustomerIdInput.value;
+                const submitButton = document.getElementById('submitCustomerBtn');
 
-                // --- Basic Validation (HTML5 required should handle most) ---
-                if (!fullNameInput?.value || !phoneInput?.value || !addressInput?.value /*|| !provinceSelect?.value || !districtSelect?.value || !wardSelect?.value */) {
-                     alert("⚠️ Vui lòng điền đầy đủ các trường bắt buộc.");
-                     return;
+                // Lấy các element form bên trong hàm
+                const fullNameInput = document.getElementById("fullName");
+                const phoneInput = document.getElementById("phoneNumber");
+                const addressDetailInput = document.getElementById("addressDetail");
+                const currentProvinceSelect = document.getElementById('provinceSelect');
+                const currentDistrictSelect = document.getElementById('districtSelect');
+                const currentWardSelect = document.getElementById('wardSelect');
+
+                // --- Validation ---
+                if (!fullNameInput?.value || !phoneInput?.value || !addressDetailInput?.value || !currentProvinceSelect?.value || !currentDistrictSelect?.value || !currentWardSelect?.value ) {
+                     alert("⚠️ Vui lòng điền đầy đủ thông tin Họ tên, SĐT và Địa chỉ."); return;
                 }
-                 // Additional JS validation if needed (e.g., phone format again)
-                 const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
-                 if (!phoneRegex.test(phoneInput.value)) {
-                     alert("⚠️ Số điện thoại không hợp lệ.");
-                     return;
-                 }
+                const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
+                if (!phoneRegex.test(phoneInput.value)) { alert("⚠️ Số điện thoại không hợp lệ."); return; }
                 // --- End Validation ---
 
+                 // --- Lấy tên Tỉnh/Huyện/Xã ---
+                const provinceText = currentProvinceSelect.options[currentProvinceSelect.selectedIndex]?.text || '';
+                const districtText = currentDistrictSelect.options[currentDistrictSelect.selectedIndex]?.text || '';
+                const wardText = currentWardSelect.options[currentWardSelect.selectedIndex]?.text || '';
+                // --- Kết thúc lấy tên ---
 
-                const recipientData = {
+                const customerData = {
                     name: fullNameInput.value.trim(),
                     phone: phoneInput.value.trim(),
                     address: {
-                        detail: addressInput.value.trim(),
-                        // --- TODO: Get actual values from address dropdowns ---
-                        province: "TP. Hồ Chí Minh", // Placeholder provinceSelect.value,
-                        district: "Quận 1", // Placeholder districtSelect.value,
-                        ward: "Phường Bến Nghé" // Placeholder wardSelect.value
-                        // --- End TODO ---
+                        detail: addressDetailInput.value.trim(),
+                        province: provinceText.replace(/^(Tỉnh|Thành phố)\s*/, ''),
+                        district: districtText.replace(/^(Quận|Huyện|Thị xã|Thành phố)\s*/, ''),
+                        ward: wardText.replace(/^(Phường|Xã|Thị trấn)\s*/, '')
                     },
-                    tags: [] // Default empty tags for now
+                    tags: []
                 };
+                console.log("Data to send:", customerData, "Is Edit:", isEdit, "ID:", customerId);
 
-                 console.log("Data to send:", recipientData, "Is Edit:", isEdit, "ID:", recipientId);
+                if (submitButton) { submitButton.disabled = true; submitButton.textContent = isEdit ? 'Đang cập nhật...' : 'Đang thêm...'; }
 
-
-                 // --- Call API function from RecipientsData module ---
-                 if (window.RecipientsData) {
-                     try {
-                         if (isEdit) {
-                             // --- Call Update Function (Needs to be added to RecipientsData module) ---
-                             if (typeof window.RecipientsData.updateRecipient === 'function') {
-                                 console.log(`🚀 Calling RecipientsData.updateRecipient(${recipientId})...`);
-                                 await window.RecipientsData.updateRecipient(recipientId, recipientData);
-                                 hideModal(); // Close modal on success
-                             } else {
-                                 console.error("❌ RecipientsData.updateRecipient function not available!");
-                                 alert("Lỗi: Chức năng cập nhật chưa sẵn sàng.");
-                             }
-                             // --- End Call Update ---
-                         } else {
-                              // --- Call Create Function ---
-                             if (typeof window.RecipientsData.createRecipient === 'function') {
-                                 console.log("🚀 Calling RecipientsData.createRecipient()...");
-                                 await window.RecipientsData.createRecipient(recipientData); // Pass data object
-                                 hideModal(); // Close modal on success
-                             } else {
-                                 console.error("❌ RecipientsData.createRecipient function not available!");
-                                 alert("Lỗi: Chức năng thêm mới chưa sẵn sàng.");
-                             }
-                              // --- End Call Create ---
-                         }
-                     } catch (error) {
-                         // Error handling is likely done within the module's functions,
-                         // but you could add specific UI feedback here if needed.
-                         console.error("Error during form submission:", error);
-                     }
-                 } else {
-                     console.error("❌ RecipientsData module not available for form submission!");
-                     alert("Lỗi: Không thể gửi dữ liệu.");
-                 }
+                try {
+                    let success = false;
+                    if (isEdit) {
+                        await updateCustomer(customerId, customerData); // Gọi hàm update chung
+                        success = true;
+                    } else {
+                        await createCustomer(customerData); // Gọi hàm create chung
+                        success = true;
+                    }
+                    if (success) hideModal();
+                } catch (error) {
+                    console.error("Error during form submission API call:", error);
+                    // Alert đã có trong hàm create/updateCustomer
+                } finally {
+                     if (submitButton) { submitButton.disabled = false; submitButton.textContent = isEdit ? 'Cập nhật' : 'Thêm mới'; }
+                }
             }
 
 
-             // --- Attach Search Listeners ---
-             if (searchBtn) {
-                 searchBtn.removeEventListener('click', handleSearch);
-                 searchBtn.addEventListener('click', handleSearch);
-             }
-             if (searchInput) {
-                 searchInput.removeEventListener('keypress', handleSearchEnter);
-                 searchInput.addEventListener('keypress', handleSearchEnter);
-             }
+            // --- Attach Search Listeners ---
+            if (searchBtn) { searchBtn.removeEventListener('click', handleSearch); searchBtn.addEventListener('click', handleSearch); }
+            if (searchInput) { searchInput.removeEventListener('keypress', handleSearchEnter); searchInput.addEventListener('keypress', handleSearchEnter); }
 
-             function handleSearch() {
-                 const searchTerm = searchInput ? searchInput.value.trim() : '';
-                 console.log(`🔍 Searching for: "${searchTerm}"`);
-                 // --- TODO: Call filter/search function in RecipientsData and re-render table ---
-                 if (window.RecipientsData && typeof window.RecipientsData.searchAndRender === 'function') {
-                    // window.RecipientsData.searchAndRender(searchTerm);
-                     console.log("TODO: Implement searchAndRender in RecipientsData module");
-                     alert(`Chức năng tìm kiếm "${searchTerm}" chưa được cài đặt.`);
-                 } else {
-                      console.error("❌ RecipientsData.searchAndRender function not available!");
-                 }
-             }
-             function handleSearchEnter(event) {
-                 if (event.key === 'Enter') {
-                     handleSearch();
-                 }
-             }
+            function handleSearch() {
+                const searchTerm = searchInput ? searchInput.value.trim() : '';
+                console.log(`🔍 Searching for: "${searchTerm}"`);
+                searchAndRender(searchTerm); // Gọi hàm search chung
+            }
+            function handleSearchEnter(event) { if (event.key === 'Enter') handleSearch(); }
+
+
+            // --- Attach List Type Dropdown Listener ---
+            if (listTypeSelect) {
+                listTypeSelect.removeEventListener('change', handleListTypeChange);
+                listTypeSelect.addEventListener('change', handleListTypeChange);
+            }
+
+            function handleListTypeChange() {
+                const selectedType = listTypeSelect ? listTypeSelect.value : 'recipients';
+                console.log(`🔄 Changing list type to: ${selectedType}`);
+
+                if (pageTitle && nameColumnHeader && successRateHeader) {
+                    pageTitle.textContent = selectedType === 'senders' ? 'DANH SÁCH NGƯỜI GỬI' : 'DANH SÁCH NGƯỜI NHẬN';
+                    nameColumnHeader.textContent = selectedType === 'senders' ? 'TÊN NGƯỜI GỬI' : 'TÊN NGƯỜI NHẬN';
+                    successRateHeader.style.display = selectedType === 'senders' ? 'none' : '';
+
+                    console.log(`🚀 Calling loadData('${selectedType}')...`);
+                    loadData(selectedType); // Gọi hàm load chung
+                } else {
+                    console.error("❌ Không tìm thấy pageTitle, nameColumnHeader hoặc successRateHeader!");
+                }
+            }
+
+
+            // --- TODO: Load Address Data & Attach Listeners ---
+             console.log("TODO: Implement address loading (loadProvinces, etc.)");
+             console.log("TODO: Attach listeners to address dropdowns.");
+             // Ví dụ gắn listener cơ bản
+              if (provinceSelect) provinceSelect.addEventListener('change', () => {
+                  const provinceCode = provinceSelect.value;
+                  console.log("Province changed:", provinceCode);
+                  if (provinceCode) { /* loadDistricts(provinceCode); */ districtSelect.disabled = false; wardSelect.disabled = true; wardSelect.innerHTML='<option value="">-- Chọn Phường/Xã --</option>';}
+                  else { districtSelect.disabled = true; wardSelect.disabled = true; districtSelect.innerHTML='<option value="">-- Chọn Quận/Huyện --</option>'; wardSelect.innerHTML='<option value="">-- Chọn Phường/Xã --</option>';}
+              });
+               if (districtSelect) districtSelect.addEventListener('change', () => {
+                  const districtCode = districtSelect.value;
+                   console.log("District changed:", districtCode);
+                  if (districtCode) { /* loadWards(districtCode); */ wardSelect.disabled = false; }
+                  else { wardSelect.disabled = true; wardSelect.innerHTML='<option value="">-- Chọn Phường/Xã --</option>';}
+              });
+
 
             // --- TODO: Attach Pagination Listeners ---
             console.log("TODO: Add event listeners for pagination controls.");
 
-            // --- Call function to load initial data ---
-            if (window.RecipientsData && typeof window.RecipientsData.loadRecipients === 'function') {
-                console.log("🚀 Calling RecipientsData.loadRecipients() from recipients.html");
-                window.RecipientsData.loadRecipients(); // Load data when page initializes
-            } else {
-                console.error("❌ RecipientsData or RecipientsData.loadRecipients not available!");
-                const tbody = document.querySelector(".main-content tbody");
-                if(tbody) tbody.innerHTML = `<tr><td colspan="6" class="no-data">Lỗi tải mô-đun dữ liệu người nhận.</td></tr>`;
-            }
 
-            console.log("✅ Recipients page UI Initialized"); // Thêm log cuối
-        } // --- End initRecipientsPage ---
+            // --- Call function to load initial data (Recipients by default) ---
+            handleListTypeChange(); // Gọi hàm này ban đầu để load recipients
+
+            console.log("✅ Customer List page UI Initialized");
+        } // --- End initCustomerListPage ---
 
 
         // --- LOGIC KIỂM TRA ĐỂ GỌI HÀM INIT ---
         if (document.readyState === "loading") {
-            // Chạy độc lập: Đợi DOM load xong
-            document.addEventListener("DOMContentLoaded", initRecipientsPage);
+            document.addEventListener("DOMContentLoaded", initCustomerListPage);
         } else {
-            // Chạy qua index.html (DOM đã load): Chạy ngay!
-            initRecipientsPage();
+            initCustomerListPage();
         }
     </script>
-    <script src="assets/api/config.js"></script>
-    <script src="assets/api/recipients-data.js"></script> </body>
+    </body>
 </html>

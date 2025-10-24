@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý vận đơn - Viettel Post</title>
-    <link rel="stylesheet" href="assets/shipments.css">
+    <link rel="stylesheet" href="assets/shipments.css"> <!-- Link CSS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -17,550 +17,520 @@
         <h1 class="page-title">Quản lý vận đơn</h1>
         <div class="card">
             <div class="card-body">
+                <!-- 3.1. Thanh tìm kiếm & bộ lọc -->
                 <div class="filter-area">
                     <div class="filter-main">
-                        <div class="filter-row">
-                            <div class="filter-item search-bar"><input type="text" id="shipmentSearchInput" placeholder="Tìm đơn hàng, số điện thoại"><button class="search-btn" id="shipmentSearchBtn"><i class="fa-solid fa-magnifying-glass"></i></button></div>
-                            <div class="filter-item date-picker-wrapper"><input type="text" id="datePicker" placeholder="Chọn ngày"><i class="fa-regular fa-calendar-days calendar-icon"></i></div>
-                            <div class="filter-item"><div class="custom-dropdown" data-placeholder="Tất cả kho hàng"></div></div>
-                            <div class="filter-item"><div class="custom-dropdown" data-placeholder="Người trả cước"></div></div>
-                            <div class="filter-item"><div class="custom-dropdown" data-placeholder="Đơn hàng gửi"></div></div>
+                        <!-- Primary Filter Row -->
+                        <div class="filter-row primary-filters">
+                            <!-- Search Input -->
+                            <div class="filter-item search-bar">
+                                <input type="text" id="shipmentSearchInput" placeholder="Tìm mã đơn hàng, SĐT người gửi/nhận">
+                                <button class="search-btn" id="searchBtn"><i class="fas fa-search"></i></button>
+                            </div>
+                            <!-- Date Picker -->
+                            <div class="filter-item date-picker-wrapper">
+                                <input type="text" id="dateRangePicker" placeholder="Ngày tạo đơn">
+                                <i class="fa-regular fa-calendar-days calendar-icon"></i>
+                            </div>
+                            <!-- Kho Hàng Dropdown -->
+                             <div class="filter-item dropdown-wrapper">
+                                 <select id="warehouseFilter">
+                                     <option value="">Kho hàng (Tất cả)</option>
+                                     <!-- Options will be loaded dynamically -->
+                                 </select>
+                             </div>
+                             <!-- Người Trả Cước Dropdown -->
+                             <div class="filter-item dropdown-wrapper">
+                                 <select id="payerFilter">
+                                     <option value="">Người trả cước</option>
+                                     <option value="sender">Người gửi trả</option>
+                                     <option value="receiver">Người nhận trả</option>
+                                     <!-- <option value="third_party">Bên thứ ba</option> -->
+                                 </select>
+                             </div>
+                            <!-- Add Filter Button -->
+                            <div class="filter-item add-filter-container">
+                                <button class="add-filter-btn action-btn" id="addFilterBtn" title="Thêm bộ lọc">
+                                     <i class="fas fa-filter"></i> Thêm bộ lọc
+                                </button>
+                            </div>
                         </div>
-                        <div class="filter-row">
-                            <div class="filter-item"><div class="custom-dropdown" data-placeholder="Trạng thái thanh toán COD"></div></div>
-                            <div class="filter-item"><div class="custom-dropdown" data-placeholder="Chọn theo dịch vụ"></div></div>
-                            <div class="filter-item"><div class="custom-dropdown" data-placeholder="Chọn tài khoản tạo đơn"></div></div>
-                            <div class="filter-item" style="visibility: hidden;"></div>
-                             <div class="filter-item" style="visibility: hidden;"></div>
+                        <!-- Secondary Filter Row (Initially Hidden) -->
+                        <div class="filter-row secondary-filters hidden" id="secondaryFilters">
+                             <!-- Loại Đơn Dropdown -->
+                             <div class="filter-item dropdown-wrapper">
+                                 <select id="orderTypeFilter">
+                                     <option value="">Loại đơn</option>
+                                     <option value="sent">Đơn hàng gửi</option>
+                                     <option value="received">Đơn hàng nhận</option>
+                                 </select>
+                             </div>
+                            <!-- Trạng Thái Thanh Toán Dropdown -->
+                            <div class="filter-item dropdown-wrapper">
+                                <select id="paymentStatusFilter">
+                                    <option value="">Trạng thái thanh toán</option>
+                                    <option value="cod">COD</option>
+                                    <option value="paid">Đã thanh toán</option>
+                                    <option value="unpaid">Chưa thanh toán</option>
+                                </select>
+                             </div>
+                            <!-- Dịch vụ Dropdown -->
+                            <div class="filter-item dropdown-wrapper">
+                                <select id="serviceFilter">
+                                    <option value="">Dịch vụ</option>
+                                    <!-- Options populated from shipping_service.json -->
+                                </select>
+                             </div>
+                             <!-- Loại Hàng Dropdown -->
+                             <div class="filter-item dropdown-wrapper">
+                                 <select id="packageTypeFilter">
+                                     <option value="">Loại hàng</option>
+                                     <!-- Options populated from package_type.json -->
+                                 </select>
+                             </div>
+                            <!-- Trạng thái đối soát COD -->
+                            <div class="filter-item dropdown-wrapper">
+                                <select id="codStatusFilter">
+                                    <option value="">Trạng thái đối soát COD</option>
+                                    <option value="reconciled">Đã đối soát</option>
+                                    <option value="pending">Chờ đối soát</option>
+                                    <option value="failed">Đối soát lỗi</option>
+                                </select>
+                            </div>
+                             <!-- Loại đơn hàng (Category) -->
+                            <div class="filter-item dropdown-wrapper">
+                                <select id="orderCategoryFilter">
+                                    <option value="">Loại đơn hàng</option>
+                                    <option value="ecommerce">TMĐT</option>
+                                    <option value="retail">Bán lẻ</option>
+                                    <option value="personal">Cá nhân</option>
+                                    <!-- Add more as needed -->
+                                </select>
+                            </div>
+                            <!-- Nhóm khách hàng -->
+                             <div class="filter-item dropdown-wrapper">
+                                 <select id="customerGroupFilter">
+                                     <option value="">Nhóm khách hàng</option>
+                                      <option value="vip">VIP</option>
+                                      <option value="close">Thân thiết</option> <!-- Use code 'CLOSE' -->
+                                      <option value="new">Mới</option>
+                                      <!-- Add more as needed -->
+                                 </select>
+                             </div>
+                            <!-- Tài khoản tạo đơn Dropdown (Optional) -->
+                            <div class="filter-item dropdown-wrapper">
+                                <select id="accountFilter" disabled>
+                                    <option value="">Tài khoản tạo đơn (Tất cả)</option>
+                                    <!-- Options populated if user has sub-accounts -->
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    <div class="add-filter-container">
-                         <button id="addFilterBtn" class="add-filter-btn">
-                            <svg class="gears-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M42.2,27.1l-4-1.6c-0.2-0.9-0.5-1.8-0.9-2.6l2.3-3.4c0.4-0.6,0.3-1.4-0.2-1.9l-2.8-2.8c-0.5-0.5-1.4-0.6-1.9-0.2l-3.4,2.3c-0.8-0.4-1.7-0.7-2.6-0.9l-1.6-4c-0.2-0.7-0.8-1.1-1.5-1.1h-4c-0.7,0-1.4,0.5-1.5,1.1l-1.6,4c-0.9,0.2-1.8,0.5-2.6,0.9l-3.4-2.3c-0.6-0.4-1.4-0.3-1.9,0.2l-2.8,2.8c-0.5,0.5-0.6,1.4-0.2,1.9l2.3,3.4c-0.4,0.8-0.7,1.7-0.9,2.6l-4,1.6C5.5,27.3,5,27.9,5,28.7v4c0,0.7,0.5,1.4,1.1,1.5l4,1.6c0.2,0.9,0.5,1.8,0.9,2.6l-2.3,3.4c-0.4,0.6-0.3,1.4,0.2,1.9l2.8,2.8c0.5,0.5,1.4,0.6,1.9,0.2l3.4-2.3c0.8,0.4,1.7,0.7,2.6,0.9l1.6,4c0.2,0.7,0.8,1.1,1.5,1.1h4c0.7,0,1.4-0.5,1.5-1.1l1.6-4c0.9-0.2,1.8-0.5,2.6-0.9l3.4,2.3c0.6,0.4,1.4,0.3,1.9-0.2l2.8-2.8c0.5-0.5,0.6-1.4,0.2-1.9l-2.3-3.4c0.4-0.8,0.7-1.7,0.9-2.6l4-1.6c0.7-0.2,1.1-0.8,1.1-1.5v-4C43.3,27.9,42.8,27.3,42.2,27.1z M24.3,36.7c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8S28.7,36.7,24.3,36.7z"/>
-                                <path d="M23.8,19.3c-2.6,0-4.9,1.7-5.8,4c-0.2-0.9-0.5-1.8-0.9-2.6l-2.3-3.4c-0.4-0.6-0.3-1.4,0.2-1.9L17.8,13c0.5-0.5,1.4-0.6,1.9-0.2l3.4,2.3c0.8-0.4,1.7-0.7,2.6-0.9l1.6-4c0.2-0.7,0.8-1.1,1.5-1.1h4c0.7,0,1.4,0.5,1.5,1.1l1.6,4c0.5,0.1,1,0.3,1.5,0.5c3-1.2,6.4-0.2,8.4,2.4c0.5,0.6,0.4,1.5-0.2,2l-2.4,3.4c-0.3,0.5-0.8,0.8-1.4,0.8c-0.4,0-0.8-0.2-1.1-0.5c-1.3-1.8-3.5-2.6-5.6-2.1c-0.6,0.1-1.2,0.3-1.7,0.6c-0.7-0.2-1.4-0.3-2.1-0.3c-0.1,0-0.2,0-0.3,0C24,19.3,23.9,19.3,23.8,19.3z"/>
-                            </svg>
-                        </button>
+                     <!-- 3.2. Hành động chính -->
+                    <div class="filter-actions">
+                        <button class="action-btn" id="printBtn"><i class="fas fa-print"></i> IN ĐƠN</button>
+                        <button class="action-btn" id="exportExcelBtn"><i class="fas fa-file-excel"></i> XUẤT EXCEL</button>
+                        <button class="action-btn" id="importExcelBtn"><i class="fas fa-file-upload"></i> NHẬP EXCEL</button>
+                        <button class="action-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> LÀM MỚI</button>
                     </div>
                 </div>
 
-                 <div class="update-info"><i class="fa-solid fa-wifi"></i> Cập nhật danh sách lần cuối lúc <span id="lastUpdatedTime">--:--</span></div> <div class="actions-toolbar">
-                    <div id="mainActions" class="main-actions">
-                        </div>
-                     </div>
+                 <!-- Last Updated Time -->
+                 <div class="last-updated">
+                     Cập nhật lần cuối: <span id="lastUpdatedTime">--:--</span>
+                 </div>
 
-                <div class="summary-stats">
-                    <div class="stat-item active" data-status-target="Tất cả"><i class="fa-solid fa-box-archive"></i><span>Tổng số đơn</span><b>0 đơn</b></div>
-                    <div class="stat-item" data-status-target="Lấy thành công"><i class="fa-solid fa-truck-fast"></i><span>Lấy thành công</span><b>0 đơn</b></div> <div class="stat-item" data-status-target="Chờ lấy"><i class="fa-solid fa-hourglass-half"></i><span>Chờ lấy</span><b>0 đơn</b></div>
-                    <div class="stat-item" data-status-target="Hủy lấy"><i class="fa-solid fa-ban"></i><span>Hủy lấy</span><b>0 đơn</b></div>
-                    <div class="stat-item" data-status-target="Đơn nháp"><i class="fa-solid fa-file-pen"></i><span>Đơn nháp</span><b>0 đơn</b></div>
+                <!-- 3.3. Bộ đếm & tab trạng thái -->
+                <div class="status-tabs" id="statusTabsContainer">
+                    <!-- Tabs will be generated by JS -->
+                    <div class="tab-item active" data-status-code="">
+                        Tất cả (<span class="count">0</span>)
+                    </div>
                 </div>
 
-                <div class="tabs-container">
-                    <button class="tab-scroll-btn left" id="scrollLeftBtn"><i class="fa-solid fa-chevron-left"></i></button>
-                    <div class="status-tabs" id="statusTabs">
-                        <a href="#" class="tab-item active" data-status="Tất cả"><span class="color-box red"></span>Tất cả (0)</a>
-                        <a href="#" class="tab-item" data-status="Đã tiếp nhận"><span class="color-box blue"></span>Đã tiếp nhận (0)</a>
-                        <a href="#" class="tab-item" data-status="Đang lấy hàng"><span class="color-box orange"></span>Đang lấy hàng (0)</a>
-                        <a href="#" class="tab-item" data-status="Đã lấy hàng"><span class="color-box yellow"></span>Đã lấy hàng (0)</a>
-                        <a href="#" class="tab-item" data-status="Đang vận chuyển"><span class="color-box purple"></span>Đang vận chuyển (0)</a>
-                        <a href="#" class="tab-item" data-status="Đang giao hàng"><span class="color-box teal"></span>Đang giao hàng (0)</a>
-                        <a href="#" class="tab-item" data-status="Chờ phát lại"><span class="color-box gray"></span>Chờ phát lại (0)</a>
-                        <a href="#" class="tab-item" data-status="Giao thành công"><span class="color-box green"></span>Giao thành công (0)</a>
-                        <a href="#" class="tab-item" data-status="Chờ xử lý"><span class="color-box brown"></span>Chờ xử lý (0)</a>
-                        <div class="tab-item dropdown" id="otherTabsContainer">
-                            Khác <span class="dropdown-arrow"></span>
-                            <div class="dropdown-menu" id="otherTabsDropdown">
-                                <a href="#" class="dropdown-item" data-status="Đơn nháp"><span class="color-box" style="background-color: #81d4fa;"></span>Đơn nháp (0)</a>
-                                <a href="#" class="dropdown-item" data-status="Lấy không thành công"><span class="color-box" style="background-color: #ef5350;"></span>Lấy không thành công (0)</a>
-                                <a href="#" class="dropdown-item" data-status="Đã duyệt hoàn"><span class="color-box" style="background-color: #7986cb;"></span>Đã duyệt hoàn (0)</a>
-                                <a href="#" class="dropdown-item" data-status="Đã trả"><span class="color-box" style="background-color: #ba68c8;"></span>Đã trả (0)</a>
-                                <a href="#" class="dropdown-item" data-status="Đã hủy giao"><span class="color-box" style="background-color: #d7ccc8;"></span>Đã hủy giao (0)</a>
-                                <a href="#" class="dropdown-item" data-status="Đang chuyển hoàn"><span class="color-box" style="background-color: #7986cb;"></span>Đang chuyển hoàn (0)</a>
-                                <a href="#" class="dropdown-item" data-status="Phát tiếp"><span class="color-box" style="background-color: #aed581;"></span>Phát tiếp (0)</a>
-                                <a href="#" class="dropdown-item" data-status="VTP hủy lấy"><span class="color-box" style="background-color: #ef5350;"></span>VTP hủy lấy (0)</a>
-                                 </div>
+                <!-- 3.4. Bảng dữ liệu vận đơn -->
+                <div class="table-area">
+                    <div class="loading-spinner" id="loadingSpinner" style="display: none;">
+                         <i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...
+                    </div>
+                    <div class="no-results" id="noResults" style="display: none;">
+                        Không tìm thấy vận đơn nào phù hợp.
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                           <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Mã đơn</th>
+                                <th>Người gửi</th>
+                                <th>Người nhận</th>
+                                <th>Địa chỉ nhận</th>
+                                <th>Loại hàng</th>
+                                <th>Dịch vụ</th>
+                                <th>Trạng thái</th>
+                                <th>COD</th>
+                                <th>Tổng tiền</th>
+                                <th>Ngày tạo</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                            <tbody id="shipmentsTableBody">
+                                <!-- Table rows will be generated by JS -->
+                                <tr><td colspan="8" class="no-data">Chưa có dữ liệu</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                 <!-- Pagination -->
+                <div class="pagination" id="paginationControls">
+                    <div class="records-per-page">
+                        <span>Bản Ghi Mỗi Trang</span>
+                        <select id="itemsPerPageSelect">
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                    <div class="page-info">
+                        <span id="paginationInfo">Hiển thị 0 - 0 của 0</span>
+                        <div class="nav-arrows">
+                            <button id="firstPageBtn" disabled>&lt;&lt;</button>
+                            <button id="prevPageBtn" disabled>&lt;</button>
+                            <button id="nextPageBtn" disabled>&gt;</button>
+                            <button id="lastPageBtn" disabled>&gt;&gt;</button>
                         </div>
                     </div>
-                    <button class="tab-scroll-btn right" id="scrollRightBtn"><i class="fa-solid fa-chevron-right"></i></button>
                 </div>
 
-                <div class="table-area"><p style="text-align: center; padding: 40px; color: #888;">Đang tải dữ liệu...</p></div> <div class="pagination"> <div class="records-per-page"><span>Bản Ghi Mỗi Trang</span><div class="custom-dropdown small" data-placeholder="10"></div></div>
-                    <div class="page-info"><span id="paginationInfo">0 of 0</span><div class="nav-arrows"><span>&lt;&lt;</span><span>&lt;</span><span>&gt;</span><span>&gt;&gt;</span></div></div>
-                </div>
+                 <!-- 10. Bổ sung thông tin thống kê ở cuối trang -->
+                 <div class="summary-footer" id="summaryFooter">
+                      <div class="summary-item">
+                          <span class="summary-label">Tổng đơn hàng:</span>
+                          <strong class="summary-value" id="totalOrdersSummary">0</strong>
+                      </div>
+                      <div class="summary-item">
+                          <span class="summary-label">Tổng thu hộ (COD):</span>
+                          <strong class="summary-value" id="totalCodSummary">0 ₫</strong>
+                      </div>
+                      <div class="summary-item">
+                          <span class="summary-label">Tổng cước:</span>
+                          <strong class="summary-value" id="totalShippingCostSummary">0 ₫</strong>
+                      </div>
+                  </div>
+
             </div>
         </div>
     </div>
 
-    <div id="filterModal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Chọn thêm điều kiện lọc</h2>
-                <button class="close-btn" id="closeFilterModalBtn">&times;</button> </div>
-            <div class="modal-body">
-                <div class="checkbox-grid">
-                    <label class="custom-checkbox"><input type="checkbox" checked> Chọn tất cả</label>
-                    <label class="custom-checkbox"><input type="checkbox" checked> Kho hàng</label>
-                    <label class="custom-checkbox"><input type="checkbox" checked> Người trả cước</label>
-                    <label class="custom-checkbox"><input type="checkbox" checked> Trạng thái thanh toán COD</label>
-                    <label class="custom-checkbox"><input type="checkbox" checked> Dịch vụ</label>
-                    <label class="custom-checkbox"><input type="checkbox" checked> Tài khoản tạo đơn</label>
-                     </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-cancel" id="cancelFilterBtn">Hủy bỏ</button>
-                <button class="btn btn-save" id="saveFilterBtn">Lưu</button>
-            </div>
+    <!-- Edit Order Info Modal -->
+<div id="editOrderInfoModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="editModalTitle">Cập nhật trạng thái đơn hàng</h3>
+            <span class="close-modal">&times;</span>
         </div>
-    </div>
-
-     <div class="modal-overlay hidden" id="statusModal">
-      <div class="modal-content" style="max-width: 400px;"> <div class="modal-header">
-          <h2 id="statusModalTitle">Cập nhật trạng thái</h2> <button class="close-btn" id="closeStatusModalBtn">&times;</button> </div>
         <div class="modal-body">
-          <p>Chọn trạng thái mới cho đơn hàng <strong id="statusModalOrderCode"></strong>:</p>
-          <select id="statusSelect" style="width: 100%; padding: 8px; margin-top: 10px;">
-             <option value="">-- Chọn trạng thái --</option>
-            <option value="Đã tiếp nhận">Đã tiếp nhận</option>
-            <option value="Đang lấy hàng">Đang lấy hàng</option>
-            <option value="Đã lấy hàng">Đã lấy hàng</option>
-            <option value="Đang vận chuyển">Đang vận chuyển</option>
-            <option value="Đang giao hàng">Đang giao hàng</option>
-            <option value="Chờ phát lại">Chờ phát lại</option>
-            <option value="Giao thành công">Giao thành công</option>
-            <option value="Chờ xử lý">Chờ xử lý</option>
-             <option value="Đơn nháp">Đơn nháp</option>
-             <option value="Lấy không thành công">Lấy không thành công</option>
-             <option value="Đã duyệt hoàn">Đã duyệt hoàn</option>
-             <option value="Đã trả">Đã trả</option>
-             <option value="Đã hủy giao">Đã hủy giao</option>
-             <option value="Đang chuyển hoàn">Đang chuyển hoàn</option>
-             <option value="Phát tiếp">Phát tiếp</option>
-             <option value="Hủy lấy">Hủy lấy</option> <option value="VTP hủy lấy">VTP hủy lấy</option>
-             </select>
+            <form id="editOrderForm">
+                <input type="hidden" id="editingOrderId" name="orderId">
+                
+                <div class="form-group">
+                    <label for="editOrderIdDisplay">Mã đơn hàng:</label>
+                    <span id="editOrderId" class="order-id-display"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="editStatusSelect">Trạng thái mới <span class="required">*</span></label>
+                    <select id="editStatusSelect" name="statusCode" required>
+                        <option value="">-- Chọn trạng thái --</option>
+                        <!-- Options sẽ được điền bằng JavaScript -->
+                    </select>
+                </div>
+
+                <div id="editModalError" class="error-message hidden"></div>
+            </form>
         </div>
         <div class="modal-footer">
-           <button class="btn btn-cancel" id="cancelStatusBtn">Hủy</button> <button class="btn btn-save" id="confirmStatusBtn">Xác nhận</button> </div>
-      </div>
+            <button type="button" class="btn btn-secondary" onclick="ShipmentsData.closeEditModal()">Hủy</button>
+            <button type="button" id="saveEditBtn" class="btn btn-primary">Lưu thay đổi</button>
+        </div>
     </div>
+</div>
+
+
+    <!-- Include necessary JS files -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+    <script src="assets/api/config.js"></script> <!-- Load config first -->
+    <script src="assets/fetchData/address.js"></script> <!-- Load AddressData -->
+    <script src="assets/api/shipments-data.js"></script> <!-- Load data logic -->
+
     <script>
     // --- BỌC TẤT CẢ VÀO HÀM INIT ---
     function initShipmentsPage() {
-        console.log("🚀 Initializing Shipments Page UI..."); // Thêm log
+        console.log("🚀 Initializing Shipments Page UI...");
 
-         // Helper function to show errors within this page context
-         function showShipmentsPageError(message, areaSelector = ".table-area") {
-            const area = document.querySelector(areaSelector);
-            if (!area) return;
-            let errorDiv = area.querySelector('.shipments-page-error');
-             if (!errorDiv) {
-                 errorDiv = document.createElement('div');
-                 errorDiv.className = 'shipments-page-error';
-                 errorDiv.style.cssText = "background:#f8d7da; color:#721c24; padding:10px 15px; margin:15px 0; text-align:center; border:1px solid #f5c6cb; border-radius: 6px; font-size:14px;";
-                 // Prepend error within the specific area
-                 if (area.firstChild) {
-                    area.insertBefore(errorDiv, area.firstChild);
-                 } else {
-                     area.appendChild(errorDiv);
-                 }
-            }
-            errorDiv.textContent = `❌ ${message}`;
+        // --- Helper function to show errors ---
+         function showShipmentsPageError(message) {
+             const errorDiv = document.querySelector('.table-area .no-results'); // Use existing no-results div
+             if (errorDiv) {
+                 errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> Lỗi: ${message}`; // Use innerHTML
+                 errorDiv.style.display = 'block';
+                 errorDiv.classList.add('error'); // Use class for styling
+             } else { console.error("LỖI HIỂN THỊ:", message); }
+             const spinner = document.getElementById('loadingSpinner');
+             if (spinner) spinner.style.display = 'none';
+         }
+         // Function to hide error message
+         function hideShipmentsPageError() {
+              const errorDiv = document.querySelector('.table-area .no-results.error');
+              if (errorDiv) {
+                  errorDiv.textContent = 'Không tìm thấy vận đơn nào phù hợp.'; // Reset default text
+                  errorDiv.style.display = 'none'; // Hide
+                  errorDiv.classList.remove('error'); // Remove error class
+              }
+          }
+
+
+        // --- Initialize Flatpickr ---
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr("#dateRangePicker", {
+                mode: "range", dateFormat: "d/m/Y", locale: "vn",
+                monthSelectorType: 'static', showMonths: 2,
+                onReady: function(selectedDates, dateStr, instance) {
+                    console.log("📅 Flatpickr #dateRangePicker sẵn sàng.");
+                    const shortcuts = document.createElement('div');
+                    shortcuts.className = 'flatpickr-shortcuts';
+                    const options = ['Hôm nay', 'Hôm qua', '7 ngày trước', '14 ngày trước', '30 ngày trước', 'Tháng này', 'Tháng trước'];
+
+                    options.forEach(optionText => {
+                        const btn = document.createElement('button');
+                        btn.className = 'shortcut-button';
+                        btn.textContent = optionText;
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const now = new Date(); let start, end;
+                            switch(optionText) {
+                                case 'Hôm nay': start = new Date(now); end = new Date(now); break;
+                                case 'Hôm qua': start = new Date(now); start.setDate(now.getDate() - 1); end = new Date(start); break;
+                                case '7 ngày trước': end = new Date(now); start = new Date(now); start.setDate(now.getDate() - 6); break;
+                                case '14 ngày trước': end = new Date(now); start = new Date(now); start.setDate(now.getDate() - 13); break;
+                                case '30 ngày trước': end = new Date(now); start = new Date(now); start.setDate(now.getDate() - 29); break;
+                                case 'Tháng này': start = new Date(now.getFullYear(), now.getMonth(), 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); break;
+                                case 'Tháng trước': start = new Date(now.getFullYear(), now.getMonth() - 1, 1); end = new Date(now.getFullYear(), now.getMonth(), 0); break;
+                            }
+                            shortcuts.querySelectorAll('.shortcut-button').forEach(b => b.classList.remove('active'));
+                            e.target.classList.add('active');
+                            instance.setDate([start, end], true); // Set date and trigger onChange
+                        });
+                        shortcuts.appendChild(btn);
+                    });
+                     if(instance.calendarContainer) instance.calendarContainer.prepend(shortcuts);
+                },
+                onChange: function(selectedDates, dateStr, instance) {
+                     console.log('🗓️ Date range changed:', dateStr);
+                     instance.calendarContainer?.querySelectorAll('.shortcut-button').forEach(b => b.classList.remove('active'));
+                     // Trigger data reload in ShipmentsData
+                     if (window.ShipmentsData?.handleFilterChange) {
+                         window.ShipmentsData.handleFilterChange();
+                     }
+                }
+            });
+        } else {
+            console.error("❌ Thư viện Flatpickr chưa được tải!");
+            showShipmentsPageError("Không thể khởi tạo bộ chọn ngày.");
+            const datePickerInput = document.getElementById('dateRangePicker');
+            if (datePickerInput) datePickerInput.placeholder = "Lỗi tải lịch";
         }
 
 
-        // --- Cấu hình Date Picker ---
-         if (typeof flatpickr !== 'undefined') {
-            flatpickr("#datePicker", {
-                mode: "range", dateFormat: "d/m/Y", locale: "vn",
-                defaultDate: ["08/10/2025", "08/10/2025"], // Keep original default
-                 // --- Add onChange for Date Picker ---
-                 onChange: function(selectedDates, dateStr, instance) {
-                     if (selectedDates.length === 2) {
-                         const from = selectedDates[0].toISOString();
-                         const to = selectedDates[1].toISOString();
-                         console.log(`🗓️ Date range changed: ${from} to ${to}. TODO: Implement date range filtering.`);
-                         // TODO: Call a filtering function in ShipmentsData module, passing the date range
-                         // if (window.ShipmentsData && typeof window.ShipmentsData.filterOrders === 'function') {
-                         //    window.ShipmentsData.filterOrders({ dateFrom: from, dateTo: to });
-                         // }
-                         alert(`Chức năng lọc theo ngày ${dateStr} chưa được cài đặt.`);
-                     }
-                 }
-                 // --- End onChange ---
-            });
+        // --- Initialize ShipmentsData module ---
+         hideShipmentsPageError(); // Hide any previous error
+         if (window.ShipmentsData?.init) {
+             console.log("🚀 Calling ShipmentsData.init()...");
+             window.ShipmentsData.init(); // Gọi init của module data
          } else {
-              console.error("❌ Thư viện Flatpickr chưa được tải!");
-              showShipmentsPageError("Lỗi: Không thể khởi tạo bộ chọn ngày.", ".filter-main"); // Show error near date picker
-               const dpInput = document.getElementById('datePicker');
-               if(dpInput) dpInput.placeholder = "Lỗi tải lịch";
+             console.error("❌ ShipmentsData module or init function not found!");
+             showShipmentsPageError("Lỗi tải module dữ liệu vận đơn.");
+             const tbody = document.getElementById("shipmentsTableBody");
+             if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="no-data">Lỗi tải dữ liệu</td></tr>`;
          }
 
+        // --- Bind Event Listeners for Filters and Actions ---
+        const searchInput = document.getElementById('shipmentSearchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const addFilterBtn = document.getElementById('addFilterBtn');
+        const secondaryFilters = document.getElementById('secondaryFilters');
+        const statusTabsContainer = document.getElementById('statusTabsContainer');
+        const itemsPerPageSelect = document.getElementById('itemsPerPageSelect');
+        const firstPageBtn = document.getElementById('firstPageBtn');
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const lastPageBtn = document.getElementById('lastPageBtn');
 
-        // --- Dữ liệu và Tạo Combobox (Giữ nguyên logic tạo) ---
-        const dropdownData = {
-            "Tất cả kho hàng": { type: 'search-select', options: ["Tất cả kho hàng", "Kho Royal City", "Kho Times City"] },
-            "Người trả cước": { type: 'select', options: ["Người trả cước", "Người gửi", "Người nhận"] },
-            "Đơn hàng gửi": { type: 'select', options: ["Đơn hàng gửi", "Đơn hàng nhận", "Đơn sàn", "Yêu cầu ký gửi quốc tế"] },
-            "Trạng thái thanh toán COD": { type: 'search-select', options: ["Trạng thái thanh toán COD", "Không có COD", "Chưa đối soát COD", "Chờ nhận COD", "Đã nhận COD"] },
-            "Chọn theo dịch vụ": { type: 'radio-select', options: ["Chọn theo dịch vụ", "Giao 1 phần", "Lưu kho", "Giao ngay nội tỉnh"] },
-            "Chọn tài khoản tạo đơn": { type: 'search-select', options: ["Chọn tài khoản tạo đơn", "Tất cả", "Đỗ Huỳnh Giáp"] },
-            "10": { type: 'select', options: ["10", "20", "50"] } // For pagination dropdown
-        };
+        // Filter selects
+        const primaryFilters = document.querySelectorAll('.primary-filters select'); // Select only primary selects
+        const allSecondaryFilters = document.querySelectorAll('.secondary-filters select');
 
-        document.querySelectorAll('.custom-dropdown').forEach(container => {
-            const placeholder = container.dataset.placeholder;
-            const data = dropdownData[placeholder];
-            if (!data) return;
+        const triggerFilter = () => {
+             if (window.ShipmentsData?.handleFilterChange) {
+                 window.ShipmentsData.handleFilterChange();
+             } else { console.warn("ShipmentsData.handleFilterChange not available"); }
+         };
 
-            // ... (Phần code HTML generation và event listener cho dropdown giữ nguyên như bản gốc bạn cung cấp) ...
-             const initialText = data.options[0];
-            const optionsList = data.type === 'radio-select' ? data.options.slice(1) : data.options;
-            let optionsHtml;
+        if (searchBtn) searchBtn.addEventListener('click', triggerFilter);
+        if (searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') triggerFilter(); });
+        if (refreshBtn) refreshBtn.addEventListener('click', () => {
+             // Let ShipmentsData handle reset logic internally via handleFilterChange(true)
+             if (window.ShipmentsData?.handleFilterChange) {
+                 console.log("🔄 Refresh button clicked, calling handleFilterChange(true)...");
+                 window.ShipmentsData.handleFilterChange(true); // Pass true for full reset
+             } else { console.error("ShipmentsData.handleFilterChange is not available for refresh"); }
+         });
 
-            if (data.type === 'radio-select') {
-                optionsHtml = `<div class="dropdown-header"><button class="clear-btn">Bỏ chọn</button></div><ul>${optionsList.map(opt => `<li><label><input type="radio" name="${placeholder}"> ${opt}</label></li>`).join('')}</ul>`;
-            } else {
-                optionsHtml = `<ul>${optionsList.map(opt => `<li class="${opt === initialText ? 'active' : ''}">${opt}</li>`).join('')}</ul>`;
-            }
+        // Add listeners for ALL filter selects (primary and secondary)
+         primaryFilters.forEach(select => {
+             if (select) select.addEventListener('change', triggerFilter);
+         });
+         allSecondaryFilters.forEach(select => {
+            if (select) select.addEventListener('change', triggerFilter);
+         });
 
-            const searchHtml = (data.type === 'search-select') ? `<div class="dropdown-search"><input type="text" placeholder="Tìm kiếm..."></div>` : '';
-            container.innerHTML = `<div class="dropdown-selected"><span>${initialText}</span><i class="fa-solid fa-caret-down"></i></div><div class="dropdown-options">${searchHtml}${optionsHtml}</div>`;
-
-            const selected = container.querySelector('.dropdown-selected');
-            const optionsContainer = container.querySelector('.dropdown-options');
-            const allOptions = optionsContainer.querySelectorAll('li');
-            const span = selected.querySelector('span');
-             const clearBtn = optionsContainer.querySelector('.clear-btn'); // Get clear button if exists
-
-            selected.addEventListener('click', e => {
-                e.stopPropagation();
-                const isShown = optionsContainer.classList.contains('show');
-                // Close all other dropdowns first
-                document.querySelectorAll('.custom-dropdown .dropdown-options.show').forEach(otherOpt => {
-                     if (otherOpt !== optionsContainer) otherOpt.classList.remove('show');
-                });
-                // Toggle current dropdown
-                optionsContainer.classList.toggle('show');
+        // Toggle secondary filters
+        if (addFilterBtn && secondaryFilters) {
+            addFilterBtn.addEventListener('click', () => {
+                secondaryFilters.classList.toggle('hidden');
+                addFilterBtn.classList.toggle('active');
+                 // Change icon based on state
+                const icon = addFilterBtn.querySelector('i');
+                if(icon) {
+                    icon.className = secondaryFilters.classList.contains('hidden') ? 'fas fa-filter' : 'fas fa-times';
+                }
+                // Reset secondary filters when hiding
+                if (secondaryFilters.classList.contains('hidden') && window.ShipmentsData?.resetSecondaryFilters) {
+                     window.ShipmentsData.resetSecondaryFilters(); // Reset state
+                     triggerFilter(); // Re-apply primary filters
+                 }
             });
+        }
 
-             // Add listener for clear button in radio-select
-             if (clearBtn) {
-                 clearBtn.addEventListener('click', (e) => {
-                     e.stopPropagation(); // Prevent dropdown closing
-                     const radios = optionsContainer.querySelectorAll('input[type="radio"]');
-                     radios.forEach(radio => radio.checked = false);
-                     span.textContent = initialText; // Reset display text
-                     optionsContainer.classList.remove('show'); // Close dropdown
-                      console.log(`Dropdown cleared: ${placeholder}`);
-                     // TODO: Trigger filter update after clearing
+
+        // --- FIXED: Status Tab clicks (delegation) ---
+        if (statusTabsContainer) {
+            statusTabsContainer.addEventListener('click', (event) => {
+                const tab = event.target.closest('.tab-item'); // Find the clicked tab item
+                if (tab && !tab.classList.contains('active')) { // Check if it's a tab and not already active
+                    const statusCode = tab.dataset.statusCode;
+                    console.log(`Tab clicked: ${statusCode || 'Tất cả'}`);
+
+                    // Call the data module handler
+                    if (window.ShipmentsData?.handleStatusFilterChange) {
+                        window.ShipmentsData.handleStatusFilterChange(statusCode);
+                         // Visual update is now handled INSIDE handleStatusFilterChange
+                    } else {
+                        console.warn("ShipmentsData.handleStatusFilterChange not available");
+                    }
+                }
+            });
+        } else { console.warn("Status tabs container not found for event listener."); }
+
+        // Pagination listeners
+        if (itemsPerPageSelect) {
+             itemsPerPageSelect.addEventListener('change', (e) => {
+                 if (window.ShipmentsData?.handleItemsPerPageChange) {
+                     window.ShipmentsData.handleItemsPerPageChange(parseInt(e.target.value, 10));
+                 }
+             });
+        }
+         const setupPaginationButton = (buttonId, action) => {
+             const btn = document.getElementById(buttonId);
+             if (btn) {
+                 btn.addEventListener('click', () => {
+                     if (!btn.disabled && window.ShipmentsData?.handlePageChange) {
+                         window.ShipmentsData.handlePageChange(action);
+                     }
                  });
              }
+         };
+         setupPaginationButton('firstPageBtn', 'first');
+         setupPaginationButton('prevPageBtn', 'prev');
+         setupPaginationButton('nextPageBtn', 'next');
+         setupPaginationButton('lastPageBtn', 'last');
 
 
-            allOptions.forEach(opt => {
-                opt.addEventListener('click', () => {
-                     const selectedValue = opt.textContent.trim();
-                     span.textContent = selectedValue;
-                    if (data.type !== 'radio-select') {
-                        allOptions.forEach(o => o.classList.remove('active'));
-                        opt.classList.add('active');
-                    } else {
-                         // Ensure radio button is checked visually (if not already handled by label click)
-                         const radio = opt.querySelector('input[type="radio"]');
-                         if (radio) radio.checked = true;
-                    }
-                    optionsContainer.classList.remove('show'); // Close dropdown after selection
-                     console.log(`Dropdown selected: ${placeholder} = ${selectedValue}`);
-                    // --- TODO: Trigger filter update ---
-                     // if (window.ShipmentsData && typeof window.ShipmentsData.filterOrders === 'function') {
-                     //     let filterCriteria = {};
-                     //     filterCriteria[placeholder] = selectedValue; // Need a mapping for placeholder to API field
-                     //     window.ShipmentsData.filterOrders(filterCriteria);
-                     // }
-                     alert(`Chức năng lọc theo "${placeholder} = ${selectedValue}" chưa cài đặt.`);
-                });
-            });
-        });
-        // Global click listener to close dropdowns
-         window.removeEventListener('click', closeAllDropdowns); // Remove first
-         window.addEventListener('click', closeAllDropdowns);
-         function closeAllDropdowns() {
-             document.querySelectorAll('.custom-dropdown .dropdown-options.show').forEach(opt => opt.classList.remove('show'));
-         }
+        // --- Placeholder listeners for Action Buttons ---
+         const printBtn = document.getElementById('printBtn');
+         const exportExcelBtn = document.getElementById('exportExcelBtn');
+         const importExcelBtn = document.getElementById('importExcelBtn');
 
+         if(printBtn) printBtn.addEventListener('click', () => { console.log('TODO: Implement Print Action'); alert('Chức năng In đơn chưa được triển khai.'); });
+         if(exportExcelBtn) exportExcelBtn.addEventListener('click', () => { console.log('TODO: Implement Export Excel Action'); alert('Chức năng Xuất Excel chưa được triển khai.'); });
+         if(importExcelBtn) importExcelBtn.addEventListener('click', () => { console.log('TODO: Implement Import Excel Action'); alert('Chức năng Nhập Excel chưa được triển khai.'); });
 
-        // --- Xử lý Action Buttons dựa trên Tab ---
-        const mainActionsContainer = document.getElementById('mainActions');
-        const allTabs = document.querySelectorAll('.tab-item, .dropdown-item');
-        // Lưu trữ HTML nút cơ bản ban đầu
-        const baseButtonsHtml = `
-            <button class="btn btn-print"><i class="fa-solid fa-print"></i> IN ĐƠN</button>
-            <button class="btn btn-export-excel"><i class="fa-solid fa-file-excel"></i> XUẤT EXCEL</button>
-            <button class="btn btn-import-excel"><i class="fa-solid fa-upload"></i> NHẬP EXCEL</button>
-        `;
-         // Initialize with base buttons
-         if (mainActionsContainer) mainActionsContainer.innerHTML = baseButtonsHtml;
-
-        function updateActionButtons(status) {
-            let dynamicButtons = '';
-            switch (status) {
-                case 'Đã tiếp nhận':
-                case 'Đang lấy hàng':
-                    dynamicButtons = `<button class="btn btn-cancel-order"><i class="fa-solid fa-trash-can"></i> HỦY ĐƠN</button>`;
-                    break;
-                case 'Đang giao hàng':
-                case 'Chờ phát lại':
-                    dynamicButtons = `<button class="btn btn-store-package"><i class="fa-solid fa-warehouse"></i> LƯU KHO</button>`;
-                    break;
-                case 'Chờ xử lý':
-                    dynamicButtons = `<button class="btn btn-approve-return"><i class="fa-solid fa-check"></i> DUYỆT HOÀN</button><button class="btn btn-store-package"><i class="fa-solid fa-warehouse"></i> LƯU KHO</button>`;
-                    break;
-                 // Add cases for other statuses if they have specific actions
-            }
-            if (mainActionsContainer) {
-                mainActionsContainer.innerHTML = baseButtonsHtml + dynamicButtons;
-                 console.log(` Nút Action được cập nhật cho trạng thái: ${status}`);
-            } else {
-                 console.error("❌ mainActionsContainer không tìm thấy để cập nhật nút!");
-            }
-        }
-
-        allTabs.forEach(tab => {
-             // Remove old listener
-             tab.removeEventListener('click', handleTabClick);
-             // Add new listener
-            tab.addEventListener('click', handleTabClick);
-        });
-
-        function handleTabClick(e) {
-            e.preventDefault(); e.stopPropagation();
-            allTabs.forEach(t => t.classList.remove('active'));
-            e.currentTarget.classList.add('active'); // Use currentTarget
-            const otherTabsDropdown = document.getElementById('otherTabsDropdown');
-            if (e.currentTarget.classList.contains('dropdown-item') && otherTabsDropdown) {
-                otherTabsDropdown.classList.remove('show');
-            }
-            const newStatus = e.currentTarget.dataset.status;
-            console.log(` Mở tab: ${newStatus}`);
-            updateActionButtons(newStatus);
-
-            // --- GỌI RENDER TABLE TỪ MODULE ---
-            if (window.ShipmentsData && typeof window.ShipmentsData.renderTable === 'function') {
-                window.ShipmentsData.renderTable(newStatus);
-            } else {
-                console.error("❌ ShipmentsData.renderTable is not available!");
-                 showShipmentsPageError("Lỗi: Không thể hiển thị dữ liệu cho tab này.");
-            }
-        }
-
-
-        // --- Xử lý dropdown "Khác" ---
-        const otherTabsContainer = document.getElementById('otherTabsContainer');
-        if (otherTabsContainer) {
-             otherTabsContainer.removeEventListener('click', handleOtherTabsClick); // Remove old
-            otherTabsContainer.addEventListener('click', handleOtherTabsClick); // Add new
-        }
-        function handleOtherTabsClick(e) {
-             // Let clicks on items inside bubble up to the item's own listener
-             if (e.target.closest('.dropdown-item')) return;
-             e.stopPropagation(); // Prevent window click listener from closing it immediately
-             const otherTabsDropdown = document.getElementById('otherTabsDropdown');
-             if (otherTabsDropdown) otherTabsDropdown.classList.toggle('show');
-        }
-
-
-        // --- Xử lý cuộn ngang cho các tab ---
-        const scrollContainer = document.getElementById('statusTabs');
-        const scrollLeftBtn = document.getElementById('scrollLeftBtn');
-        const scrollRightBtn = document.getElementById('scrollRightBtn');
-        if (scrollContainer && scrollLeftBtn && scrollRightBtn) {
-             scrollLeftBtn.removeEventListener('click', scrollTabsLeft);
-             scrollLeftBtn.addEventListener('click', scrollTabsLeft);
-             scrollRightBtn.removeEventListener('click', scrollTabsRight);
-             scrollRightBtn.addEventListener('click', scrollTabsRight);
-        }
-        function scrollTabsLeft() { scrollContainer.scrollBy({ left: -200, behavior: 'smooth' }); }
-        function scrollTabsRight() { scrollContainer.scrollBy({ left: 200, behavior: 'smooth' }); }
-
-
-        // --- Xử lý chọn mục thống kê (Stat Items) ---
-        document.querySelectorAll('.summary-stats .stat-item').forEach(item => {
-             item.removeEventListener('click', handleStatItemClick); // Remove old
-            item.addEventListener('click', handleStatItemClick); // Add new
-        });
-        function handleStatItemClick(e) {
-            document.querySelectorAll('.summary-stats .stat-item').forEach(i => i.classList.remove('active'));
-            e.currentTarget.classList.add('active'); // Use currentTarget
-            const newStatusFilter = e.currentTarget.dataset.statusTarget; // Get filter value
-            console.log(`📊 Stat item clicked, filtering by: ${newStatusFilter}`);
-
-             // Also activate the corresponding tab if it exists
-             const correspondingTab = document.querySelector(`.tab-item[data-status="${newStatusFilter}"], .dropdown-item[data-status="${newStatusFilter}"]`);
-             if (correspondingTab) {
-                 allTabs.forEach(t => t.classList.remove('active'));
-                 correspondingTab.classList.add('active');
-                 updateActionButtons(newStatusFilter); // Update actions based on the new status
-
-                 // If the corresponding tab is inside the 'Khác' dropdown, ensure dropdown is closed
-                 const otherTabsDropdown = document.getElementById('otherTabsDropdown');
-                 if (correspondingTab.classList.contains('dropdown-item') && otherTabsDropdown) {
-                     otherTabsDropdown.classList.remove('show');
+         // --- FIXED: Edit Button listener (delegation) ---
+         const tableBody = document.getElementById('shipmentsTableBody');
+         if (tableBody) {
+             tableBody.addEventListener('click', (event) => {
+                 const editButton = event.target.closest('button.btn-edit'); // Find the clicked edit button
+                 if (editButton && !editButton.disabled) {
+                     const orderId = editButton.dataset.orderId;
+                     console.log(`Edit button listener triggered for order: ${orderId}`);
+                     if (orderId && window.ShipmentsData?.openEditModal) {
+                         window.ShipmentsData.openEditModal(orderId); // Call the function from ShipmentsData
+                     } else {
+                          console.warn("Could not open edit modal - orderId or function missing", orderId);
+                     }
                  }
-             } else {
-                  console.warn(`⚠️ Không tìm thấy tab tương ứng cho stat item: ${newStatusFilter}`);
-             }
+             });
+         } else { console.warn("Table body not found for edit button listener."); }
 
-
-            // --- GỌI RENDER TABLE TỪ MODULE ---
-            if (window.ShipmentsData && typeof window.ShipmentsData.renderTable === 'function') {
-                window.ShipmentsData.renderTable(newStatusFilter); // Use the filter value
+         // --- FIXED: Edit Modal Listeners ---
+         const editModal = document.getElementById('editOrderInfoModal');
+         const editForm = document.getElementById('editOrderForm');
+         if (editModal) {
+             // Close buttons
+             editModal.querySelectorAll('[data-action="close-edit-modal"]').forEach(btn => {
+                  btn.addEventListener('click', () => {
+                      if(window.ShipmentsData?.closeEditModal) window.ShipmentsData.closeEditModal();
+                  });
+             });
+             // Close on overlay click
+             editModal.addEventListener('click', (event) => {
+                 if (event.target === editModal) { // Clicked on the overlay itself
+                      if(window.ShipmentsData?.closeEditModal) window.ShipmentsData.closeEditModal();
+                 }
+             });
+         }
+         if (editForm) {
+    // Form submission - sửa thành click event cho button
+    const saveEditBtn = document.getElementById('saveEditBtn');
+    if (saveEditBtn) {
+        saveEditBtn.addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent default browser submission
+            if(window.ShipmentsData?.handleSaveEdit) {
+                window.ShipmentsData.handleSaveEdit(); // Gọi không có tham số
             } else {
-                console.error("❌ ShipmentsData.renderTable is not available!");
-                 showShipmentsPageError("Lỗi: Không thể lọc dữ liệu theo thống kê.");
+                 console.warn("Save handler (ShipmentsData.handleSaveEdit) not found.");
             }
-        }
+        });
+    }
+}
 
 
-        // --- Xử lý modal "Thêm bộ lọc" (Filter Modal) ---
-        const addFilterBtn = document.getElementById('addFilterBtn');
-        const filterModal = document.getElementById('filterModal');
-        const closeFilterModalBtn = document.getElementById('closeFilterModalBtn'); // Corrected ID
-        const cancelFilterBtn = document.getElementById('cancelFilterBtn');
-        const saveFilterBtn = document.getElementById('saveFilterBtn');
-
-        if (addFilterBtn && filterModal && closeFilterModalBtn && cancelFilterBtn && saveFilterBtn) {
-            const showFilterModal = () => filterModal.classList.remove('hidden');
-            const hideFilterModal = () => filterModal.classList.add('hidden');
-
-             addFilterBtn.removeEventListener('click', showFilterModal);
-            addFilterBtn.addEventListener('click', showFilterModal);
-
-             closeFilterModalBtn.removeEventListener('click', hideFilterModal);
-            closeFilterModalBtn.addEventListener('click', hideFilterModal);
-
-             cancelFilterBtn.removeEventListener('click', hideFilterModal);
-            cancelFilterBtn.addEventListener('click', hideFilterModal);
-
-             saveFilterBtn.removeEventListener('click', handleSaveFilter); // Use specific handler
-             saveFilterBtn.addEventListener('click', handleSaveFilter);
-
-             // Close on overlay click
-             filterModal.removeEventListener('click', handleFilterOverlayClick);
-             filterModal.addEventListener('click', handleFilterOverlayClick);
-
-             function handleSaveFilter() {
-                 console.log("💾 Filter settings saved (TODO: Apply filters).");
-                 // TODO: Get selected filter values from checkboxes/inputs inside modal
-                 // TODO: Call ShipmentsData.filterOrders with the collected criteria
-                 alert("Chức năng lưu bộ lọc chưa được cài đặt.");
-                 hideFilterModal();
-             }
-             function handleFilterOverlayClick(e) { if (e.target === filterModal) hideFilterModal(); }
-
-        } else {
-             console.warn("⚠️ Thiếu một hoặc nhiều element của Filter Modal.");
-        }
-
-
-        // --- Xử lý modal "Cập nhật trạng thái" (Status Modal) ---
-        const statusModal = document.getElementById('statusModal');
-        const closeStatusModalBtn = document.getElementById('closeStatusModalBtn'); // Corrected ID
-        const cancelStatusBtn = document.getElementById('cancelStatusBtn');
-        const confirmStatusBtn = document.getElementById('confirmStatusBtn');
-        const statusModalTitle = document.getElementById('statusModalTitle');
-        const statusModalOrderCode = document.getElementById('statusModalOrderCode');
-
-        if (statusModal && closeStatusModalBtn && cancelStatusBtn && confirmStatusBtn && statusModalTitle && statusModalOrderCode) {
-            // Attach listeners to call functions from ShipmentsData module
-             closeStatusModalBtn.removeEventListener('click', handleCloseStatusModal);
-            closeStatusModalBtn.addEventListener('click', handleCloseStatusModal);
-
-             cancelStatusBtn.removeEventListener('click', handleCloseStatusModal);
-            cancelStatusBtn.addEventListener('click', handleCloseStatusModal);
-
-             confirmStatusBtn.removeEventListener('click', handleConfirmUpdateStatus);
-            confirmStatusBtn.addEventListener('click', handleConfirmUpdateStatus);
-
-             // Close on overlay click
-             statusModal.removeEventListener('click', handleStatusOverlayClick);
-             statusModal.addEventListener('click', handleStatusOverlayClick);
-
-        } else {
-             console.warn("⚠️ Thiếu một hoặc nhiều element của Status Modal.");
-             // Disable update buttons in the table if modal is broken
-             document.querySelectorAll('.btn-update').forEach(btn => btn.disabled = true);
-        }
-
-
-        // --- GỌI HÀM TẢI DỮ LIỆU BAN ĐẦU ---
-        if (window.ShipmentsData && typeof window.ShipmentsData.loadOrders === 'function') {
-            console.log("🚀 Calling ShipmentsData.loadOrders() from shipments.html init...");
-            window.ShipmentsData.loadOrders();
-        } else {
-            console.error("❌ ShipmentsData or ShipmentsData.loadOrders not available!");
-            showShipmentsPageError("Lỗi nghiêm trọng: Không thể tải module dữ liệu vận đơn.");
-        }
-         // --- KẾT THÚC GỌI HÀM TẢI DỮ LIỆU ---
-
-        // --- Thêm nút Refresh ---
-        const mainActions = document.getElementById('mainActions');
-        if (mainActions && !mainActions.querySelector('.btn-refresh')) { // Check if not already added
-            const refreshBtn = document.createElement("button");
-            refreshBtn.className = "btn btn-refresh"; // Use appropriate classes
-            refreshBtn.style.backgroundColor = '#6c757d'; // Example style
-            refreshBtn.style.color = 'white';
-            refreshBtn.innerHTML = `<i class="fa-solid fa-rotate"></i> Làm mới`;
-            refreshBtn.removeEventListener('click', handleRefreshClick); // Prevent duplicates
-            refreshBtn.addEventListener("click", handleRefreshClick);
-            mainActions.appendChild(refreshBtn);
-            console.log("🔧 Nút Làm mới đã được thêm.");
-        }
-
-
-        console.log("✅ Shipments page UI Initialized"); // Log end of UI init
+        console.log("✅ Shipments Page UI Initialized and event listeners bound.");
     } // --- End initShipmentsPage ---
 
 
-    // --- Named Handlers for Modal Buttons and Refresh ---
-    // (These call functions exposed by ShipmentsData module)
-    function handleCloseStatusModal() {
-        console.log("Listener: Closing status modal...");
-        if (window.ShipmentsData && typeof window.ShipmentsData.closeStatusModal === 'function') {
-            window.ShipmentsData.closeStatusModal();
-        } else { console.error("ShipmentsData.closeStatusModal is not available"); }
-    }
-
-    function handleConfirmUpdateStatus() {
-         console.log("Listener: Confirming status update...");
-        if (window.ShipmentsData && typeof window.ShipmentsData.updateOrderStatus === 'function') {
-            window.ShipmentsData.updateOrderStatus();
-        } else { console.error("ShipmentsData.updateOrderStatus is not available"); }
-    }
-     function handleStatusOverlayClick(event) {
-         const statusModal = document.getElementById('statusModal');
-         if (event.target === statusModal) { // Check if click is on the overlay itself
-             handleCloseStatusModal();
-         }
-     }
-      function handleRefreshClick() {
-         if (window.ShipmentsData && typeof window.ShipmentsData.loadOrders === 'function') {
-             console.log("🔄 Refresh button clicked, reloading orders...");
-             window.ShipmentsData.loadOrders();
-         } else { console.error("ShipmentsData.loadOrders is not available for refresh"); }
-     }
-
-
-    // --- LOGIC KIỂM TRA ĐỂ GỌI HÀM INIT (giữ nguyên) ---
+    // --- LOGIC KIỂM TRA ĐỂ GỌI HÀM INIT ---
     if (document.readyState === "loading") {
-        // Chạy độc lập: Đợi DOM load xong
         document.addEventListener("DOMContentLoaded", initShipmentsPage);
     } else {
-        // Chạy qua index.html (DOM đã load): Chạy ngay!
+        // If loaded dynamically after DOM is ready, call directly
         initShipmentsPage();
     }
     </script>
-    <script src="assets/api/config.js"></script>
-    <script src="assets/api/shipments-data.js"></script> </body>
+</body>
 </html>
+

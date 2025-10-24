@@ -1,4 +1,5 @@
 // ===============================
+// ========== cargo-data.js ======
 // ===============================
 
 window.CargoData = (function () {
@@ -19,334 +20,367 @@ window.CargoData = (function () {
       return;
     }
 
-    // --- Thêm kiểm tra config ---
-    if (!window.API_CONFIG || !window.API_CONFIG.BASE_URL || typeof window.API_CONFIG.getAccessToken !== 'function') {
-        console.error("❌ API_CONFIG chưa sẵn sàng trong CargoData.init!");
-        showErrorUI("Lỗi cấu hình. Không thể tải dữ liệu.");
-        return;
+    if (
+      !window.API_CONFIG ||
+      !window.API_CONFIG.BASE_URL ||
+      typeof window.API_CONFIG.getAccessToken !== "function"
+    ) {
+      console.error("❌ API_CONFIG chưa sẵn sàng trong CargoData.init!");
+      showErrorUI("Lỗi cấu hình. Không thể tải dữ liệu.");
+      return;
     }
-    // --- Kết thúc kiểm tra config ---
 
     try {
       isLoading = true;
-      console.log("🚀 Bắt đầu CargoData.init()..."); // Thêm log
+      console.log("🚀 Bắt đầu CargoData.init()...");
 
-      // Chờ token có sẵn (nếu login trễ)
       await waitForToken();
 
-      // Tính range thời gian
       const picker = document.querySelector("#statsDatePicker");
       let from, to;
 
-      // --- Thêm kiểm tra picker ---
-      if (picker && picker._flatpickr && picker._flatpickr.selectedDates && picker._flatpickr.selectedDates.length === 2) {
+      if (
+        picker &&
+        picker._flatpickr &&
+        picker._flatpickr.selectedDates &&
+        picker._flatpickr.selectedDates.length === 2
+      ) {
         from = picker._flatpickr.selectedDates[0].toISOString();
         to = picker._flatpickr.selectedDates[1].toISOString();
         console.log("📅 Sử dụng date range từ picker:", from, "đến", to);
       } else {
         const now = new Date();
-        const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000); // Sửa lỗi 7 ngày
+        const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000);
         from = sevenDaysAgo.toISOString();
         to = now.toISOString();
         console.log("📅 Sử dụng date range mặc định (7 ngày):", from, "đến", to);
       }
-      // --- Kết thúc kiểm tra picker ---
 
-      // Gọi API
-      // --- Sửa lỗi: Cần await cả Promise.all ---
-      await Promise.all([loadCargoStatistics(from, to), loadCashBalance()]);
+      const codMode = getSelectedCODMode();
+      await Promise.all([loadCargoStatistics(from, to, codMode), loadCashBalance()]);
       console.log("✅ CargoData loaded thành công!");
+
+      attachComboBoxHandler();
     } catch (error) {
       console.error("❌ CargoData init failed:", error);
-      showErrorUI(`Không thể tải dữ liệu dòng tiền (${error.message}). Vui lòng thử lại sau.`); // Hiển thị lỗi cụ thể hơn
+      showErrorUI(
+        `Không thể tải dữ liệu dòng tiền (${error.message}). Vui lòng thử lại sau.`
+      );
     } finally {
       isLoading = false;
-      console.log("🏁 Kết thúc CargoData.init()."); // Thêm log
+      console.log("🏁 Kết thúc CargoData.init().");
     }
   }
 
   /**
    * -----------------------------------------------------
-   * 🔹 2️⃣ Chờ token hợp lệ (tránh lỗi 401)
+   * 🔹 2️⃣ Lấy chế độ COD từ combobox
+   * -----------------------------------------------------
+   */
+  function getSelectedCODMode() {
+    const select = document.querySelector(
+      "#thong-ke .dropdown-wrapper select"
+    );
+    if (!select) return "include";
+    const value = select.value.toLowerCase();
+    return value.includes("không") ? "exclude" : "include";
+  }
+
+  /**
+   * -----------------------------------------------------
+   * 🔹 3️⃣ Gắn sự kiện cho combobox (lọc COD)
+   * -----------------------------------------------------
+   */
+  function attachComboBoxHandler() {
+    const select = document.querySelector("#thong-ke .dropdown-wrapper select");
+    if (!select) return;
+
+    select.removeEventListener("change", handleCODFilterChange);
+    select.addEventListener("change", handleCODFilterChange);
+  }
+
+  async function handleCODFilterChange() {
+    const picker = document.querySelector("#statsDatePicker");
+    let from, to;
+
+    if (
+      picker &&
+      picker._flatpickr &&
+      picker._flatpickr.selectedDates &&
+      picker._flatpickr.selectedDates.length === 2
+    ) {
+      from = picker._flatpickr.selectedDates[0].toISOString();
+      to = picker._flatpickr.selectedDates[1].toISOString();
+    } else {
+      const now = new Date();
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000);
+      from = sevenDaysAgo.toISOString();
+      to = now.toISOString();
+    }
+
+    const mode = getSelectedCODMode();
+    console.log("🔄 Lọc lại dữ liệu với chế độ COD:", mode);
+    await loadCargoStatistics(from, to, mode);
+  }
+
+  /**
+   * -----------------------------------------------------
+   * 🔹 4️⃣ Chờ token hợp lệ (tránh lỗi 401)
    * -----------------------------------------------------
    */
   async function waitForToken() {
     for (let i = 0; i < 10; i++) {
-      // --- Đảm bảo gọi hàm getAccessToken đúng cách ---
-      const token = (typeof getAccessToken === 'function') ? getAccessToken() : null;
+      const token =
+        typeof getAccessToken === "function" ? getAccessToken() : null;
       if (token) {
-          console.log("🔑 Đã tìm thấy token.");
-          return token; // Trả về token để sử dụng ngay
+        console.log("🔑 Đã tìm thấy token.");
+        return token;
       }
       console.log(`⏳ Chờ token... (lần ${i + 1})`);
       await new Promise((r) => setTimeout(r, 500));
     }
-    console.error("❌ Không tìm thấy token sau 5 giây.");
     throw new Error("Không tìm thấy token sau 5 giây. Hãy đăng nhập lại.");
   }
 
   /**
    * -----------------------------------------------------
-   * 🔹 3️⃣ Lấy dữ liệu thống kê dòng tiền
+   * 🔹 5️⃣ Lấy dữ liệu thống kê dòng tiền (1 endpoint)
    * -----------------------------------------------------
    */
-  async function loadCargoStatistics(from, to) {
-    let token; // Khai báo token ở phạm vi rộng hơn
+  async function loadCargoStatistics(from, to, codMode = "include") {
+    let token;
     try {
-      token = await waitForToken(); // Lấy token hợp lệ
+      token = await waitForToken();
       const headers = { "Content-Type": "application/json" };
-      // --- Sửa lỗi Authorization header ---
-      if (token) headers["Authorization"] = `Bearer ${token}`; // Luôn thêm "Bearer "
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
-      const url = `${API_BASE_URL}/orders/statistics/payment?from=${from}&to=${to}`;
-      console.log("🔄 Fetching cargo stats:", url);
+      const includeReceiver = codMode === "include" ? "true" : "false";
+      const url = `${API_BASE_URL}/orders/statistics/payment?from=${from}&to=${to}&includeReceiver=${includeReceiver}`;
+
+      console.log(`🔄 Fetching cargo stats (includeReceiver=${includeReceiver}):`, url);
 
       const res = await fetch(url, { headers });
-
-      // --- Xử lý lỗi chi tiết hơn ---
-      if (res.status === 401) {
-          console.error("❌ Lỗi 401 khi tải cargo stats.");
-          return handle401(); // Gọi hàm xử lý 401
-      }
-      if (!res.ok) {
-          const errorText = await res.text();
-          console.error(`❌ HTTP ${res.status} khi tải cargo stats:`, errorText);
-          throw new Error(`HTTP ${res.status}: ${errorText || res.statusText}`);
-      }
-      // --- Kết thúc xử lý lỗi ---
+      if (res.status === 401) return handle401();
+      if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
 
       const data = await res.json();
       console.log("✅ Cargo statistics:", data);
-      updateStatsUI(data.result || data); // Xử lý trường hợp data có result wrapper
+      updateStatsUI(data.result || data, codMode);
     } catch (err) {
       console.error("❌ Lỗi khi tải thống kê dòng tiền:", err);
-      showErrorUI(`Không thể tải dữ liệu thống kê (${err.message}).`); // Hiển thị lỗi
+      showErrorUI(`Không thể tải dữ liệu thống kê (${err.message}).`);
     }
   }
 
   /**
    * -----------------------------------------------------
-   * 🔹 5️⃣ Cập nhật UI phần thống kê
+   * 🔹 6️⃣ Giả lập loadCashBalance (nếu API có)
    * -----------------------------------------------------
    */
-  function updateStatsUI(data) {
-     console.log("📊 Cập nhật UI Thống kê với data:", data); // Thêm log
-    // --- Thêm kiểm tra data ---
-    if (!data) {
-        console.warn("⚠️ Không có dữ liệu để cập nhật UI Thống kê.");
-        return;
-    }
-    // --- Kết thúc kiểm tra ---
+  async function loadCashBalance() {
+    console.log("ℹ️ Giả lập loadCashBalance()");
+  }
+
+  /**
+   * -----------------------------------------------------
+   * 🔹 7️⃣ Cập nhật UI phần thống kê + biểu đồ tròn
+   * -----------------------------------------------------
+   */
+  function updateStatsUI(data, codMode) {
+    console.log("📊 Cập nhật UI Thống kê với data:", data);
+    if (!data) return;
 
     const totalOrders = document.querySelector(".total-orders b");
-    const codTotal = document.querySelector("#thong-ke .summary-item:nth-child(1) b"); // Chính xác hơn
-    const feeTotal = document.querySelector("#thong-ke .summary-item:nth-child(2) b"); // Chính xác hơn
+    const codTotal = document.querySelector(
+      "#thong-ke .summary-item:nth-child(1) b"
+    );
+    const feeTotal = document.querySelector(
+      "#thong-ke .summary-item:nth-child(2) b"
+    );
 
-    if (totalOrders) totalOrders.textContent = data.totalOrders || 0;
+    if (totalOrders)
+      totalOrders.textContent = (data.totalOrders || 0).toLocaleString("vi-VN");
+
+    const totalCOD = data.totalCod || data.totalCOD || 0;
     if (codTotal)
-      codTotal.textContent =
-        (data.totalCOD || 0).toLocaleString("vi-VN") + " ₫";
+      codTotal.textContent = totalCOD.toLocaleString("vi-VN") + " ₫";
+
     if (feeTotal)
       feeTotal.textContent =
-        (data.totalFee || 0).toLocaleString("vi-VN") + " ₫";
+        (data.totalShippingCost || data.totalFee || 0).toLocaleString("vi-VN") +
+        " ₫";
 
-    // --- Cập nhật bảng chi tiết trạng thái ---
-    const statusMapping = { // Ánh xạ tên trạng thái API với text trên UI nếu cần
-        "Đối soát": "Đối soát",
-        "Đang vận chuyển": "Đang vận chuyển",
-        "Đang giao hàng": "Đang giao hàng",
-        "Chờ phát lại": "Chờ phát lại",
-        "Giao thành công": "Giao thành công",
-        "Chờ xử lý": "Chờ xử lý",
-        // Bảng 2
-        "Tạo mới": "Tạo mới",
-        "Đã tiếp nhận": "Đã tiếp nhận",
-        "Đang lấy hàng": "Đang lấy hàng",
-        "Tồn - Lấy không thành công": "Tồn - Lấy không thành công",
-        "Đã hủy giao": "Đã hủy giao",
-        "VTP hủy lấy": "VTP hủy lấy",
-        "Shop hủy lấy": "Shop hủy lấy",
-        "Đang xác minh bồi thường": "Đang xác minh bồi thường",
-        "Đã bồi thường": "Đã bồi thường"
-    };
+    // --- Cập nhật bảng trạng thái ---
+    const byStatus = data.byStatus || [];
 
-    const rows1 = document.querySelectorAll("#thong-ke .table-card:nth-child(1) tbody tr");
-    const rows2 = document.querySelectorAll("#thong-ke .table-card:nth-child(2) tbody tr");
-    const allRows = [...rows1, ...rows2];
-
-    if (Array.isArray(data.statusDetails)) {
-       allRows.forEach(row => {
-           const statusTextElement = row.querySelector("td:first-child");
-           // Lấy text trạng thái, loại bỏ span.dot
-           const statusText = statusTextElement ? statusTextElement.textContent.trim() : null;
-
-           if (statusText) {
-               const apiStatusData = data.statusDetails.find(item => statusMapping[item.status] === statusText);
-               const ordersCell = row.children[1];
-               const codCell = row.children[2];
-               const feeCell = row.children[3];
-
-               if (apiStatusData) {
-                   if(ordersCell) ordersCell.textContent = apiStatusData.orders || 0;
-                   if(codCell) codCell.textContent = (apiStatusData.cod || 0).toLocaleString("vi-VN") + " ₫";
-                   if(feeCell) feeCell.textContent = (apiStatusData.fee || 0).toLocaleString("vi-VN") + " ₫";
-               } else {
-                   // Reset nếu không có data cho trạng thái này
-                   if(ordersCell) ordersCell.textContent = 0;
-                   if(codCell) codCell.textContent = "0 ₫";
-                   if(feeCell) feeCell.textContent = "0 ₫";
-               }
-           }
-       });
-    } else {
-        console.warn("⚠️ statusDetails không phải là array hoặc không tồn tại.");
-         // Reset tất cả các dòng nếu không có statusDetails
-         allRows.forEach(row => {
-             const ordersCell = row.children[1];
-             const codCell = row.children[2];
-             const feeCell = row.children[3];
-             if(ordersCell) ordersCell.textContent = 0;
-             if(codCell) codCell.textContent = "0 ₫";
-             if(feeCell) feeCell.textContent = "0 ₫";
-         });
+    // Ensure mapping includes DRAFT/draft -> 'Đơn nháp' (handled in mapStatusName below)
+    // Ensure the status table contains a row for 'Đơn nháp' so it will be displayed
+    try {
+      const tableBody = document.querySelector(
+        "#thong-ke .table-card:nth-child(1) tbody"
+      );
+      if (tableBody) {
+        const hasDraftRow = Array.from(tableBody.querySelectorAll('tr')).some(r => {
+          const t = r.querySelector('td:first-child')?.textContent?.trim();
+          return t === 'Đơn nháp';
+        });
+        if (!hasDraftRow) {
+          // Append a new row for Đơn nháp with zeroed columns (status, orders, COD, shipping)
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>Đơn nháp</td>
+            <td>0</td>
+            <td>0 ₫</td>
+            <td>0 ₫</td>
+          `;
+          tableBody.appendChild(tr);
+          console.log('ℹ️ Đã thêm hàng "Đơn nháp" vào bảng trạng thái.');
+        }
+      }
+    } catch (e) {
+      console.warn('Không thể đảm bảo hàng Đơn nháp trong bảng:', e);
     }
-    // --- Kết thúc cập nhật bảng ---
+
+    const rows = document.querySelectorAll(
+      "#thong-ke .table-card:nth-child(1) tbody tr"
+    );
+
+    rows.forEach((row) => {
+      const statusText = row.querySelector("td:first-child")?.textContent.trim();
+      const found = byStatus.find(
+        (s) => mapStatusName(s.status) === statusText
+      );
+      if (found) {
+        row.children[1].textContent = found.orders || 0;
+        row.children[2].textContent =
+          (found.cod || 0).toLocaleString("vi-VN") + " ₫";
+        row.children[3].textContent =
+          (found.shippingCost || 0).toLocaleString("vi-VN") + " ₫";
+      } else {
+        row.children[1].textContent = 0;
+        row.children[2].textContent = "0 ₫";
+        row.children[3].textContent = "0 ₫";
+      }
+    });
+
+    renderPieChart(byStatus);
   }
 
   /**
    * -----------------------------------------------------
-   * 🔹 6️⃣ Cập nhật UI phần dòng tiền
+   * 🔹 8️⃣ Vẽ biểu đồ trạng thái đơn hàng
    * -----------------------------------------------------
    */
-  function updateCashflowUI(data) {
-    console.log("💰 Cập nhật UI Dòng tiền với data:", data); // Thêm log
-    // --- Thêm kiểm tra data ---
-     if (!data) {
-        console.warn("⚠️ Không có dữ liệu để cập nhật UI Dòng tiền.");
-        return;
+  function renderPieChart(byStatus) {
+    try {
+      const chartContainer = document.querySelector(".chart-container");
+      if (chartContainer && Array.isArray(byStatus)) {
+        chartContainer.innerHTML =
+          '<canvas id="statusPieChart" width="300" height="300"></canvas>';
+        const ctx = document.getElementById("statusPieChart").getContext("2d");
+
+        const labels = byStatus.map((s) => mapStatusName(s.status));
+        const values = byStatus.map((s) => s.orders);
+        const colorMap = {
+          "Đối soát": "#f0ad4e",
+          "Đang vận chuyển": "#9b59b6",
+          "Đang giao hàng": "#5bc0de",
+          "Chờ phát lại": "#777",
+          "Giao thành công": "#5cb85c",
+          "Chờ xử lý": "#8d6e63",
+        };
+        const backgroundColors = labels.map((l) => colorMap[l] || "#ccc");
+
+        const drawChart = () =>
+          new Chart(ctx, {
+            type: "pie",
+            data: {
+              labels,
+              datasets: [{ data: values, backgroundColor: backgroundColors }],
+            },
+            options: {
+              plugins: {
+                legend: { position: "right" },
+                title: { display: true, text: "Tỷ lệ trạng thái đơn hàng" },
+              },
+            },
+          });
+
+        if (typeof Chart === "undefined") {
+          const script = document.createElement("script");
+          script.src = "https://cdn.jsdelivr.net/npm/chart.js";
+          script.onload = drawChart;
+          document.body.appendChild(script);
+        } else drawChart();
+      }
+    } catch (e) {
+      console.error("❌ Lỗi khi vẽ biểu đồ tròn:", e);
     }
-    // --- Kết thúc kiểm tra ---
-
-    const balanceEl = document.querySelector("#dong-tien .cash-summary-item.blue b");
-    const withdrawEl = document.querySelector("#dong-tien .cash-summary-item.red-outline b");
-    const topupEl = document.querySelector("#dong-tien .cash-summary-item.white b"); // Sửa tên biến cho rõ ràng
-
-    // --- Cập nhật Số dư, Rút tiền, Nạp cước ---
-    if (balanceEl) balanceEl.textContent = (data.balance || 0).toLocaleString("vi-VN") + " ₫";
-    // Giả sử API trả về withdrawPending hoặc tương tự
-    if (withdrawEl) withdrawEl.textContent = (data.withdrawPending || data.withdraw || 0).toLocaleString("vi-VN") + " ₫";
-    // Giả sử API trả về topupTotal hoặc tương tự
-    if (topupEl) topupEl.textContent = (data.topupTotal || data.topup || 0).toLocaleString("vi-VN") + " ₫";
-    // --- Kết thúc cập nhật ---
-
-
-    // --- Cập nhật Tiền hàng: Đang luân chuyển, Chờ trả ---
-    const movingEl = document.querySelector("#dong-tien .cashflow-column:nth-child(1) .info-card:nth-child(1) b");
-    const waitingEl = document.querySelector("#dong-tien .cashflow-column:nth-child(1) .info-card:nth-child(2) b");
-    // Giả sử API trả về cargoFlow { moving, waiting }
-    if (data.cargoFlow) {
-        if (movingEl) movingEl.textContent = (data.cargoFlow.moving || 0).toLocaleString("vi-VN") + " ₫";
-        if (waitingEl) waitingEl.textContent = (data.cargoFlow.waiting || 0).toLocaleString("vi-VN") + " ₫";
-    } else {
-         if (movingEl) movingEl.textContent = "0 ₫";
-         if (waitingEl) waitingEl.textContent = "0 ₫";
-    }
-    // --- Kết thúc cập nhật Tiền hàng ---
-
-    // --- Cập nhật Cước phí: Nợ cước, Đã trả 7 ngày ---
-    const debtEl = document.querySelector("#dong-tien .cashflow-column:nth-child(2) .info-card:nth-child(1) b");
-    const paid7DaysEl = document.querySelector("#dong-tien .cashflow-column:nth-child(2) .info-card:nth-child(2) b");
-     // Giả sử API trả về feeFlow { debt, paidLast7Days }
-    if (data.feeFlow) {
-        if (debtEl) debtEl.textContent = (data.feeFlow.debt || 0).toLocaleString("vi-VN") + " ₫";
-        if (paid7DaysEl) paid7DaysEl.textContent = (data.feeFlow.paidLast7Days || 0).toLocaleString("vi-VN") + " ₫";
-    } else {
-        if (debtEl) debtEl.textContent = "0 ₫";
-        if (paid7DaysEl) paid7DaysEl.textContent = "0 ₫";
-    }
-     // --- Kết thúc cập nhật Cước phí ---
-
-     // --- Cập nhật Biểu đồ (Placeholder - cần logic vẽ biểu đồ thực tế) ---
-     // Cập nhật biểu đồ Tiền hàng (line chart)
-     // Cập nhật biểu đồ Cước phí (bar chart)
-     console.log("📈 TODO: Cập nhật biểu đồ với dữ liệu (nếu có)");
-     // --- Kết thúc cập nhật biểu đồ ---
   }
-
 
   /**
    * -----------------------------------------------------
-   * 🔹 7️⃣ Xử lý khi bị 401 (hết hạn đăng nhập)
+   * 🔹 9️⃣ Ánh xạ mã trạng thái sang tiếng Việt
+   * -----------------------------------------------------
+   */
+  function mapStatusName(code) {
+    const mapping = {
+      DELIVERED: "Giao thành công",
+      IN_TRANSIT: "Đang vận chuyển",
+      PENDING: "Chờ xử lý",
+      PROCESSING: "Đang giao hàng",
+      RECONCILED: "Đối soát",
+      RETURNED: "Chờ phát lại",
+      DRAFT: "Đơn nháp",
+      draft: "Đơn nháp"
+    };
+    if (!code && code !== 0) return code;
+    // Normalize code to string and uppercase for matching common codes
+    const key = String(code).toUpperCase();
+    return mapping[code] || mapping[key] || mapping[String(code)] || code;
+  }
+
+  /**
+   * -----------------------------------------------------
+   * 🔹 🔟 401 handler & lỗi UI
    * -----------------------------------------------------
    */
   function handle401() {
     console.warn("⚠️ Token không hợp lệ hoặc hết hạn. Đang xử lý...");
     showAuthWarning();
-    localStorage.removeItem("accessToken"); // Xóa token cũ
-    sessionStorage.removeItem("accessToken"); // Xóa token cũ (nếu có)
-    // Cân nhắc chuyển hướng về trang login sau 1-2 giây
-    // setTimeout(() => { window.location.href = '/login.html'; }, 2000);
-    return false; // Trả về false để báo hiệu xử lý thất bại
+    localStorage.removeItem("accessToken");
+    sessionStorage.removeItem("accessToken");
+    return false;
   }
 
-  /**
-   * -----------------------------------------------------
-   * 🔹 8️⃣ Hiển thị thông báo xác thực
-   * -----------------------------------------------------
-   */
   function showAuthWarning() {
-    let warningDiv = document.querySelector(".auth-warning"); // Tìm div đã có
-    if (!warningDiv) { // Nếu chưa có thì tạo mới
+    let warningDiv = document.querySelector(".auth-warning");
+    if (!warningDiv) {
       warningDiv = document.createElement("div");
       warningDiv.className = "auth-warning";
       warningDiv.style.cssText =
-        "background:#fff3cd; color:#856404; padding:15px; margin: 20px; text-align:center; border:1px solid #ffeeba; border-radius: 8px; font-weight: bold; position: sticky; top: 70px; z-index: 1001;"; // Style đẹp hơn
+        "background:#fff3cd;color:#856404;padding:15px;margin:20px;text-align:center;border:1px solid #ffeeba;border-radius:8px;font-weight:bold;";
       warningDiv.textContent =
-        "⚠️ Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Dữ liệu có thể không được cập nhật. Vui lòng đăng nhập lại.";
-
-        // Chèn vào đầu thẻ main hoặc body nếu main không tồn tại
-        const mainElement = document.querySelector('main') || document.body;
-         if (mainElement.firstChild) {
-            mainElement.insertBefore(warningDiv, mainElement.firstChild);
-         } else {
-            mainElement.appendChild(warningDiv);
-         }
+        "⚠️ Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.";
+      const main = document.querySelector("main") || document.body;
+      main.insertBefore(warningDiv, main.firstChild);
     }
   }
 
-
-  /**
-   * -----------------------------------------------------
-   * 🔹 9️⃣ Hiển thị lỗi UI chung
-   * -----------------------------------------------------
-   */
   function showErrorUI(message) {
-      // Tránh hiển thị nhiều lỗi trùng lặp
-      if (document.querySelector(`.error-ui[data-message="${message}"]`)) return;
-
-      const div = document.createElement("div");
-      div.className = "error-ui"; // Thêm class để dễ quản lý
-      div.setAttribute("data-message", message); // Lưu message để tránh trùng lặp
-      div.style.cssText =
-        "background:#f8d7da; color:#721c24; padding:10px 15px; margin:15px 20px; text-align:center; border:1px solid #f5c6cb; border-radius: 6px; font-size:14px;";
-      div.textContent = `❌ ${message}`; // Thêm icon lỗi
-
-      // Chèn vào cuối thẻ main hoặc body
-      const mainElement = document.querySelector('main') || document.body;
-      mainElement.appendChild(div);
-
-      // Tự động xóa sau vài giây (tùy chọn)
-      // setTimeout(() => div.remove(), 7000);
+    if (document.querySelector(`.error-ui[data-message="${message}"]`)) return;
+    const div = document.createElement("div");
+    div.className = "error-ui";
+    div.setAttribute("data-message", message);
+    div.style.cssText =
+      "background:#f8d7da;color:#721c24;padding:10px 15px;margin:15px 20px;text-align:center;border:1px solid #f5c6cb;border-radius:6px;font-size:14px;";
+    div.textContent = `❌ ${message}`;
+    const main = document.querySelector("main") || document.body;
+    main.appendChild(div);
   }
 
-
-  // =====================================================
-  // Xuất module ra global để gọi thủ công nếu cần
-  // =====================================================
-  console.log("📦 CargoData module defined."); // Log khi module được định nghĩa
+  console.log("📦 CargoData module defined.");
   return { init, refresh: init };
 })();
 
-// --- XÓA BỎ KHỐI document.addEventListener("DOMContentLoaded") Ở ĐÂY ---
-// Logic khởi tạo sẽ được gọi từ file HTML tương ứng (cargo-value.html)
- console.log("🔧 cargo-data.js script finished execution. Waiting for init() call."); // Log cuối file
+console.log("🔧 cargo-data.js script finished execution. Waiting for init() call.");

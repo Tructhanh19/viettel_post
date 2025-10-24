@@ -106,3 +106,6 @@ i.fa-regular.fa-circle-question { color: #aaa; cursor: help; font-size: 13px; }
     font-size: 24px; display: flex; align-items: center; justify-content: center;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2); cursor: pointer;
 }
+.dot.gray { /* Or use a more specific name like .dot-draft */
+  background-color: #aaaaaa; /* A medium gray color */
+}

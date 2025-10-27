@@ -11,7 +11,10 @@ window.Package = (function () {
       return;
     }
 
-    await window.ProductData.init();
+    const productLoaded = await window.ProductData.init();
+    if (!productLoaded) {
+      console.warn('[Package] ProductData initialized but no products were loaded');
+    }
 
     renderPackageTypes();
     renderPackageCharacteristics();
@@ -272,6 +275,19 @@ window.Package = (function () {
       }
     });
 
+    // Show suggestions on focus/click even when input is empty
+    document.addEventListener('focusin', function (e) {
+      if (e.target.classList && e.target.classList.contains('package-name')) {
+        handleProductSearch(e.target, true);
+      }
+    });
+
+    document.addEventListener('click', function (e) {
+      if (e.target.classList && e.target.classList.contains('package-name')) {
+        handleProductSearch(e.target, true);
+      }
+    });
+
     // Handle click outside to close dropdown
     document.addEventListener("click", function (e) {
       if (!e.target.closest(".position-relative")) {
@@ -281,20 +297,24 @@ window.Package = (function () {
   }
 
   function handleProductSearch(input) {
+    // If a product was just selected, suppress immediate reopen for a short time
+    if (window.__suppressProductOpen) return;
     const query = input.value.trim();
     const wrapper = input.closest(".position-relative");
     const dropdown = wrapper?.querySelector(".product-dropdown");
 
     if (!dropdown) return;
 
-    // Hide dropdown if query is empty
+    // If query is empty, show a short list of popular/all products
+    let products = [];
     if (query.length === 0) {
-      dropdown.style.display = "none";
-      return;
+      // Try to get all products and show top 10
+      const all = window.ProductData.getAllProducts() || [];
+      products = all.slice(0, 10);
+    } else {
+      // Search products
+      products = window.ProductData.searchProducts(query);
     }
-
-    // Search products
-    const products = window.ProductData.searchProducts(query);
     populateProductDropdown(dropdown, products, input);
 
     // Show dropdown if there are results
@@ -321,14 +341,19 @@ window.Package = (function () {
       item.innerHTML = `
         <div class="product-name">${product.name}</div>
         <div class="product-details">
-          <span class="product-code">${product.code}</span>
           <span class="product-value">${formatNumber(product.value)} đ</span>
         </div>
       `;
 
       // Handle product selection
       item.addEventListener("mousedown", function (e) {
+        // Prevent outer click handlers from interfering
+        e.stopPropagation();
         e.preventDefault();
+        // Suppress reopening the dropdown for a short time
+        window.__suppressProductOpen = true;
+        setTimeout(() => { window.__suppressProductOpen = false; }, 300);
+
         // Fill product name
         input.value = product.name;
         // Find parent package item
@@ -352,7 +377,7 @@ window.Package = (function () {
         }
         // Hide dropdown
         dropdown.style.display = 'none';
-        // Trigger input event to update data
+        // Trigger input event to update data (still needed to persist selection)
         input.dispatchEvent(new Event('input', { bubbles: true }));
         updatePackageSummary();
       });

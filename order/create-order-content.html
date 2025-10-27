@@ -142,6 +142,22 @@
         data.receiver.phoneNumber = data.receiver.phone;
         delete data.receiver.phone;
       }
+      // also accept phone_number -> phoneNumber
+      if (data.receiver.phone_number) {
+        data.receiver.phoneNumber = data.receiver.phone_number;
+        delete data.receiver.phone_number;
+      }
+    }
+
+    // 2b. sender: chuẩn hoá số điện thoại (phone_number / phone -> phoneNumber)
+    if (data.sender) {
+      if (data.sender.phone_number) {
+        data.sender.phoneNumber = data.sender.phone_number;
+        delete data.sender.phone_number;
+      } else if (data.sender.phone) {
+        data.sender.phoneNumber = data.sender.phone;
+        delete data.sender.phone;
+      }
     }
 
     // 3. shippingService: estimateTimeHours, totalPrice
@@ -176,20 +192,51 @@
   // Kiểm tra các trường bắt buộc trước khi tạo đơn
   function validateOrderRequiredFields(payload) {
     const errors = [];
-    // Ví dụ các trường bắt buộc, có thể bổ sung thêm nếu cần
-    if (!payload.sender || !payload.sender.name || !payload.sender.phoneNumber) {
-      errors.push('Thông tin người gửi chưa đầy đủ.');
+
+    function phoneExists(person) {
+      if (!person) return false;
+      return Boolean(person.phoneNumber || person.phone_number || person.phone || person.mobile);
     }
-    if (!payload.receiver || !payload.receiver.name || !payload.receiver.phoneNumber || !payload.receiver.address) {
-      errors.push('Thông tin người nhận chưa đầy đủ.');
+
+    // Sender checks
+    if (!payload.sender || !payload.sender.name || !phoneExists(payload.sender)) {
+      const parts = [];
+      if (!payload.sender) parts.push('không có thông tin người gửi');
+      else {
+        if (!payload.sender.name) parts.push('tên người gửi');
+        if (!phoneExists(payload.sender)) parts.push('số điện thoại người gửi');
+      }
+      errors.push('Thông tin người gửi chưa đầy đủ: ' + parts.join(', ') + '.');
     }
-    if (!payload.shippingService || !payload.shippingService.serviceCode) {
+
+    // Receiver checks
+    if (!payload.receiver || !payload.receiver.name || !phoneExists(payload.receiver) || !payload.receiver.address) {
+      const parts = [];
+      if (!payload.receiver) parts.push('không có thông tin người nhận');
+      else {
+        if (!payload.receiver.name) parts.push('tên người nhận');
+        if (!phoneExists(payload.receiver)) parts.push('số điện thoại người nhận');
+        if (!payload.receiver.address) parts.push('địa chỉ người nhận');
+      }
+      errors.push('Thông tin người nhận chưa đầy đủ: ' + parts.join(', ') + '.');
+    }
+
+    // Shipping service: accept both serviceCode or code
+    const svc = payload.shippingService || payload.shipping_service;
+    if (!svc || !(svc.serviceCode || svc.code)) {
       errors.push('Bạn chưa chọn dịch vụ vận chuyển.');
     }
-    if (!payload.packages || !Array.isArray(payload.packages) || payload.packages.length === 0) {
+
+    // Packages
+    if (!payload.packages && !payload.packages_info && !payload.items) {
       errors.push('Bạn chưa nhập thông tin kiện hàng.');
+    } else {
+      const pkgs = payload.packages || payload.packages_info || payload.items;
+      if (!Array.isArray(pkgs) || pkgs.length === 0) {
+        errors.push('Bạn chưa nhập thông tin kiện hàng.');
+      }
     }
-    // Có thể bổ sung kiểm tra các trường khác nếu cần
+
     return errors;
   }
 
@@ -205,10 +252,15 @@
       console.log('[DEBUG][ORDER PAYLOAD gửi ngay]', payload);
       try {
         const res = await window.OrderData.createOrder(payload);
-        alert('Tạo đơn hàng thành công!');
-        // Có thể redirect hoặc reset form ở đây nếu muốn
+        // Hiển thị thông báo thành công, reset form và reload trang
+        showToast('Tạo đơn hàng thành công!', 'success');
+        // Clear current order data then reload after short delay so user sees toast
+        setTimeout(() => {
+          try { window.CreateOrderData = {}; } catch(e) {}
+          location.reload();
+        }, 900);
       } catch (err) {
-        alert('Lỗi khi tạo đơn hàng: ' + (err?.message || err));
+        showToast('Lỗi khi tạo đơn hàng: ' + (err?.message || err), 'error');
       }
     });
   });

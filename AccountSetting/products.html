@@ -66,89 +66,40 @@
 <div class="d-flex align-items-center mb-3 gap-2">
   <div class="input-group search-box">
     <input
+      id="searchInput"
       type="text"
       class="form-control"
-      placeholder="Nhập mã hàng hóa, tên hàng hóa"
+      placeholder="Tìm theo tên hàng hóa"
     />
-    <button class="btn btn-success">
+    <button id="searchBtn" class="btn btn-success">
       <i class="bi bi-search"></i>
     </button>
   </div>
 </div>
 
 <div class="table-responsive">
-  <table class="table table-bordered align-middle mb-0">
+  <table class="table table-bordered align-middle mb-0" id="productsTable">
     <thead>
       <tr>
         <th>STT</th>
-        <th>Mã hàng hóa</th>
         <th>Tên hàng hóa</th>
-        <th>Trọng lượng (gram)</th>
-        <th>Đơn giá</th>
-        <th>Kích thước (cm)</th>
+        <th>Số lượng</th>
+        <th>Trọng lượng (kg)</th>
+        <th>Giá trị (VND)</th>
+        <th>Tổng tiền (VND)</th>
         <th>Thao tác</th>
       </tr>
     </thead>
-    <tbody>
-      <!-- DỮ LIỆU MẪU -->
-      <tr>
-        <td>1</td>
-        <td>HH001</td>
-        <td>Áo thun nam cổ tròn</td>
-        <td>250</td>
-        <td>120.000₫</td>
-        <td>30 x 25 x 3</td>
-        <td>
-          <i
-            class="bi bi-pencil-square text-primary me-2"
-            style="cursor: pointer"
-          ></i>
-          <i class="bi bi-trash text-danger" style="cursor: pointer"></i>
-        </td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>HH002</td>
-        <td>Quần jean nữ cao cấp</td>
-        <td>500</td>
-        <td>320.000₫</td>
-        <td>40 x 30 x 5</td>
-        <td>
-          <i
-            class="bi bi-pencil-square text-primary me-2"
-            style="cursor: pointer"
-          ></i>
-          <i class="bi bi-trash text-danger" style="cursor: pointer"></i>
-        </td>
-      </tr>
-      <tr>
-        <td>3</td>
-        <td>HH003</td>
-        <td>Giày thể thao nam bản giới hạn Nike</td>
-        <td>850</td>
-        <td>1.450.000₫</td>
-        <td>45 x 30 x 15</td>
-        <td>
-          <i
-            class="bi bi-pencil-square text-primary me-2"
-            style="cursor: pointer"
-          ></i>
-          <i class="bi bi-trash text-danger" style="cursor: pointer"></i>
-        </td>
-      </tr>
-      <tr>
-        <td>4</td>
-        <td>HH004</td>
-        <td>Túi xách da thật cao cấp màu nâu sang trọng</td>
-        <td>700</td>
-        <td>2.200.000₫</td>
-        <td>35 x 25 x 10</td>
-        <td>
-          <i
-            class="bi bi-pencil-square text-primary me-2"
-            style="cursor: pointer"
-          ></i>
-          <i class="bi bi-trash text-danger" style="cursor: pointer"></i>
+    <tbody id="productsBody">
+      <tr class="empty-state-row">
+        <td colspan="7">
+          <div class="empty-state">
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/4076/4076504.png"
+              alt="empty"
+            />
+            <div class="mt-2">Không có dữ liệu để hiển thị</div>
+          </div>
         </td>
       </tr>
     </tbody>
@@ -158,7 +109,7 @@
 <div class="d-flex justify-content-between align-items-center mt-3">
   <div>
     Hiển thị
-    <select class="form-select d-inline-block w-auto ms-1">
+    <select id="pageSize" class="form-select d-inline-block w-auto ms-1">
       <option>10</option>
       <option>20</option>
       <option>50</option>
@@ -166,14 +117,7 @@
     bản ghi
   </div>
   <nav>
-    <ul class="pagination mb-0">
-      <li class="page-item disabled">
-        <a class="page-link" href="#">‹</a>
-      </li>
-      <li class="page-item active"><a class="page-link" href="#">1</a></li>
-      <li class="page-item"><a class="page-link" href="#">2</a></li>
-      <li class="page-item"><a class="page-link" href="#">›</a></li>
-    </ul>
+    <ul id="pagination" class="pagination mb-0"></ul>
   </nav>
 
   <!-- Modal Thêm Mới Hàng Hóa -->
@@ -273,3 +217,193 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- App configs and utils -->
+<script src="../assets/api/config.js"></script>
+<script src="../assets/utils.js"></script>
+<script>
+  (function () {
+    const API_BASE = (window.API_CONFIG && window.API_CONFIG.BASE_URL) || "";
+    const getToken = window.API_CONFIG && window.API_CONFIG.getAccessToken;
+
+    const state = {
+      allData: [],
+      filtered: [],
+      page: 1,
+      pageSize: 10,
+      loading: false,
+    };
+
+    const els = {
+      tbody: document.getElementById("productsBody"),
+      searchInput: document.getElementById("searchInput"),
+      searchBtn: document.getElementById("searchBtn"),
+      pageSize: document.getElementById("pageSize"),
+      pagination: document.getElementById("pagination"),
+    };
+
+    function setLoading(isLoading) {
+      state.loading = isLoading;
+      if (isLoading) {
+        els.tbody.innerHTML = `<tr><td colspan="7"><div class="text-center py-3"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>`;
+      }
+    }
+
+    function formatCurrency(v) {
+      try {
+        return Utils && Utils.formatCurrency
+          ? Utils.formatCurrency(v)
+          : new Intl.NumberFormat("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            }).format(v);
+      } catch (_) {
+        return v;
+      }
+    }
+
+    function renderTable() {
+      const start = (state.page - 1) * state.pageSize;
+      const slice = state.filtered.slice(start, start + state.pageSize);
+
+      if (!slice.length) {
+        els.tbody.innerHTML = `<tr class="empty-state-row"><td colspan="7"><div class="empty-state"><img src="https://cdn-icons-png.flaticon.com/512/4076/4076504.png" alt="empty" /><div class="mt-2">Không có dữ liệu để hiển thị</div></div></td></tr>`;
+        renderPagination();
+        return;
+      }
+
+      els.tbody.innerHTML = slice
+        .map((item, idx) => {
+          const stt = start + idx + 1;
+          const name = item.name || "";
+          const quantity = item.quantity ?? "";
+          const weight = (item.weight ?? "").toString();
+          const value = item.value ?? 0;
+          const totalPrice = item.totalPrice ?? 0;
+
+          return `<tr>
+          <td>${stt}</td>
+          <td>${name}</td>
+          <td>${quantity}</td>
+          <td>${weight}</td>
+          <td>${formatCurrency(value)}</td>
+          <td>${formatCurrency(totalPrice)}</td>
+          <td>
+            <i class="bi bi-pencil-square text-primary me-2" style="cursor:pointer" title="Sửa"></i>
+            <i class="bi bi-trash text-danger" style="cursor:pointer" title="Xóa"></i>
+          </td>
+        </tr>`;
+        })
+        .join("");
+
+      renderPagination();
+    }
+
+    function renderPagination() {
+      const totalPages = Math.max(
+        1,
+        Math.ceil(state.filtered.length / state.pageSize)
+      );
+      const current = Math.min(state.page, totalPages);
+      state.page = current;
+
+      const pages = [];
+      const prevDisabled = current === 1 ? "disabled" : "";
+      const nextDisabled = current === totalPages ? "disabled" : "";
+
+      pages.push(
+        `<li class="page-item ${prevDisabled}"><a class="page-link" href="#" data-page="${
+          current - 1
+        }">‹</a></li>`
+      );
+      // show up to 5 pages around current
+      const start = Math.max(1, current - 2);
+      const end = Math.min(totalPages, start + 4);
+      for (let p = start; p <= end; p++) {
+        pages.push(
+          `<li class="page-item ${
+            p === current ? "active" : ""
+          }"><a class="page-link" href="#" data-page="${p}">${p}</a></li>`
+        );
+      }
+      pages.push(
+        `<li class="page-item ${nextDisabled}"><a class="page-link" href="#" data-page="${
+          current + 1
+        }">›</a></li>`
+      );
+
+      els.pagination.innerHTML = pages.join("");
+    }
+
+    function applySearch() {
+      const q = (els.searchInput.value || "").toLowerCase().trim();
+      if (!q) {
+        state.filtered = [...state.allData];
+      } else {
+        state.filtered = state.allData.filter((it) =>
+          (it.name || "").toLowerCase().includes(q)
+        );
+      }
+      state.page = 1;
+      renderTable();
+    }
+
+    async function fetchPackages() {
+      try {
+        setLoading(true);
+        const url = `${API_BASE}/orders/packages`;
+        const headers = { "Content-Type": "application/json" };
+        const token = getToken && getToken();
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
+        const res = await fetch(url, { headers });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const items = Array.isArray(data?.result)
+          ? data.result
+          : Array.isArray(data)
+          ? data
+          : [];
+
+        state.allData = items;
+        state.filtered = items;
+        renderTable();
+      } catch (err) {
+        console.error("Fetch packages error:", err);
+        els.tbody.innerHTML = `<tr><td colspan="7"><div class="text-center text-danger py-3">Không thể tải danh sách hàng hóa</div></td></tr>`;
+        if (window.Utils && Utils.showNotification)
+          Utils.showNotification("Không thể tải danh sách hàng hóa", "error");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // Event listeners
+    els.searchBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      applySearch();
+    });
+    els.searchInput.addEventListener("keyup", (e) => {
+      if (e.key === "Enter") applySearch();
+    });
+    els.pageSize.addEventListener("change", () => {
+      state.pageSize = parseInt(els.pageSize.value, 10) || 10;
+      state.page = 1;
+      renderTable();
+    });
+    els.pagination.addEventListener("click", (e) => {
+      const a = e.target.closest("a[data-page]");
+      if (!a) return;
+      e.preventDefault();
+      const p = parseInt(a.getAttribute("data-page"), 10);
+      if (!isNaN(p) && p >= 1) {
+        state.page = p;
+        renderTable();
+      }
+    });
+
+    // Init default page size from select
+    state.pageSize = parseInt(els.pageSize.value, 10) || 10;
+    // Fetch data
+    fetchPackages();
+  })();
+</script>

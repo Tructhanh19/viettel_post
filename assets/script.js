@@ -331,6 +331,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initCharts();
   initAccountSettingsMenu();
   initSenderManagementHandler();
+  initProductManagementHandler();
 });
 //
 //
@@ -405,13 +406,60 @@ function initSenderManagementHandler() {
             // Tải trang user-info.html
             const accountContent = document.getElementById("accountContent");
             if (accountContent) {
-              loadAccountPage(accountContent, "./AccountSetting/user-info.html");
+              loadAccountPage(
+                accountContent,
+                "./AccountSetting/user-info.html"
+              );
             }
           })
           .catch((err) => {
             mainContent.innerHTML = `<p style="color:red;">Lỗi tải sidebar.html</p>`;
           });
       }
+    });
+  }
+}
+
+/**
+ * Initialize handler for product management link (from package-info or elsewhere)
+ */
+function initProductManagementHandler() {
+  const mainContent = document.getElementById("mainContent");
+
+  if (mainContent) {
+    mainContent.addEventListener("click", function (e) {
+      const link = e.target.closest(
+        'a[data-action="open-products"], a[href$="AccountSetting/products.html"]'
+      );
+      if (!link) return;
+      e.preventDefault();
+
+      // Load sidebar.html into main content
+      fetch("./AccountSetting/sidebar.html")
+        .then((res) => res.text())
+        .then((html) => {
+          mainContent.innerHTML = html;
+
+          // Initialize sidebar ajax behavior
+          initSidebarAjax();
+
+          // Mark Products menu active
+          const productsLink = document.querySelector(
+            '.account-menu .menu-link[href="products.html"]'
+          );
+          if (productsLink) {
+            productsLink.parentElement.classList.add("active");
+          }
+
+          // Load products page into accountContent
+          const accountContent = document.getElementById("accountContent");
+          if (accountContent) {
+            loadAccountPage(accountContent, "./AccountSetting/products.html");
+          }
+        })
+        .catch(() => {
+          mainContent.innerHTML = `<p style="color:red;">Lỗi tải sidebar.html</p>`;
+        });
     });
   }
 }

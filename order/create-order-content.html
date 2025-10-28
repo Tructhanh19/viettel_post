@@ -109,13 +109,11 @@
       setTimeout(() => toast.remove(), 400);
     }, 3500);
   }
-  document.getElementById("detailedSummary").style.display = "flex";
 
   // Load status map from JSON file (order_status.json)
   let statusMap = {};
   let statusList = [];
   function loadStatusMap() {
-    // Only load once
     if (Object.keys(statusMap).length > 0) return Promise.resolve();
     return fetch('../assets/data/order_status.json')
       .then(res => res.json())
@@ -128,28 +126,24 @@
       });
   }
 
-  // Helper: Lấy dữ liệu đơn hàng từ window.CreateOrderData và chuyển đổi trường cho đúng backend
+  // Helper: Lấy dữ liệu đơn hàng từ window.CreateOrderData và chuẩn hóa
   async function getOrderPayload(statusCode) {
     await loadStatusMap();
     const data = window.CreateOrderData ? JSON.parse(JSON.stringify(window.CreateOrderData)) : {};
 
-    // 1. Status: object { code, name } lấy từ statusMap
     data.status = statusMap[statusCode] || { code: statusCode, name: statusCode };
 
-    // 2. receiver: phoneNumber, không có phone
     if (data.receiver) {
       if (data.receiver.phone) {
         data.receiver.phoneNumber = data.receiver.phone;
         delete data.receiver.phone;
       }
-      // also accept phone_number -> phoneNumber
       if (data.receiver.phone_number) {
         data.receiver.phoneNumber = data.receiver.phone_number;
         delete data.receiver.phone_number;
       }
     }
 
-    // 2b. sender: chuẩn hoá số điện thoại (phone_number / phone -> phoneNumber)
     if (data.sender) {
       if (data.sender.phone_number) {
         data.sender.phoneNumber = data.sender.phone_number;
@@ -160,22 +154,17 @@
       }
     }
 
-    // 3. shippingService: estimateTimeHours, totalPrice
     if (data.shippingService) {
-      // Đổi estimate_time_hours -> estimateTimeHours
       if (data.shippingService.estimate_time_hours) {
         data.shippingService.estimateTimeHours = data.shippingService.estimate_time_hours;
         delete data.shippingService.estimate_time_hours;
       }
-      // Đảm bảo có totalPrice
       if (typeof data.shippingService.totalPrice === 'undefined' && typeof data.shippingService.price !== 'undefined') {
         data.shippingService.totalPrice = data.shippingService.price;
       }
     }
 
-    // 7. Xóa các trường không cần thiết nếu có
     delete data.debug;
-
     return data;
   }
 
@@ -188,17 +177,14 @@
     }
   }
 
-
-  // Kiểm tra các trường bắt buộc trước khi tạo đơn
+  // Kiểm tra các trường bắt buộc
   function validateOrderRequiredFields(payload) {
     const errors = [];
 
     function phoneExists(person) {
-      if (!person) return false;
-      return Boolean(person.phoneNumber || person.phone_number || person.phone || person.mobile);
+      return Boolean(person && (person.phoneNumber || person.phone_number || person.phone || person.mobile));
     }
 
-    // Sender checks
     if (!payload.sender || !payload.sender.name || !phoneExists(payload.sender)) {
       const parts = [];
       if (!payload.sender) parts.push('không có thông tin người gửi');
@@ -209,7 +195,6 @@
       errors.push('Thông tin người gửi chưa đầy đủ: ' + parts.join(', ') + '.');
     }
 
-    // Receiver checks
     if (!payload.receiver || !payload.receiver.name || !phoneExists(payload.receiver) || !payload.receiver.address) {
       const parts = [];
       if (!payload.receiver) parts.push('không có thông tin người nhận');
@@ -221,71 +206,90 @@
       errors.push('Thông tin người nhận chưa đầy đủ: ' + parts.join(', ') + '.');
     }
 
-    // Shipping service: accept both serviceCode or code
     const svc = payload.shippingService || payload.shipping_service;
     if (!svc || !(svc.serviceCode || svc.code)) {
       errors.push('Bạn chưa chọn dịch vụ vận chuyển.');
     }
 
-    // Packages
-    if (!payload.packages && !payload.packages_info && !payload.items) {
+    const pkgs = payload.packages || payload.packages_info || payload.items;
+    if (!pkgs || !Array.isArray(pkgs) || pkgs.length === 0) {
       errors.push('Bạn chưa nhập thông tin kiện hàng.');
-    } else {
-      const pkgs = payload.packages || payload.packages_info || payload.items;
-      if (!Array.isArray(pkgs) || pkgs.length === 0) {
-        errors.push('Bạn chưa nhập thông tin kiện hàng.');
-      }
     }
 
     return errors;
   }
 
-  // Xử lý nút "Gửi ngay"
-  document.querySelector('.btn.btn-outline-light.px-4.me-2').addEventListener('click', function() {
-    waitForOrderData(async function() {
-      const payload = await getOrderPayload('RECEIVED'); // "Đã tiếp nhận"
-      const errors = validateOrderRequiredFields(payload);
-      if (errors.length > 0) {
-        showToast('Vui lòng điền đầy đủ thông tin bắt buộc:<br>' + errors.map(e => '- ' + e).join('<br>'), 'error');
-        return;
-      }
-      console.log('[DEBUG][ORDER PAYLOAD gửi ngay]', payload);
-      try {
-        const res = await window.OrderData.createOrder(payload);
-        // Hiển thị thông báo thành công, reset form và reload trang
-        showToast('Tạo đơn hàng thành công!', 'success');
-        // Clear current order data then reload after short delay so user sees toast
-        setTimeout(() => {
-          try { window.CreateOrderData = {}; } catch(e) {}
-          location.reload();
-        }, 900);
-      } catch (err) {
-        showToast('Lỗi khi tạo đơn hàng: ' + (err?.message || err), 'error');
-      }
-    });
-  });
+  // === XỬ LÝ NÚT - DÙNG EVENT DELEGATION (HOẠT ĐỘNG DÙ DOM BỊ THAY ĐỔI) ===
+  document.addEventListener('click', async function(e) {
+    const target = e.target;
 
-  // Xử lý nút "Lưu nhập"
-  document.querySelectorAll('.btn.btn-secondary.px-3')[0].addEventListener('click', function() {
-    waitForOrderData(async function() {
-      const payload = await getOrderPayload('DRAFT'); // "Đơn nháp"
-      console.log('[DEBUG][ORDER PAYLOAD lưu nháp]', payload);
-      try {
-        const res = await window.OrderData.createOrder(payload);
-        alert('Đã lưu đơn nháp!');
-      } catch (err) {
-        alert('Lỗi khi lưu đơn nháp: ' + (err?.message || err));
-      }
-    });
-  });
+    // Gửi ngay
+    if (target.matches('.btn.btn-outline-light.px-4.me-2')) {
+      e.preventDefault();
+      e.stopPropagation();
 
-  // Xử lý nút "Làm mới"
-  document.querySelectorAll('.btn.btn-secondary.px-3')[1].addEventListener('click', function() {
-    if (confirm('Bạn có chắc muốn làm mới toàn bộ form?')) {
-      // Xóa sạch dữ liệu CreateOrderData và reload lại trang
-      window.CreateOrderData = {};
-      location.reload();
+      waitForOrderData(async () => {
+        const payload = await getOrderPayload('RECEIVED');
+        const errors = validateOrderRequiredFields(payload);
+        if (errors.length > 0) {
+          showToast('Vui lòng điền đầy đủ thông tin bắt buộc:<br>' + errors.map(e => '- ' + e).join('<br>'), 'error');
+          return;
+        }
+        try {
+          const res = await window.OrderData.createOrder(payload);
+          showToast('Tạo đơn hàng thành công!', 'success');
+          setTimeout(() => {
+            try { window.CreateOrderData = {}; } catch(e) {}
+            location.reload();
+          }, 900);
+        } catch (err) {
+          showToast('Lỗi khi tạo đơn hàng: ' + (err?.message || err), 'error');
+        }
+      });
     }
+
+    // Lưu nhập
+    else if (target.matches('.btn.btn-secondary.px-3') && target.textContent.includes('Lưu nhập')) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      waitForOrderData(async () => {
+        const payload = await getOrderPayload('DRAFT');
+        try {
+          await window.OrderData.createOrder(payload);
+          showToast('Đã lưu đơn nháp!', 'success');
+        } catch (err) {
+          showToast('Lỗi khi lưu đơn nháp: ' + (err?.message || err), 'error');
+        }
+      });
+    }
+
+    // Làm mới
+    else if (target.matches('.btn.btn-secondary.px-3') && target.textContent.includes('Làm mới')) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (confirm('Bạn có chắc muốn làm mới toàn bộ form?')) {
+        window.CreateOrderData = {};
+        location.reload();
+      }
+    }
+  });
+
+  // === HIỂN THỊ SUMMARY BAR ===
+  document.addEventListener('DOMContentLoaded', () => {
+    const summary = document.getElementById("detailedSummary");
+    if (summary) {
+      summary.style.display = "flex";
+    }
+  });
+
+  // === GỌI LẠI KHI TRANG ĐƯỢC RENDER LẠI (nếu dùng SPA) ===
+  // Nếu bạn dùng create-order.js để render form, hãy gọi hàm này ở cuối file đó:
+  // window.dispatchEvent(new Event('orderFormReady'));
+  window.addEventListener('orderFormReady', () => {
+    const summary = document.getElementById("detailedSummary");
+    if (summary) summary.style.display = "flex";
   });
 </script>
 

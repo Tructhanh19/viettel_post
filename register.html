@@ -14,7 +14,13 @@
             <h1 class="auth-title">Đăng Ký</h1>
             <p class="auth-subtitle">Tạo tài khoản mới để bắt đầu!</p>
             
-            <form id="registerForm">
+            <form id="registerForm" novalidate>
+                <div class="form-group">
+                    <label for="username">Tên đăng nhập</label>
+                    <input type="text" id="username" name="username" required>
+                    <div class="error-msg" id="usernameError"></div>
+                </div>
+
                 <div class="form-group">
                     <label for="fullname">Họ và tên</label>
                     <input type="text" id="fullname" name="fullname" required>
@@ -22,9 +28,15 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="email">Email hoặc Số điện thoại</label>
-                    <input type="text" id="email" name="email" required>
+                    <label for="email">Email (tùy chọn)</label>
+                    <input type="email" id="email" name="email">
                     <div class="error-msg" id="emailError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Số điện thoại</label>
+                    <input type="text" id="phone" name="phone" required placeholder="10 chữ số">
+                    <div class="error-msg" id="phoneError"></div>
                 </div>
                 
                 <div class="form-group">
@@ -32,8 +44,31 @@
                     <input type="password" id="password" name="password" required>
                     <div class="error-msg" id="passwordError"></div>
                 </div>
-                
-                <button type="submit" class="auth-button">Đăng Ký</button>
+
+                <div class="form-group address-group">
+                  <label class="field-label">Địa chỉ</label>
+                  <div id="addressContainer" class="address-row">
+                    <div class="address-col">
+                      <select id="provinceSelect" class="address-select" aria-label="Tỉnh/Thành">
+                        <option value="">Chọn tỉnh/thành</option>
+                      </select>
+                    </div>
+                    <div class="address-col">
+                      <select id="districtSelect" class="address-select" aria-label="Quận/Huyện">
+                        <option value="">Chọn quận/huyện</option>
+                      </select>
+                    </div>
+                    <div class="address-col">
+                      <select id="wardSelect" class="address-select" aria-label="Phường/Xã">
+                        <option value="">Chọn phường/xã</option>
+                      </select>
+                    </div>
+                  </div>
+                  <input type="text" id="otherAddress" class="address-input" placeholder="Số nhà, tên đường..." />
+                  <div class="error-msg" id="addressError"></div>
+                </div>
+
+                <button type="submit" class="auth-button" id="registerBtn">Đăng Ký</button>
             </form>
             
             <p>Đã có tài khoản? <a href="login.html" class="auth-link">Đăng nhập ngay</a></p>
@@ -42,34 +77,263 @@
 
     <script src="assets/utils.js"></script>
     <script src="assets/script.js"></script>
+    <script src="/assets/api/config.js"></script>
     <script>
-        // Thêm event cho form (tương tự login)
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const fullname = document.getElementById('fullname').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            if (fullname.length < 2) {
-                document.getElementById('fullnameError').textContent = 'Họ tên phải ít nhất 2 ký tự';
-                document.getElementById('fullnameError').style.display = 'block';
-                return;
-            }
-            if (!validateEmail(email) && !validatephone_number(email)) {
-                document.getElementById('emailError').textContent = 'Email hoặc số điện thoại không hợp lệ';
-                document.getElementById('emailError').style.display = 'block';
-                return;
-            }
-            if (password.length < 6) {
-                document.getElementById('passwordError').textContent = 'Mật khẩu phải ít nhất 6 ký tự';
-                document.getElementById('passwordError').style.display = 'block';
-                return;
-            }
-            
-            // Giả lập success (thay bằng API call thật)
-            showNotification('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
-            window.location.href = 'login.html';
+(function(){
+  'use strict';
+
+  // Use full BASE_URL from config (your config already contains /api/v1)
+  const API_BASE = (window.API_CONFIG && window.API_CONFIG.BASE_URL) ? String(window.API_CONFIG.BASE_URL).replace(/\/+$/,'') : 'http://localhost:8585';
+  const USERS_GET_ALL = `${API_BASE}/users/get-all`;
+  const USERS_INSERT  = `${API_BASE}/users/insert`;
+
+  console.log('[Register] USERS_GET_ALL =', USERS_GET_ALL);
+  console.log('[Register] USERS_INSERT =', USERS_INSERT);
+
+  // Notification fallback
+  if (typeof window.showNotification !== 'function') {
+    window.showNotification = function(msg, type){
+      if (type === 'error') console.error('[Notification]', msg);
+      else console.log('[Notification]', msg);
+      try { alert(msg); } catch(e){}
+    };
+  }
+
+  function getAuthHeaders() {
+    const headers = { 'Content-Type': 'application/json' };
+    const getToken = window.API_CONFIG?.getAccessToken;
+    if (typeof getToken === 'function') {
+      let t = getToken() || '';
+      if (t) {
+        if (!/^Bearer\s+/i.test(t)) t = 'Bearer ' + t;
+        headers['Authorization'] = t;
+      }
+    }
+    return headers;
+  }
+
+  // Validators / UI helpers
+  function isValidPhone(v){ return /^\d{10}$/.test(v); }
+  function isValidPassword(v){ return typeof v === 'string' && v.length >= 9; }
+  function capitalizeName(s){ return (s||'').split(/\s+/).filter(Boolean).map(w=> w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' '); }
+
+  function clearErrors(){
+    ['usernameError','fullnameError','emailError','phoneError','passwordError','addressError'].forEach(id=>{
+      const el = document.getElementById(id);
+      if (el){ el.textContent=''; el.style.display='none'; }
+    });
+  }
+  function getAddressPayload(){
+    return {
+      province: document.getElementById('provinceSelect')?.value || '',
+      district: document.getElementById('districtSelect')?.value || '',
+      ward: document.getElementById('wardSelect')?.value || '',
+      other: document.getElementById('otherAddress')?.value || ''
+    };
+  }
+
+  // Try to use your UserData helper if available (it may handle token & caching)
+  const userModule = window.UserData || null;
+
+  async function checkDuplicates(username, phone) {
+    // 1) try userModule
+    try {
+      if (userModule && typeof userModule.init === 'function' && typeof userModule.getAllUsers === 'function') {
+        await userModule.init();
+        const list = userModule.getAllUsers() || [];
+        return {
+          usernameTaken: list.some(u => (u.username||'').toLowerCase() === (username||'').toLowerCase()),
+          phoneTaken: list.some(u => ((u.phoneNumber||u.phone||'')+'').replace(/\D/g,'') === (phone||'').replace(/\D/g,'')),
+          skipped: false
+        };
+      }
+    } catch(e){
+      console.warn('[Register] userModule check failed', e);
+    }
+
+    // 2) fallback to public endpoint
+    try {
+      const res = await fetch(USERS_GET_ALL, { headers: getAuthHeaders() });
+      if (!res.ok) {
+        console.warn('[Register] users/get-all failed', res.status);
+        return { usernameTaken:false, phoneTaken:false, skipped:true };
+      }
+      const data = await res.json();
+      const list = Array.isArray(data) ? data : (data.data || data.users || []);
+      return {
+        usernameTaken: list.some(u => (u.username||'').toLowerCase() === (username||'').toLowerCase()),
+        phoneTaken: list.some(u => ((u.phoneNumber||u.phone||'')+'').replace(/\D/g,'') === (phone||'').replace(/\D/g,'')),
+        skipped: false
+      };
+    } catch(err){
+      console.warn('[Register] fallback check error', err);
+      return { usernameTaken:false, phoneTaken:false, skipped:true };
+    }
+  }
+
+  async function createUser(payload) {
+    // prefer userModule.createUser if exists
+    try {
+      if (userModule && typeof userModule.createUser === 'function') {
+        return await userModule.createUser(payload);
+      }
+    } catch(e){
+      console.warn('[Register] userModule.createUser failed', e);
+    }
+
+    // fallback raw fetch (include token if present)
+    const res = await fetch(USERS_INSERT, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+      const t = await res.text().catch(()=>null);
+      const msg = t || res.statusText || `API ${res.status}`;
+      throw new Error(msg);
+    }
+    try { return await res.json(); } catch(e){ return true; }
+  }
+
+  // Form wiring (assumes form elements exist)
+  const form = document.getElementById('registerForm');
+  const btn  = document.getElementById('registerBtn');
+
+  if (form) {
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      clearErrors();
+
+      const username = (document.getElementById('username')?.value||'').trim();
+      const fullname = capitalizeName((document.getElementById('fullname')?.value||'').trim());
+      const email    = (document.getElementById('email')?.value||'').trim();
+      const phone    = (document.getElementById('phone')?.value||'').trim();
+      const password = (document.getElementById('password')?.value||'').trim();
+      const address  = getAddressPayload();
+
+      let ok = true;
+      if (!username || username.length < 3) { document.getElementById('usernameError').textContent='Tên đăng nhập phải ít nhất 3 ký tự'; document.getElementById('usernameError').style.display='block'; ok=false; }
+      if (!fullname || fullname.length < 2) { document.getElementById('fullnameError').textContent='Họ tên phải ít nhất 2 ký tự'; document.getElementById('fullnameError').style.display='block'; ok=false; }
+      if (!isValidPhone(phone)) { document.getElementById('phoneError').textContent='Số điện thoại phải là 10 chữ số'; document.getElementById('phoneError').style.display='block'; ok=false; }
+      if (!isValidPassword(password)) { document.getElementById('passwordError').textContent='Mật khẩu phải nhiều hơn 8 ký tự'; document.getElementById('passwordError').style.display='block'; ok=false; }
+      if (!address.province || !address.other) { document.getElementById('addressError').textContent='Vui lòng chọn tỉnh và nhập địa chỉ chi tiết'; document.getElementById('addressError').style.display='block'; ok=false; }
+      if (!ok) return;
+
+      if (btn) { btn.disabled = true; btn.textContent = 'Đang xử lý...'; }
+
+      try {
+        const dup = await checkDuplicates(username, phone);
+        if (dup.usernameTaken) { document.getElementById('usernameError').textContent='Tên đăng nhập đã tồn tại'; document.getElementById('usernameError').style.display='block'; return; }
+        if (dup.phoneTaken) { document.getElementById('phoneError').textContent='Số điện thoại đã được đăng ký'; document.getElementById('phoneError').style.display='block'; return; }
+
+        const payload = {
+          username, password, name: fullname, phoneNumber: phone,
+          email: email || undefined,
+          address: { province: address.province, district: address.district, ward: address.ward, other: address.other }
+        };
+
+        await createUser(payload);
+        window.showNotification('Đăng ký thành công! Chuyển tới đăng nhập...', 'success');
+        setTimeout(()=> window.location.href = 'login.html', 900);
+      } catch(err) {
+        console.error('[Register] submit error', err);
+        // show backend message when possible
+        window.showNotification(err.message || 'Lỗi kết nối hoặc xử lý. Vui lòng thử lại.', 'error');
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Đăng Ký'; }
+      }
+    });
+  }
+
+  // Address selects init (kept as before)
+  async function initAddressSelects() {
+    const pSel = document.getElementById('provinceSelect');
+    const dSel = document.getElementById('districtSelect');
+    const wSel = document.getElementById('wardSelect');
+
+    function fillSelect(selectEl, items, textKey = 'name', valueKey = 'code', emptyLabel = 'Chọn') {
+      selectEl.innerHTML = `<option value="">${emptyLabel}</option>`;
+      (items || []).forEach(i => {
+        const opt = document.createElement('option');
+        opt.value = (i[valueKey] ?? i.code ?? i.name ?? i.short_codename ?? i).toString();
+        opt.textContent = (i[textKey] ?? i.name ?? i.short_codename ?? opt.value).toString();
+        selectEl.appendChild(opt);
+      });
+    }
+
+    try {
+      if (window.AddressData && typeof window.AddressData.getProvinces === 'function') {
+        const provs = await window.AddressData.getProvinces();
+        fillSelect(pSel, provs, 'name', 'code', 'Chọn tỉnh/thành');
+        pSel.addEventListener('change', async () => {
+          const code = pSel.value;
+          dSel.innerHTML = '<option>Đang tải...</option>';
+          const districts = await window.AddressData.getDistrictsByProvince(code);
+          fillSelect(dSel, districts, 'name', 'code', 'Chọn quận/huyện');
+          wSel.innerHTML = '<option value="">Chọn phường/xã</option>';
         });
+        dSel.addEventListener('change', async (e) => {
+          const dCode = e.target.value;
+          wSel.innerHTML = '<option>Đang tải...</option>';
+          const wards = await window.AddressData.getWardsByDistrict(dCode);
+          fillSelect(wSel, wards, 'name', 'code', 'Chọn phường/xã');
+        });
+        return;
+      }
+
+      // fallback load local JSON
+      const localPath = '../assets/data/address_63.json';
+      const res = await fetch(localPath);
+      if (!res.ok) throw new Error('Không load được file địa chỉ: ' + res.status);
+      const provinces = await res.json();
+      fillSelect(pSel, provinces, 'name', 'code', 'Chọn tỉnh/thành');
+
+      pSel.addEventListener('change', () => {
+        const val = pSel.value;
+        if (!val) {
+          dSel.innerHTML = '<option value="">Chọn quận/huyện</option>';
+          wSel.innerHTML = '<option value="">Chọn phường/xã</option>';
+          return;
+        }
+        const prov = provinces.find(p => String(p.code) === String(val) || p.name === val || String(p.codename) === String(val));
+        const districts = prov && Array.isArray(prov.districts) ? prov.districts : [];
+        fillSelect(dSel, districts, 'name', 'code', 'Chọn quận/huyện');
+        wSel.innerHTML = '<option value="">Chọn phường/xã</option>';
+      });
+
+      dSel.addEventListener('change', () => {
+        const pVal = pSel.value;
+        const dVal = dSel.value;
+        if (!pVal || !dVal) {
+          wSel.innerHTML = '<option value="">Chọn phường/xã</option>';
+          return;
+        }
+        const prov = provinces.find(p => String(p.code) === String(pVal) || p.name === pVal || String(p.codename) === String(pVal));
+        const district = prov && Array.isArray(prov.districts) ? prov.districts.find(d => String(d.code) === String(dVal) || d.name === dVal || String(d.codename) === String(dVal)) : null;
+        const wardsRaw = (district && Array.isArray(district.wards)) ? district.wards : [];
+        const wards = wardsRaw.map(w => {
+          if (typeof w === 'string') return { name: w, code: w };
+          return {
+            name: w.name || w.short_codename || w.code || '',
+            code: w.code ?? w.short_codename ?? w.name ?? JSON.stringify(w)
+          };
+        });
+        fillSelect(wSel, wards, 'name', 'code', 'Chọn phường/xã');
+      });
+
+    } catch (err) {
+      console.warn('[Register] initAddressSelects error', err);
+      if (pSel) pSel.innerHTML = '<option value="">Không có dữ liệu</option>';
+      if (dSel) dSel.innerHTML = '<option value="">Không có dữ liệu</option>';
+      if (wSel) wSel.innerHTML = '<option value="">Không có dữ liệu</option>';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initAddressSelects();
+  });
+
+})();
     </script>
 </body>
 </html>

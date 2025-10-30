@@ -161,7 +161,7 @@
     <!-- MAIN CONTENT -->
     <main class="content" id="mainContent">
       <div class="content-header">
-        <h1>Xin chào <strong>Thanh Trúc Nguyễn Thị</strong></h1>
+        <h1>Xin chào <strong id="userFullname">User</strong></h1>
         <div class="date-picker">
           <input type="date" value="2025-09-23" /> -
           <input type="date" value="2025-10-06" />
@@ -209,10 +209,96 @@
     <script src="assets/utils.js"></script>
     <script src="assets/auth.js"></script>
     <script src="assets/script.js"></script>
+    <script>
+    (function(){
+      'use strict';
+      async function resolveUserName(){
+        const el = document.getElementById('userFullname');
+        if (!el) return;
+        let name = null;
+        try {
+          // 1) Try API_CONFIG helpers that may return user object or name directly
+          try {
+            if (window.API_CONFIG) {
+              if (typeof API_CONFIG.getUserName === 'function') {
+                const v = await API_CONFIG.getUserName();
+                if (v) name = v;
+              }
+              if (!name && typeof API_CONFIG.getCurrentUser === 'function') {
+                const u = await API_CONFIG.getCurrentUser();
+                name = u?.name || u?.fullName || u?.username || name;
+              }
+              if (!name && typeof API_CONFIG.getUserProfile === 'function') {
+                const u = await API_CONFIG.getUserProfile();
+                name = u?.name || u?.fullName || u?.username || name;
+              }
+            }
+          } catch(e){
+            console.warn('[index] API_CONFIG lookup failed', e);
+          }
+
+          // 2) Try UserData helper (preferred alternative)
+          if (!name && window.UserData) {
+            try {
+              if (typeof UserData.getCurrentUser === 'function') {
+                const u = await UserData.getCurrentUser();
+                name = u?.name || u?.fullName || u?.username || name;
+              } else if (typeof UserData.init === 'function') {
+                await UserData.init();
+                const id = typeof window.API_CONFIG?.getUserId === 'function' ? window.API_CONFIG.getUserId() : null;
+                if (id && typeof UserData.getUserById === 'function') {
+                  const u = UserData.getUserById(id);
+                  name = u?.name || u?.fullName || u?.username || name;
+                } else if (typeof UserData.getAllUsers === 'function') {
+                  const list = UserData.getAllUsers() || [];
+                  const u = list[0] || null;
+                  name = u?.name || u?.fullName || u?.username || name;
+                }
+              }
+            } catch(e){
+              console.warn('[index] UserData look-up failed', e);
+            }
+          }
+
+          // 3) Fallback: try to decode JWT token from storage to extract name
+          if (!name) {
+            const tokenKeys = ['accessToken','id_token','token','authToken'];
+            let token = null;
+            for (const k of tokenKeys) {
+              token = localStorage.getItem(k) || sessionStorage.getItem(k);
+              if (token) break;
+            }
+            if (token) {
+              try {
+                const parts = token.split('.');
+                if (parts.length >= 2) {
+                  const payload = JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+                  name = payload?.name || payload?.fullName || payload?.username || payload?.preferred_username || payload?.sub || name;
+                }
+              } catch(e){
+                console.warn('[index] token decode failed', e);
+              }
+            }
+          }
+
+          // 4) Last resort: if API_CONFIG.getUserId returns a username-like value, use it
+          if (!name && typeof window.API_CONFIG?.getUserId === 'function') {
+            const v = window.API_CONFIG.getUserId();
+            if (v) name = v;
+          }
+        } catch(e){
+          console.warn('[index] resolveUserName error', e);
+        }
+        if (!name) name = 'User';
+        el.textContent = name;
+      }
+      document.addEventListener('DOMContentLoaded', resolveUserName);
+    })();
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Thêm Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <!-- Thêm script xử lý dashboard -->
 <script src="assets/api/dashboard-stats.js"></script>
   </body>
-</html> 
+</html>
